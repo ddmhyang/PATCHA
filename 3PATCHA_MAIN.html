@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        #container {
+            background-color: #000000;
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            max-width: 160vh;
+            max-height: 100vh;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center; /* 수평 중앙 정렬 */
+            align-items: center; /* 수직 중앙 정렬 */
+            opacity: 0; /* 초기 불투명도 설정 */
+            transition: opacity 1.5s ease; /* 불투명도 변화에 대한 애니메이션 설정 */
+        }
+
+        #HOME1 {
+            position: absolute;
+            height: auto;
+            width: 100%;
+            left: 0%;
+            z-index: 0;
+        }
+
+        #Hong_Bar, #Seo_Bar, #Story_Bar {
+            position: absolute;
+            height: 100%;
+            z-index: 2;
+        }
+
+        #Hong_Bar {
+            background-color: #4b252500;
+            width: 36%;
+            left: 0%;
+        }
+
+        #Seo_Bar {
+            background-color: #74343400;
+            width: 36%;
+            right: 0%;
+        }
+
+        #Story_Bar {
+            background-color: #a62f2f00;
+            width: 18%;
+            left: 41.5%;
+        }
+
+        #Hong_On, #Seo_On, #Story_On {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #Hong_On {
+            left: 0;
+            z-index: 1;
+        }
+
+        #Seo_On {
+            right: 0;
+            z-index: 1;
+        }
+
+        #Story_On {
+            right: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img id="HOME1" src="src/HOME.png" alt="팥차_메인">
+        
+        <div id="Hong_Bar" alt="홍련 바"></div>
+        <img id="Hong_On" src="src/HOME_R.png" alt="홍련"> 
+
+        <div id="Seo_Bar" alt="서한 바"></div>
+        <img id="Seo_On" src="src/HOME_Y.png" alt="서한"> 
+
+        <div id="Story_Bar" alt="스토리 바"></div>
+        <img id="Story_On" src="src/HOME_S.png" alt="스토리">
+    </div>
+
+    <script>
+        const hongBar = document.getElementById('Hong_Bar');
+        const hongOn = document.getElementById('Hong_On');
+        const seoBar = document.getElementById('Seo_Bar');
+        const seoOn = document.getElementById('Seo_On');
+        const storyBar = document.getElementById('Story_Bar');
+        const sotryOn = document.getElementById('Story_On');
+        const container = document.getElementById('container');
+
+        // 2초 동안 container의 불투명도를 0에서 1로 증가시킴
+        setTimeout(() => {
+            container.style.opacity = '1'; // 불투명도 변경
+        }, 100); // 페이지가 로드된 후 100ms 지연
+
+        hongBar.addEventListener('mouseenter', () => {
+            hongOn.style.opacity = '1';
+        });
+        hongBar.addEventListener('mouseleave', () => {
+            hongOn.style.opacity = '0';
+        });
+        seoBar.addEventListener('mouseenter', () => {
+            seoOn.style.opacity = '1';
+        });
+        seoBar.addEventListener('mouseleave', () => {
+            seoOn.style.opacity = '0';
+        });
+        storyBar.addEventListener('mouseenter', () => {
+            sotryOn.style.opacity = '1';
+        });
+        storyBar.addEventListener('mouseleave', () => {
+            sotryOn.style.opacity = '0';
+        });
+
+        hongBar.addEventListener('click', () => {
+            window.location.href = '4PATCHA_HONG.html'; // HOME으로 이동
+        });
+
+        seoBar.addEventListener('click', () => {
+            window.location.href = '4PATCHA_SEO.html'; // HOME으로 이동
+        });
+
+        storyBar.addEventListener('click', () => {
+            window.location.href = '4PATCHA_STORY.html'; // HOME으로 이동
+        });
+    </script>
+</body>
+</html>
