@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홍련</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffffff;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        #container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            max-width: 160vh;
+            max-height: 100vh;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center; /* 수평 중앙 정렬 */
+            align-items: center; /* 수직 중앙 정렬 */
+        }
+
+        #HOME1 {
+            position: absolute;
+            display: inline-block;
+            height: 100%;
+            left: -30%;
+            z-index: 0;
+            transition: left 1.5s ease;
+        }
+
+        #One_Bar {
+            position: absolute;
+            height: 30%;
+            bottom: 0%;
+            z-index: 2;
+            background-color: #ff000000;
+            width: 36%;
+            left: 0%;
+            z-index: 2;
+        }
+        
+        #One_On {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            left: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img id="HOME1" src="src/HOME_R2.png" alt="홍련_메인">
+        <div id="One_Bar" alt="리턴"></div>
+        <img id="One_On" src="src/HOME_R3.png" alt="홍련_눈물"> 
+    </div>
+
+    <script>
+        const homeImage = document.getElementById('HOME1');
+        const oneBar = document.getElementById('One_Bar');
+        const oneOn = document.getElementById('One_On');
+
+        setTimeout(() => {
+            homeImage.style.left = '0%';
+        }, 10);
+
+        oneBar.addEventListener('mouseenter', () => {
+            oneOn.style.opacity = '1';
+        });
+        oneBar.addEventListener('mouseleave', () => {
+            oneOn.style.opacity = '0';
+        });
+        oneBar.addEventListener('click', () => {
+            window.location.href = '3PATCHA_MAIN.html';
+        });
+    </script>
+</body>
+</html>
