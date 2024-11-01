@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팥차</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffffff;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        #container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            max-width: 160vh;
+            max-height: 100vh;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center; /* 수평 중앙 정렬 */
+            align-items: center; /* 수직 중앙 정렬 */
+        }
+        
+        img {
+            display: none;
+            width: 50%;
+            position: absolute;
+        }
+        #error2{
+            display: none;
+            position: absolute;
+            left:28%;
+            top:25%;
+            z-index: 1;
+        }
+
+        #error_yes{
+            display: none;
+            position: absolute;
+            background-color: rgba(32, 135, 173, 0);
+            width: 10%;
+            height: 8%;
+            right:25%;
+            top:56%;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img id="error1" src="src/error.png" alt="에러이미지">
+        <img id="error2" src="src/error2.png" alt="에러이미지">
+        <div id="error_yes" alt="에러이미지"> <div></div>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const error1 = document.getElementById('error1');
+        const error2 = document.getElementById('error2');
+        const error_yes = document.getElementById('error_yes');
+        const intervals = [800, 500, 400, 300, 250, 200, 150, 100, 50];
+        const positions = [
+            { top: '13%', left: '12%' },
+            { top: '20%', left: '17%' },
+            { top: '27%', left: '22%' },
+            { top: '29%', left: '27%' },
+            { top: '26%', left: '32%' },
+            { top: '20%', left: '29%' },
+            { top: '11%', left: '22%' },
+            { top: '18%', left: '25%' },
+            { top: '25%', left: '28%' }
+            /*
+
+            { top: '22%', left: '28%' }
+             */
+
+        ];
+
+        function scaleContainer() {
+            const scale = window.innerWidth / 1920;
+            container.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener('resize', scaleContainer);
+        scaleContainer(); // 초기 호출
+
+        let delay = 0;
+        intervals.forEach((interval, index) => {
+            delay += interval;
+            setTimeout(() => {
+                const imgClone = error1.cloneNode();
+                imgClone.style.display = 'block';
+                imgClone.style.top = positions[index].top;
+                imgClone.style.left = positions[index].left;
+                container.appendChild(imgClone);
+            }, delay);
+        });
+
+        setTimeout(() => {
+            const clones = container.querySelectorAll('img[src="src/error.png"]');
+            clones.forEach(img => img.remove()); 
+        }, 3000);
+
+        setTimeout(() => {
+            error2.style.display = 'block';
+            error_yes.style.display = 'block';
+        }, 4000);
+
+        error_yes.addEventListener('click', () => {
+            window.location.href = '2PATCHA_HOME.html'; // HOME으로 이동
+        });
+    </script>
+</body>
+</html>
