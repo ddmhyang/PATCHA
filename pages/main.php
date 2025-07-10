@@ -1,26 +1,19 @@
 <?php
-// /pages/main.php - 통합 SPA 버전 (수정본)
-
-// 1. AJAX 요청인지, 일반 페이지 로드인지 확인합니다.
-//    URL에 'spa_content=true' 파라미터가 있으면 AJAX 요청으로 간주합니다.
+// /pages/main.php - 통합 SPA 버전 (최종 수정본)
 if (isset($_GET['spa_content']) && $_GET['spa_content'] === 'true') {
     require_once '../includes/db.php';
-
-    // AJAX 요청일 경우, 페이지의 '내용'만 HTML로 생성하여 반환합니다.
     $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
     $csrf_token = $_SESSION['csrf_token'] ?? '';
-
+    // [수정] 허용된 페이지 목록에 새로운 타임라인 페이지들 추가
     $allowed_pages = [
         'page_view', 'gallery1', 'gallery2', 'gallery_etc', 'gallery_view', 'gallery_upload',
-        'gallery_edit', 'trpg', 'trpg_view', 'trpg_upload', 'trpg_edit', 'search', 'timeline'
+        'gallery_edit', 'trpg', 'trpg_view', 'trpg_upload', 'trpg_edit', 'search',
+        'timeline', 'timeline_detail', 'timeline_add', 'timeline_edit', 'timeline_save', 'time_reoder'
     ];
-
     $page = $_GET['page'] ?? 'page_view';
-
     if ($page === 'page_view' && !isset($_GET['name'])) {
         $_GET['name'] = 'eden';
     }
-
     if (in_array($page, $allowed_pages)) {
         ob_start();
         $page_file = $page . '.php';
@@ -34,14 +27,10 @@ if (isset($_GET['spa_content']) && $_GET['spa_content'] === 'true') {
         http_response_code(404);
         echo '<h1>페이지를 찾을 수 없습니다.</h1>';
     }
-    // AJAX 요청 처리는 여기서 끝납니다.
     exit;
 }
 
-// 2. 일반적인 페이지 로드일 경우, 전체 HTML 뼈대를 렌더링합니다.
-//    이 코드는 사용자가 처음 사이트에 접속했을 때 한 번만 실행됩니다.
 require_once '../includes/db.php';
-
 if (!isset($_SESSION['player_logged_in']) || $_SESSION['player_logged_in'] !== true) {
     header('Location: ../index.php');
     exit;
@@ -554,6 +543,7 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
             // ===============================================
             $(document).ready(function() {
                 const contentContainer = $('#content-container');
+                const csrfToken = '<?php echo $csrf_token; ?>'; // CSRF 토큰을 JS 변수로 저장
 
                 // 페이지 콘텐츠를 AJAX로 불러오는 함수
                 function loadPage(url) {
@@ -563,17 +553,8 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
                         type: 'GET',
                         success: function(response) {
                             contentContainer.html(response);
-                            // 페이지 로드 후, 해당 페이지에 필요한 초기화 스크립트만 실행
-                            contentContainer.find('script').each(function() {
-                            // Summernote나 Sortable 같은 UI 라이브러리 초기화 코드만 실행
-                            if ($(this).text().includes('summernote') || $(this).text().includes('sortable')) {
-                                try { eval($(this).text()); } catch(e) { console.error("Initialization script error:", e); }
-                            }
-                            });
                         },
-                        error: function() {
-                            contentContainer.html('<h1>페이지를 불러오는 데 실패했습니다.</h1>');
-                        }
+                        error: function() { contentContainer.html('<h1>페이지를 불러오는 데 실패했습니다.</h1>'); }
                     });
                 }
 
@@ -581,34 +562,46 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
                 function router() {
                     const path = window.location.hash.substring(2) || 'page_view?name=eden';
                     const [page, queryString] = path.split('?');
-                    const contentUrl = `main.php?page=${page}${queryString ? '&' + queryString : ''}`;
-                    loadPage(contentUrl);
+                    // [수정] 허용된 페이지 목록에 새로운 타임라인 페이지들 추가
+                    const allowed_pages = [
+                        'page_view', 'gallery1', 'gallery2', 'gallery_etc', 'gallery_view', 'gallery_upload',
+                        'gallery_edit', 'trpg', 'trpg_view', 'trpg_upload', 'trpg_edit', 'search',
+                        'timeline', 'timeline_detail', 'timeline_add', 'timeline_edit'
+                    ];
 
-                    // 네비게이션 메뉴 활성화 처리
-                    $('nav > a').removeClass('active');
-                    let currentPageGroup = page.startsWith('gallery') ? 'gallery1' : page.startsWith('trpg') ? 'trpg' : page;
-                    if(page.startsWith('page_view')) currentPageGroup = 'page_view';
-                    if(page.startsWith('timeline')) currentPageGroup = 'timeline';
-                    $(`nav > a[data-page="${currentPageGroup}"]`).addClass('active');
+                    if (allowed_pages.includes(page)) {
+                        const contentUrl = `main.php?page=${page}${queryString ? '&' + queryString : ''}`;
+                        loadPage(contentUrl);
+
+                        $('nav > a').removeClass('active');
+                        let currentPageGroup = page.startsWith('gallery') ? 'gallery1' : (page.startsWith('trpg') ? 'trpg' : (page.startsWith('timeline') ? 'timeline' : page));
+                        if(page.startsWith('page_view')) currentPageGroup = 'page_view';
+                        $(`nav > a[data-page="${currentPageGroup}"]`).addClass('active');
+                    } else {
+                        // 기본 페이지로 리디렉션
+                        window.location.hash = '#/page_view?name=eden';
+                    }
                 }
 
-                // --- 이벤트 핸들러 중앙 관리 (이벤트 위임 방식) ---
+                // --- 이벤트 핸들러 중앙 관리 (수정 및 추가) ---
 
-                // [통합] 모든 내부 링크(#/) 클릭 처리
+                // [수정] 모든 내부 링크 클릭 처리 (기존과 동일)
                 $(document).on('click', 'a', function(e) {
                     const href = $(this).attr('href');
                     if (href && href.startsWith('#/')) {
                         e.preventDefault();
-                        history.pushState(null, '', href);
-                        router();
+                        window.location.hash = href;
                     }
                 });
 
-                // [통합] 모든 저장(_save.php) 폼 제출 이벤트 처리
+                // [수정] 모든 '저장' 폼 제출 이벤트 처리
                 $(document).on('submit', 'form[action$="_save.php"]', function(e) {
                     e.preventDefault();
-                    if ($(this).find('#summernote').length) {
-                        $(this).find('#summernote').val($('#summernote').summernote('code'));
+                    // Summernote 내용 업데이트
+                    if ($(this).find('.note-editor').length) {
+                        $('textarea[name="full_description"], textarea[name="content"]').each(function() {
+                            $(this).val($(this).summernote('code'));
+                        });
                     }
                     var formData = new FormData(this);
                     $.ajax({
@@ -621,7 +614,9 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
                         success: function(response) {
                             if (response.success) {
                                 alert(response.message || '성공적으로 처리되었습니다.');
-                                window.location.hash = response.redirect_url;
+                                if(response.redirect_url) {
+                                    window.location.hash = response.redirect_url;
+                                }
                             } else {
                                 alert('오류: ' + response.message);
                             }
@@ -630,24 +625,26 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
                     });
                 });
 
-                // [통합] 모든 삭제(.btn-delete) 버튼 클릭 이벤트 처리
+                // [수정] 모든 삭제(.btn-delete) 버튼 이벤트 처리
                 $(document).on('click', '.btn-delete', function(e) {
                     e.preventDefault();
-                    if (!confirm('정말 이 게시물을 삭제하시겠습니까?')) return;
+                    if (!confirm('정말 삭제하시겠습니까?')) return;
 
                     var postId = $(this).data('id');
                     var token = $(this).data('token');
-                    var deleteUrl = $(this).data('url') || 'gallery_delete.php';
+                    var deleteUrl = $(this).data('url'); // 삭제 URL을 data-url 속성에서 가져옴
 
                     $.ajax({
                         url: deleteUrl,
                         type: 'POST',
-                        data: { id: postId, token: token },
+                        data: { id: postId, token: token, csrf_token: token }, // CSRF 토큰 포함
                         dataType: 'json',
                         success: function(response) {
                             if (response.success) {
                                 alert('삭제되었습니다.');
-                                window.location.hash = response.redirect_url;
+                                if (response.redirect_url) {
+                                    window.location.hash = response.redirect_url;
+                                }
                             } else {
                                 alert('삭제 실패: ' + response.message);
                             }
@@ -656,17 +653,16 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
                     });
                 });
 
-                // [통합] 검색 기능 처리 (핸들러 중복 방지를 위해 .off() 사용)
+                // [기존] 검색 기능 처리 (기존과 동일)
                 $('.SM_search').off('click').on('click', function() {
                     const query = prompt("검색어를 입력하세요:");
-                    if (query && query.trim() !== "") {
+                    if (query) {
                         window.location.hash = `#/search?query=${encodeURIComponent(query)}`;
                     }
                 });
 
                 // --- 라우터 실행 ---
-                window.addEventListener('popstate', router);
-                router(); // 초기 페이지 로드
+                $(window).on('hashchange', router).trigger('hashchange');
             });
         </script>
     </body>
