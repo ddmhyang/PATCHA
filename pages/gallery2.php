@@ -54,13 +54,13 @@ $stmt->close();
 <div class="gallery-page-wrapper">
     <div class="left-menu">
         <a
-            href="main.php?page=gallery1&type=gallery1"
+            href="#/gallery1?type=gallery1"
             class="<?php echo ($current_gallery_type === 'gallery1') ? 'active' : ''; ?>">Main</a>
         <a
-            href="main.php?page=gallery2&type=gallery2"
+            href="#/gallery2?type=gallery2"
             class="<?php echo ($current_gallery_type === 'gallery2') ? 'active' : ''; ?>">Add</a>
         <a
-            href="main.php?page=gallery2&type=gallery_etc"
+            href="#/gallery_etc?type=gallery_etc"
             class="<?php echo ($current_gallery_type === 'gallery_etc') ? 'active' : ''; ?>">Etc</a>
     </div>
 
@@ -76,7 +76,7 @@ $stmt->close();
         <?php if ($is_admin): ?>
         <div class="admin-controls">
             <a
-                href="main.php?page=gallery_upload&type=<?php echo htmlspecialchars($current_gallery_type); ?>"
+                href="#/gallery_upload?type=<?php echo htmlspecialchars($current_gallery_type); ?>"
                 class="btn-action">새 게시물 추가</a>
         </div>
         <?php endif; ?>
@@ -85,41 +85,37 @@ $stmt->close();
             <?php if (!empty($posts)): ?>
             <?php foreach ($posts as $post): ?>
             <li class="gallery-item">
-                <a
-                    href="main.php?page=gallery_view&id=<?php echo $post['id']; ?>"
-                    class="item-link">
-                <?php
-                            $display_thumbnail = $post['thumbnail'];
+                <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="item-link"></a>
+            <?php
+                    $display_thumbnail = $post['thumbnail'];
+                    if (empty($display_thumbnail)) {
+                        preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
+                        if (isset($matches[1])) {
+                            $display_thumbnail = $matches[1];
+                        }
+                    }
 
-                            
-                            if (empty($display_thumbnail)) {
-                                preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
-                                if (isset($matches[1])) {
-                                    $display_thumbnail = $matches[1];
-                                }
-                            }
-
-                            $thumbnail_style = '';
-                            $thumbnail_content = '';
-                            if (!empty($display_thumbnail)) {
-                                $thumbnail_style = 'background-image: url(\'' . htmlspecialchars($display_thumbnail) . '\');';
-                                $thumbnail_content = ''; 
-                            } else {
-                                
-                                $thumbnail_style = 'background-color: white;';
-                                $thumbnail_content = '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: black; font-size: 14px;">No Image</div>';
-                            }
-                            ?>
-                    <div class="item-thumbnail" style="<?php echo $thumbnail_style; ?>">
-                        <?php echo $thumbnail_content; ?>
-                    </div>
-                    <div class="item-text">
-                        <h3><?php echo htmlspecialchars($post['title']); ?></h3>
-                        <span class="post-date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
-                    </div>
-                </a>
-            </li>
-            <?php endforeach; ?>
+                    $thumbnail_style = '';
+                    $thumbnail_content = '';
+                    if (!empty($display_thumbnail)) {
+                        $thumbnail_style = 'background-image: url(\'' . htmlspecialchars($display_thumbnail) . '\');';
+                        $thumbnail_content = ''; 
+                    } else {
+                        
+                        $thumbnail_style = 'background-color: white;';
+                        $thumbnail_content = '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: black; font-size: 14px;"></div>';
+                    }
+                    ?>
+                <div class="item-thumbnail" style="<?php echo $thumbnail_style; ?>">
+                    <?php echo $thumbnail_content; ?>
+                </div>
+                <div class="item-text">
+                    <h3><?php echo htmlspecialchars($post['title']); ?></h3>
+                    <span class="post-date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
+                </div>
+            </a>
+        </li>
+        <?php endforeach; ?>
         <?php else: ?>
             <p class="no-posts">아직 게시물이 없습니다.</p>
             <?php endif; ?>
@@ -129,19 +125,19 @@ $stmt->close();
         <div class="pagination">
             <?php if ($current_page > 1): ?>
             <a
-                href="main.php?page=gallery2&type=<?php echo htmlspecialchars($current_gallery_type); ?>&p=<?php echo $current_page - 1; ?>"
+                href="#/<?php echo $gallery_type; ?>?type=<?php echo htmlspecialchars($current_gallery_type); ?>&p=<?php echo $current_page - 1; ?>"
                 class="page-link">&laquo; Prev</a>
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
             <a
-                href="main.php?page=gallery2&type=<?php echo htmlspecialchars($current_gallery_type); ?>&p=<?php echo $i; ?>"
+                href="#/<?php echo $gallery_type; ?>?type=<?php echo htmlspecialchars($current_gallery_type); ?>&p=<?php echo $i; ?>"
                 class="page-link <?php echo ($i === $current_page) ? 'active' : ''; ?>"><?php echo $i; ?></a>
             <?php endfor; ?>
 
             <?php if ($current_page < $total_pages): ?>
             <a
-                href="main.php?page=gallery2&type=<?php echo htmlspecialchars($current_gallery_type); ?>&p=<?php echo $current_page + 1; ?>"
+                href="#/<?php echo $gallery_type; ?>?type=<?php echo htmlspecialchars($current_gallery_type); ?>&p=<?php echo $current_page + 1; ?>"
                 class="page-link">Next &raquo;</a>
             <?php endif; ?>
         </div>

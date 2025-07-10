@@ -24,7 +24,7 @@ if (!$post) {
     <div class="post-meta">
         작성일: <?php echo $post['created_at']; ?>
         <?php if ($is_admin): ?> &nbsp;
-            <a href="main.php?page=trpg_edit&id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
+            <a href="#/trpg_edit?id=<?php echo $post['id']; ?>"  class="btn-action">수정</a>
             <a href="gallery_delete.php?id=<?php echo $post['id']; ?>&token=<?php echo $csrf_token; ?>"
                 onclick="return confirm('정말 이 게시물을 삭제하시겠습니까?');" class="btn-action btn-delete">삭제</a>
         <?php endif; ?>
@@ -34,7 +34,7 @@ if (!$post) {
         <?php echo $post['content']; ?>
     </div>
     <div class="post-actions">
-        <a href="main.php?page=trpg" class="btn-back-to-list">목록으로</a>
+        <a href="#/trpg" class="btn-back-to-list">목록으로</a>
     </div>
 </div>
 

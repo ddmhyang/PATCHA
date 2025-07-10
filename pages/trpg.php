@@ -37,7 +37,7 @@ $stmt->close();
     <div class="gallery-header">
         <a class="trpg_title">TRPG 세션 기록</a>
         <?php if ($is_admin): ?>
-        <a href="main.php?page=trpg_upload" class="upload-button">새 세션 기록</a>
+        <a href="#/trpg_upload" class="upload-button">새 세션 기록</a>
         <?php endif; ?>
     </div>
     <ul class="gallery-grid">
@@ -45,7 +45,7 @@ $stmt->close();
         <?php foreach ($posts as $post): ?>
         <li class="gallery-item">
             <a
-                href="main.php?page=trpg_view&id=<?php echo $post['id']; ?>"
+                href="#/trpg_view?id=<?php echo $post['id']; ?>" 
                 class="item-link">
             <?php
                         $display_thumbnail = $post['thumbnail'];
@@ -86,23 +86,9 @@ $stmt->close();
 
     <div class="pagination">
         <?php if ($total_pages > 1): ?>
-        <?php if ($current_page > 1): ?>
-        <a
-            href="main.php?page=<?php echo $gallery_type; ?>&p=<?php echo $current_page - 1; ?>">&laquo; 이전</a>
-        <?php endif; ?>
-
         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-        <?php if ($i == $current_page): ?>
-        <strong class="current-page"><?php echo $i; ?></strong>
-    <?php else: ?>
-        <a href="main.php?page=<?php echo $gallery_type; ?>&p=<?php echo $i; ?>"><?php echo $i; ?></a>
-        <?php endif; ?>
+            <a href="#/<?php echo $gallery_type; ?>?p=<?php echo $i; ?>"><?php echo $i; ?></a>
         <?php endfor; ?>
-
-        <?php if ($current_page < $total_pages): ?>
-        <a
-            href="main.php?page=<?php echo $gallery_type; ?>&p=<?php echo $current_page + 1; ?>">다음 &raquo;</a>
-        <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>

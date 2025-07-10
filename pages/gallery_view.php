@@ -25,7 +25,7 @@ if (!$post) {
         <?php echo $post['created_at']; ?>
         <?php if ($is_admin): ?>
         <a
-            href="main.php?page=gallery_edit&id=<?php echo $post['id']; ?>"
+            href="#/gallery_edit?id=<?php echo $post['id']; ?>"
             class="btn-action">수정</a>
         <a
             href="gallery_delete.php?id=<?php echo $post['id']; ?>&token=<?php echo $csrf_token; ?>"
@@ -38,9 +38,7 @@ if (!$post) {
         <?php echo $post['content']; ?>
     </div>
     <div class="post-actions">
-        <a
-            href="main.php?page=<?php echo htmlspecialchars($post['gallery_type']); ?>"
-            class="btn-back-to-list">목록으로</a>
+        <a href="#/<?php echo htmlspecialchars($post['gallery_type']); ?>" class="btn-back-to-list">목록으로</a>
     </div>
 </div>
 

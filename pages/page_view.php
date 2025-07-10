@@ -107,16 +107,11 @@ $stmt->close();
 
 <div class="profile-container">
     <div class="profile_left_menu">
-        <a
-            class="<?php echo ($current_profile === 'eden') ? 'active' : ''; ?>"
-            href="main.php?page=page_view&name=eden">Eden</a>
-        <a
-            class="<?php echo ($current_profile === 'white') ? 'active' : ''; ?>"
-            href="main.php?page=page_view&name=white">White</a>
-        <a
-            class="<?php echo ($current_profile === 'rivlen') ? 'active' : ''; ?>"
-            href="main.php?page=page_view&name=rivlen">Rivlen</a>
+        <a class="<?php echo ($current_profile === 'eden') ? 'active' : ''; ?>" href="#/page_view?name=eden">Eden</a>
+        <a class="<?php echo ($current_profile === 'white') ? 'active' : ''; ?>" href="#/page_view?name=white">White</a>
+        <a class="<?php echo ($current_profile === 'rivlen') ? 'active' : ''; ?>" href="#/page_view?name=rivlen">Rivlen</a>
     </div>
+    <div class="profile_main"></div>
 
     <div class="profile_main">
         <?php if ($is_admin): ?>
