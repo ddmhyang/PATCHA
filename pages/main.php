@@ -549,134 +549,116 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
                 }
             });
             
+            //  SPA 라우팅 및 이벤트 핸들러 최종 통합 버전
+            // ===============================================
             $(document).ready(function() {
-                $(document).on('submit', 'form[action$="_save.php"]', function(e) {
-                e.preventDefault(); 
-
-                // Summernote 사용 시, 내용을 실제 textarea에 반영
-                if ($(this).find('#summernote').length) {
-                    $('#summernote').val($('#summernote').summernote('code'));
-                }
-
-                var formData = new FormData(this);
-
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            alert('성공적으로 처리되었습니다.');
-                            window.location.hash = response.redirect_url;
-                        } else {
-                            alert('오류: ' + response.message);
-                        }
-                    },
-                    error: function() {
-                        alert('요청 처리 중 오류가 발생했습니다.');
-                    }
-                });
-            });
-
-            // [수정] 삭제 버튼 이벤트 핸들러
-            $(document).on('click', '.btn-delete', function(e) {
-                e.preventDefault();
-                
-                if (!confirm('정말 이 게시물을 삭제하시겠습니까?')) {
-                    return;
-                }
-
-                var postId = $(this).data('id');
-                var token = $(this).data('token');
-
-                $.ajax({
-                    url: 'gallery_delete.php', // 삭제 처리는 이 파일로 통일
-                    type: 'POST',
-                    data: {
-                        id: postId,
-                        token: token
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            alert('삭제되었습니다.');
-                            window.location.hash = response.redirect_url;
-                        } else {
-                            alert('삭제 실패: ' + response.message);
-                        }
-                    },
-                    error: function() {
-                        alert('요청 처리 중 오류가 발생했습니다.');
-                    }
-                });
-            });
                 const contentContainer = $('#content-container');
 
+                // 페이지 콘텐츠를 AJAX로 불러오는 함수
                 function loadPage(url) {
-                    // AJAX 요청 URL에 'spa_content=true'를 추가하여 서버가 콘텐츠만 반환하도록 합니다.
                     const requestUrl = url + (url.includes('?') ? '&' : '?') + 'spa_content=true';
-
                     $.ajax({
                         url: requestUrl,
                         type: 'GET',
                         success: function(response) {
                             contentContainer.html(response);
-                            // 동적으로 로드된 콘텐츠 안의 스크립트가 있다면 실행합니다.
+                            // 페이지 로드 후, 해당 페이지에 필요한 초기화 스크립트만 실행
                             contentContainer.find('script').each(function() {
-                                if ($(this).text()) {
-                                    eval($(this).text());
-                                }
+                            if ($(this).text().includes('summernote') || $(this).text().includes('sortable')) {
+                                try { eval($(this).text()); } catch(e) { console.error("Initialization script error:", e); }
+                            }
                             });
                         },
-                        error: function() {
-                            contentContainer.html('<h1>페이지를 불러오는 데 실패했습니다.</h1>');
-                        }
+                        error: function() { contentContainer.html('<h1>페이지를 불러오는 데 실패했습니다.</h1>'); }
                     });
                 }
 
+                // URL 해시에 따라 페이지를 전환하는 라우터
                 function router() {
-                    // 주소창의 #/ 뒤 경로를 가져옵니다. 없으면 기본 경로로 설정합니다.
                     const path = window.location.hash.substring(2) || 'page_view?name=eden';
                     const [page, queryString] = path.split('?');
-
-                    // 콘텐츠를 요청할 URL을 만듭니다. (이 파일 자신에게 요청)
                     const contentUrl = `main.php?page=${page}${queryString ? '&' + queryString : ''}`;
                     loadPage(contentUrl);
-
-                    // 메뉴 활성화 처리
                     $('nav > a').removeClass('active');
-                    let currentPageGroup = page.startsWith('gallery') ? 'gallery1' : (page.startsWith('page_view') ? 'page_view' : page);
-                    $(`nav a[data-page="${currentPageGroup}"]`).addClass('active');
+                    let currentPageGroup = page.startsWith('gallery') ? 'gallery1' : page.startsWith('trpg') ? 'trpg' : page;
+                    if(page.startsWith('page_view')) currentPageGroup = 'page_view';
+                    $(`nav > a[data-page="${currentPageGroup}"]`).addClass('active');
                 }
 
-                // 이벤트 위임: 문서 전체의 모든 <a> 태그 클릭을 감지합니다.
+                // --- 이벤트 핸들러 중앙 관리 ---
+
+                // [통합] 모든 내부 링크 클릭 처리
                 $(document).on('click', 'a', function(e) {
                     const href = $(this).attr('href');
-                    // '#/'로 시작하는 링크만 SPA로 처리하고 나머지는 기본 동작을 따릅니다.
                     if (href && href.startsWith('#/')) {
-                        e.preventDefault(); // a 태그의 기본 동작(페이지 새로고침)을 막습니다.
-                        history.pushState(null, '', href); // 브라우저 주소창의 URL을 변경합니다.
-                        router(); // 변경된 URL에 맞게 페이지를 로드합니다.
+                        e.preventDefault();
+                        history.pushState(null, '', href);
+                        router();
                     }
                 });
 
-                // [수정됨] 검색 기능이 SPA로 동작하도록 수정
-                $('.SM_search').on('click', () => {
+                // [통합] 모든 저장(save) 폼 제출 이벤트 처리 (갤러리, TRPG, 타임라인)
+                $(document).on('submit', 'form[action$="_save.php"]', function(e) {
+                    e.preventDefault();
+                    if ($(this).find('#summernote').length) {
+                        $(this).find('#summernote').val($('#summernote').summernote('code'));
+                    }
+                    var formData = new FormData(this);
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        data: formData,
+                        processData: false, contentType: false, dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.message || '성공적으로 처리되었습니다.');
+                                window.location.hash = response.redirect_url;
+                            } else {
+                                alert('오류: ' + response.message);
+                            }
+                        },
+                        error: function() { alert('요청 처리 중 오류가 발생했습니다.'); }
+                    });
+                });
+
+                // [통합] 모든 삭제(.btn-delete) 버튼 이벤트 처리 (갤러리, TRPG, 타임라인)
+                $(document).on('click', '.btn-delete', function(e) {
+                    e.preventDefault();
+                    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+                    var postId = $(this).data('id');
+                    var token = $(this).data('token');
+                    // 삭제 URL을 data-url 속성에서 가져오도록 통일
+                    var deleteUrl = $(this).data('url') || 'gallery_delete.php';
+
+                    $.ajax({
+                        url: deleteUrl,
+                        type: 'POST',
+                        data: { id: postId, token: token },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                alert('삭제되었습니다.');
+                                window.location.hash = response.redirect_url;
+                            } else {
+                                alert('삭제 실패: ' + response.message);
+                            }
+                        },
+                        error: function() { alert('요청 처리 중 오류가 발생했습니다.'); }
+                    });
+                });
+
+                // [통합] 검색 기능 처리
+                $('.SM_search').off('click').on('click', function() {
                     const query = prompt("검색어를 입력하세요:");
                     if (query) {
-                        // 페이지를 리로드하는 대신 해시를 변경하여 라우터를 트리거합니다.
                         window.location.hash = `#/search?query=${encodeURIComponent(query)}`;
                     }
                 });
 
-                // 브라우저의 뒤로가기/앞으로가기 버튼을 눌렀을 때도 router를 실행합니다.
+                // --- 라우터 실행 ---
                 window.addEventListener('popstate', router);
-
-                // 첫 페이지 진입 시 router를 실행하여 기본 페이지를 로드합니다.
-                router();
+                router(); // 초기 페이지 로드
             });
         </script>
     </body>

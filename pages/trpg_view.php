@@ -25,9 +25,10 @@ if (!$post) {
         작성일: <?php echo $post['created_at']; ?>
         <?php if ($is_admin): ?> &nbsp;
             <a href="#/trpg_edit?id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
-            <a href="#" data-id="<?php echo $post['id']; ?>"
-                data-token="<?php echo $csrf_token; ?>"
-                onclick="return confirm('정말 이 게시물을 삭제하시겠습니까?');" class="btn-action btn-delete">삭제</a>
+            <a href="#" class="btn-action btn-delete"
+            data-id="<?php echo $post['id']; ?>"
+            data-token="<?php echo $csrf_token; ?>"
+            data-url="gallery_delete.php">삭제</a>
         <?php endif; ?>
     </div>
     <hr>
