@@ -2,7 +2,6 @@
 // /pages/gallery_delete.php (수정)
 require_once '../includes/db.php';
 
-// 응답 형식을 JSON으로 변경
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
@@ -10,7 +9,7 @@ if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
     exit;
 }
 
-// [수정] GET 대신 POST로 토큰과 ID를 받도록 변경 (보안 강화)
+// [수정] 보안을 위해 GET 대신 POST 방식으로 토큰과 ID를 받습니다.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['token']) || !hash_equals($_SESSION['csrf_token'], $_POST['token'])) {
     echo json_encode(['success' => false, 'message' => 'CSRF 토큰이 유효하지 않습니다.']);
     exit;
@@ -38,7 +37,6 @@ $stmt_delete = $mysqli->prepare("DELETE FROM eden_gallery WHERE id = ?");
 $stmt_delete->bind_param("i", $post_id);
 
 if ($stmt_delete->execute()) {
-    // [수정] header() 대신 JSON 응답을 보냅니다.
     $redirect_url = ($gallery_type === 'trpg') ? '#/trpg' : '#/' . $gallery_type;
     echo json_encode(['success' => true, 'redirect_url' => $redirect_url]);
 } else {

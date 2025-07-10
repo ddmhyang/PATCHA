@@ -24,13 +24,11 @@ if (!$post) {
         작성일:
         <?php echo $post['created_at']; ?>
         <?php if ($is_admin): ?>
-        <a
-            href="#/gallery_edit?id=<?php echo $post['id']; ?>" 
-            class="btn-action">수정</a>
+        <a href="#/gallery_edit?id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
         <a
             href="#" data-id="<?php echo $post['id']; ?>"
             onclick="return confirm('정말 이 게시물을 삭제하시겠습니까?');"
-            class="btn-action btn-delete">삭제</a>
+            data-token="<?php echo $csrf_token; ?>" class="btn-action btn-delete">삭제</a>
         <?php endif; ?>
     </div>
     <hr>

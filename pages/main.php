@@ -550,6 +550,69 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
             });
             
             $(document).ready(function() {
+                $(document).on('submit', 'form[action$="_save.php"]', function(e) {
+                e.preventDefault(); 
+
+                // Summernote 사용 시, 내용을 실제 textarea에 반영
+                if ($(this).find('#summernote').length) {
+                    $('#summernote').val($('#summernote').summernote('code'));
+                }
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('성공적으로 처리되었습니다.');
+                            window.location.hash = response.redirect_url;
+                        } else {
+                            alert('오류: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('요청 처리 중 오류가 발생했습니다.');
+                    }
+                });
+            });
+
+            // [수정] 삭제 버튼 이벤트 핸들러
+            $(document).on('click', '.btn-delete', function(e) {
+                e.preventDefault();
+                
+                if (!confirm('정말 이 게시물을 삭제하시겠습니까?')) {
+                    return;
+                }
+
+                var postId = $(this).data('id');
+                var token = $(this).data('token');
+
+                $.ajax({
+                    url: 'gallery_delete.php', // 삭제 처리는 이 파일로 통일
+                    type: 'POST',
+                    data: {
+                        id: postId,
+                        token: token
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('삭제되었습니다.');
+                            window.location.hash = response.redirect_url;
+                        } else {
+                            alert('삭제 실패: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('요청 처리 중 오류가 발생했습니다.');
+                    }
+                });
+            });
                 const contentContainer = $('#content-container');
 
                 function loadPage(url) {

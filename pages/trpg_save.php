@@ -1,8 +1,7 @@
 <?php
-// /pages/gallery_save.php (수정)
+// /pages/trpg_save.php (수정)
 require_once '../includes/db.php';
 
-// 응답 형식을 JSON으로 변경
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
@@ -24,7 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($thumbnail)) {
         preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
-        $thumbnail = $matches[1] ?? null;
+        if (isset($matches[1])) {
+            $thumbnail = $matches[1];
+        }
     }
 
     if ($post_id > 0) {
