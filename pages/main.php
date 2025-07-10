@@ -331,13 +331,13 @@ $allowed_pages = [
 
                 <nav>
                     <a
-                        class="<?php echo ($page === 'page_view') ? 'active' : ''; ?>"
+                        class="<?php echo (in_array($page, ['home', 'page_view', 'eden', 'white', 'rivlen'])) ? 'active' : ''; ?>"
                         href="main.php?page=page_view&name=eden">Profile</a>
                     <a
                         class="<?php echo ($page === 'timeline') ? 'active' : ''; ?>"
                         href="main.php?page=timeline">Story</a>
                     <a
-                        class="<?php echo ($page === 'trpg') ? 'active' : ''; ?>"
+                        class="<?php echo (strpos($page, 'trpg') === 0) ? 'active' : ''; ?>"
                         href="main.php?page=trpg">TRPG</a>
                     <a
                         class="<?php echo (strpos($page, 'gallery') === 0) ? 'active' : ''; ?>"
