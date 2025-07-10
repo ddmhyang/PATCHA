@@ -77,7 +77,10 @@ switch ($action) {
     .detail-container::-webkit-scrollbar-track {
         background-color: #333;
     }
-    .detail-container h1,
+    .detail-container h1{
+        font-family: 'Fre7';
+        margin: 30px 0;
+    }
     .detail-container p {
         margin: 0;
     }

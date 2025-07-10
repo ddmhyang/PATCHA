@@ -143,7 +143,6 @@ $total_width = (count($timeline_items) * 259) + 200;
     .item-text .timeline_title {
         font-family: 'fre1';
         font-size: 14px;
-
         max-width: 100px;
         white-space: nowrap;
         overflow: hidden;
