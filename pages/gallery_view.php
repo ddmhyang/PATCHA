@@ -25,10 +25,10 @@ if (!$post) {
         <?php echo $post['created_at']; ?>
         <?php if ($is_admin): ?>
         <a
-            href="#/gallery_edit?id=<?php echo $post['id']; ?>"
+            href="#/gallery_edit?id=<?php echo $post['id']; ?>" 
             class="btn-action">수정</a>
         <a
-            href="gallery_delete.php?id=<?php echo $post['id']; ?>&token=<?php echo $csrf_token; ?>"
+            href="#" data-id="<?php echo $post['id']; ?>"
             onclick="return confirm('정말 이 게시물을 삭제하시겠습니까?');"
             class="btn-action btn-delete">삭제</a>
         <?php endif; ?>
@@ -41,7 +41,43 @@ if (!$post) {
         <a href="#/<?php echo htmlspecialchars($post['gallery_type']); ?>" class="btn-back-to-list">목록으로</a>
     </div>
 </div>
+<script>
+$(document).ready(function() {
+    // 삭제 버튼 클릭 이벤트를 가로채서 AJAX로 처리
+    $('.btn-delete').on('click', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('정말 이 게시물을 삭제하시겠습니까?')) {
+            return;
+        }
 
+        var postId = $(this).data('id');
+        var token = $(this).data('token');
+
+        $.ajax({
+            url: 'gallery_delete.php',
+            type: 'POST',
+            data: {
+                id: postId,
+                token: token
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    alert('삭제되었습니다.');
+                    // 서버가 알려준 URL로 SPA 방식으로 이동
+                    window.location.hash = response.redirect_url;
+                } else {
+                    alert('삭제 실패: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('요청 처리 중 오류가 발생했습니다.');
+            }
+        });
+    });
+});
+</script>
 <style>
    
     .content {

@@ -176,7 +176,7 @@ switch ($action) {
     </div>
     <?php endif; ?>
     <hr>
-    <a href="#" id="back-to-timeline-btn" style="color:white;">&laquo; 타임라인으로 돌아가기</a>
+    <a href="#/timeline" id="back-to-timeline-btn" style="color:white;">&laquo; 타임라인으로 돌아가기</a>
 </div>
 <?php
         break;

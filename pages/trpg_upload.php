@@ -261,4 +261,37 @@ $gallery_type = 'trpg';
             }
         });
     });
+
+    // /pages/gallery_upload.php 와 gallery_edit.php의 <script> 태그 안에 추가
+
+    // 폼 제출 이벤트를 가로채서 AJAX로 처리
+    $('form[action="gallery_save.php"]').on('submit', function(e) {
+        e.preventDefault(); // 기본 폼 제출(새로고침)을 막습니다.
+
+        // Summernote 에디터의 내용을 실제 textarea에 반영
+        $('#summernote').val($('#summernote').summernote('code'));
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false, // FormData 사용 시 필수
+            contentType: false, // FormData 사용 시 필수
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    alert('성공적으로 저장되었습니다.');
+                    // 서버가 알려준 URL로 SPA 방식으로 이동
+                    window.location.hash = response.redirect_url;
+                } else {
+                    alert('저장 실패: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('요청 처리 중 오류가 발생했습니다.');
+            }
+        });
+    });
 </script>

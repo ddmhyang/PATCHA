@@ -1,32 +1,36 @@
 <?php
-// /pages/gallery_delete.php
+// /pages/gallery_delete.php (수정)
 require_once '../includes/db.php';
 
+// 응답 형식을 JSON으로 변경
+header('Content-Type: application/json');
+
 if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
-    die("권한이 없습니다.");
+    echo json_encode(['success' => false, 'message' => '권한이 없습니다.']);
+    exit;
 }
 
-if (!isset($_GET['token']) || !hash_equals($_SESSION['csrf_token'], $_GET['token'])) {
-    die('CSRF 토큰이 유효하지 않습니다.');
+// [수정] GET 대신 POST로 토큰과 ID를 받도록 변경 (보안 강화)
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['token']) || !hash_equals($_SESSION['csrf_token'], $_POST['token'])) {
+    echo json_encode(['success' => false, 'message' => 'CSRF 토큰이 유효하지 않습니다.']);
+    exit;
 }
 
-if (!isset($_GET['id'])) {
-    die("잘못된 요청입니다.");
-}
-$post_id = intval($_GET['id']);
+$post_id = intval($_POST['id'] ?? 0);
 if ($post_id <= 0) {
-    die("유효하지 않은 게시물 ID입니다.");
+    echo json_encode(['success' => false, 'message' => '유효하지 않은 게시물 ID입니다.']);
+    exit;
 }
 
 $stmt_select = $mysqli->prepare("SELECT gallery_type FROM eden_gallery WHERE id = ?");
 $stmt_select->bind_param("i", $post_id);
 $stmt_select->execute();
-$result = $stmt_select->get_result();
-$post = $result->fetch_assoc();
+$post = $stmt_select->get_result()->fetch_assoc();
 $stmt_select->close();
 
 if (!$post) {
-    die("삭제할 게시물이 존재하지 않습니다.");
+    echo json_encode(['success' => false, 'message' => '삭제할 게시물이 존재하지 않습니다.']);
+    exit;
 }
 $gallery_type = $post['gallery_type'];
 
@@ -34,10 +38,11 @@ $stmt_delete = $mysqli->prepare("DELETE FROM eden_gallery WHERE id = ?");
 $stmt_delete->bind_param("i", $post_id);
 
 if ($stmt_delete->execute()) {
-    header("Location: main.php?page=" . urlencode($gallery_type));
-    exit;
+    // [수정] header() 대신 JSON 응답을 보냅니다.
+    $redirect_url = ($gallery_type === 'trpg') ? '#/trpg' : '#/' . $gallery_type;
+    echo json_encode(['success' => true, 'redirect_url' => $redirect_url]);
 } else {
-    die("게시물 삭제에 실패했습니다: " . $stmt_delete->error);
+    echo json_encode(['success' => false, 'message' => '게시물 삭제에 실패했습니다: ' . $stmt_delete->error]);
 }
 
 $stmt_delete->close();
