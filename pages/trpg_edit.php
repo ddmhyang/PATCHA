@@ -65,6 +65,12 @@ if (!$post) {
                     style="color: rgba(255,255,255,0.7); <?php echo isset($post['thumbnail']) && !empty($post['thumbnail']) ? 'display: none;' : 'display: block;'; ?>">선택된 썸네일 없음</span>
             </div>
         </div>
+
+        <div class="form-group">
+            <label for="content">내용</label>
+            <textarea id="summernote" name="content"><?php echo htmlspecialchars($post['content']); ?></textarea>
+        </div>
+        
         <button type="submit">수정 완료</button>
         <a
             href="main.php?page=trpg_view&id=<?php echo $post['id']; ?>"

@@ -155,7 +155,7 @@ $csrf_token = $_SESSION['csrf_token'];
                 font-family: "Fre9";
                
                 font-size: 24px;
-                color: #FFF;
+                color: #000000;
                
                 padding: 0 20px;
                

@@ -111,7 +111,6 @@ $stmt->close();
         <a class="<?php echo ($current_profile === 'white') ? 'active' : ''; ?>" href="#/page_view?name=white">White</a>
         <a class="<?php echo ($current_profile === 'rivlen') ? 'active' : ''; ?>" href="#/page_view?name=rivlen">Rivlen</a>
     </div>
-    <div class="profile_main"></div>
 
     <div class="profile_main">
         <?php if ($is_admin): ?>

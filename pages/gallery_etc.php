@@ -70,37 +70,37 @@ $stmt->close();
             <?php if (!empty($posts)): ?>
             <?php foreach ($posts as $post): ?>
             <li class="gallery-item">
-                <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="item-link"></a>
-            <?php
-                    $display_thumbnail = $post['thumbnail'];
-                    if (empty($display_thumbnail)) {
-                        preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
-                        if (isset($matches[1])) {
-                            $display_thumbnail = $matches[1];
-                        }
+                <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="item-link">
+                <?php
+                $display_thumbnail = $post['thumbnail'];
+                if (empty($display_thumbnail)) {
+                    preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
+                    if (isset($matches[1])) {
+                        $display_thumbnail = $matches[1];
                     }
+                }
 
-                    $thumbnail_style = '';
-                    $thumbnail_content = '';
-                    if (!empty($display_thumbnail)) {
-                        $thumbnail_style = 'background-image: url(\'' . htmlspecialchars($display_thumbnail) . '\');';
-                        $thumbnail_content = ''; 
-                    } else {
-                        
-                        $thumbnail_style = 'background-color: white;';
-                        $thumbnail_content = '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: black; font-size: 14px;"></div>';
-                    }
-                    ?>
-                <div class="item-thumbnail" style="<?php echo $thumbnail_style; ?>">
-                    <?php echo $thumbnail_content; ?>
-                </div>
-                <div class="item-text">
-                    <h3><?php echo htmlspecialchars($post['title']); ?></h3>
-                    <span class="post-date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
-                </div>
-            </a>
-        </li>
-        <?php endforeach; ?>
+                $thumbnail_style = '';
+                $thumbnail_content = '';
+                if (!empty($display_thumbnail)) {
+                    $thumbnail_style = 'background-image: url(\'' . htmlspecialchars($display_thumbnail) . '\');';
+                    $thumbnail_content = ''; 
+                } else {
+                    
+                    $thumbnail_style = 'background-color: white;';
+                    $thumbnail_content = '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: black; font-size: 14px;"></div>';
+                }
+                ?>
+                    <div class="item-thumbnail" style="<?php echo $thumbnail_style; ?>">
+                        <?php echo $thumbnail_content; ?>
+                    </div>
+                    <div class="item-text">
+                        <h3><?php echo htmlspecialchars($post['title']); ?></h3>
+                        <span class="post-date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
+                    </div>
+                </a>
+            </li>
+            <?php endforeach; ?>
         <?php else: ?>
             <p class="no-posts">아직 게시물이 없습니다.</p>
             <?php endif; ?>
