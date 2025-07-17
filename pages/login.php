@@ -48,6 +48,7 @@ $csrf_token = $_SESSION['csrf_token'];
 <html lang="ko">
     <head>
         <meta charset="UTF-8">
+        <link rel="icon" type="image/png" href="../assets/img/기타/동물1.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>관리자 로그인</title>
         <style>
@@ -82,7 +83,6 @@ $csrf_token = $_SESSION['csrf_token'];
                 overflow: hidden;
                 position: relative;
                 visibility: hidden;
-               
                 font-family: 'Fre1', sans-serif;
                
             }
@@ -94,7 +94,6 @@ $csrf_token = $_SESSION['csrf_token'];
                 transform-origin: top left;
                 position: absolute;
                 transform: scale(0);
-               
             }
 
             .container,
@@ -104,19 +103,19 @@ $csrf_token = $_SESSION['csrf_token'];
             }
 
             .login-container {
-               
                 width: 1440px;
                 height: 900px;
                 flex-shrink: 0;
                 aspect-ratio: 1440/900;
                 background: url("../assets/img/background.png") rgb(0, 0, 0) 50% / cover no-repeat;
                 display: flex;
-               
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 position: relative;
-               
+                border-left: 2px solid rgb(160, 160, 160);
+                border-right: 2px solid rgb(160, 160, 160);
+                box-sizing: border-box;
             }
 
             .title {
@@ -199,10 +198,111 @@ $csrf_token = $_SESSION['csrf_token'];
                 font-family: 'Fre1', sans-serif;
                 font-size: 18px;
                 margin-top: 20px;
-               
                 position: absolute;
-                top: 750px;
-               
+                top: 750px;  
+            }
+
+            @media (max-width: 768px) {
+                .container {
+                    width: 720px;
+                    height: 1280px;
+                    background-color: #000000;
+                    transform-origin: top left;
+                    position: absolute;
+                    transform: scale(0);
+                
+                }
+
+                .login-container {
+                    width: 720px;
+                    height: 1280px;
+                    flex-shrink: 0;
+                    background: url("../assets/img/background.png") lightgray -664px 0px / 284.444% 100% no-repeat;
+                }
+
+                .title {
+                    color: #FFF;
+                    text-align: center;
+                    font-family: "Bonheur-Royale";
+                    font-size: 96px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: normal;
+                    position: absolute;
+                    left: 50%;
+                    top: 263px;
+                    transform: translateX(-50%);
+                }
+
+
+
+                form {
+                    position: absolute;
+                    top: 600px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 50px;
+                }
+
+                input[type="text"],
+                input[type="password"] {
+                    width: 409px;
+                    height: 84px;
+                    flex-shrink: 0;
+                    background: rgba(255, 255, 255, 0.50);
+                    border: none;
+                    text-align: center;
+                    font-family: "Fre9";
+                
+                    font-size: 24px;
+                    color: #000000;
+                
+                    padding: 0 20px;
+                
+                    box-sizing: border-box;
+                
+                }
+
+                input[type="text"]::placeholder,
+                input[type="password"]::placeholder {
+                    color: rgba(255, 255, 255, 0.7);
+                
+                }
+
+                input:focus {
+                    outline: none;
+                }
+
+                button[type="submit"] {
+                    width: 201px;
+                    height: 52px;
+                    flex-shrink: 0;
+                    color: #FFF;
+                    text-align: center;
+                    font-family: "Fre9";
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 900;
+                    line-height: normal;
+                    background: rgba(255, 255, 255, 0.50);
+                    cursor: pointer;
+                    border: none;
+                    transition-duration: 0.25s;
+                }
+
+                button[type="submit"]:hover {
+                    transform: scale(1.05);
+                }
+
+                .error {
+                    color: red;
+                    font-family: 'Fre1', sans-serif;
+                    font-size: 18px;
+                    margin-top: 20px;
+                    position: absolute;
+                    top: 750px;  
+                }
             }
         </style>
     </head>

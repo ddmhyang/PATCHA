@@ -1,5 +1,5 @@
 <?php
-// /pages/gallery_delete.php (수정)
+// /pages/gallery_delete.php
 require_once '../includes/db.php';
 
 header('Content-Type: application/json');
@@ -9,7 +9,6 @@ if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
     exit;
 }
 
-// [수정] 보안을 위해 GET 대신 POST 방식으로 토큰과 ID를 받습니다.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['token']) || !hash_equals($_SESSION['csrf_token'], $_POST['token'])) {
     echo json_encode(['success' => false, 'message' => 'CSRF 토큰이 유효하지 않습니다.']);
     exit;

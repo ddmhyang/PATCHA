@@ -1,5 +1,5 @@
 <?php
-// /pages/trpg_save.php (수정)
+// /pages/trpg_save.php
 require_once '../includes/db.php';
 
 header('Content-Type: application/json');
@@ -38,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $new_id = $post_id > 0 ? $post_id : $mysqli->insert_id;
-        // [수정] header() 대신 JSON 응답을 보냅니다.
         echo json_encode(['success' => true, 'redirect_url' => '#/trpg_view?id=' . $new_id]);
     } else {
         echo json_encode(['success' => false, 'message' => '저장에 실패했습니다: ' . $stmt->error]);

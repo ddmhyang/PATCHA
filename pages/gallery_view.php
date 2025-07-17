@@ -21,28 +21,31 @@ if (!$post) {
 <div class="post-view-container">
     <h1><?php echo htmlspecialchars($post['title']); ?></h1>
     <div class="post-meta">
-        작성일:
-        <?php echo $post['created_at']; ?>
         <?php if ($is_admin): ?>
         <a href="#/gallery_edit?id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
-        <a href="#" class="btn-action btn-delete"
-        data-id="<?php echo $post['id']; ?>"
-        data-token="<?php echo $csrf_token; ?>"
-        data-url="gallery_delete.php">삭제</a>
+        <a
+            href="#"
+            class="btn-action btn-delete"
+            data-id="<?php echo $post['id']; ?>"
+            data-token="<?php echo $csrf_token; ?>"
+            data-url="gallery_delete.php">삭제</a>
         <?php endif; ?>
     </div>
     <hr>
+    <div class="post-date">작성일:
+        <?php echo $post['created_at']; ?></div>
     <div class="post-content">
         <?php echo $post['content']; ?>
     </div>
     <div class="post-actions">
-        <a href="#/<?php echo htmlspecialchars($post['gallery_type']); ?>" class="btn-back-to-list">목록으로</a>
+        <a
+            href="#/<?php echo htmlspecialchars($post['gallery_type']); ?>"
+            class="btn-back-to-list">목록으로</a>
     </div>
 </div>
-<script>
-</script>
+<script></script>
 <style>
-   
+
     .content {
         position: absolute !important;
         top: 220px;
@@ -68,23 +71,23 @@ if (!$post) {
         background-color: #333;
     }
 
-   
     .post-view-container {
         width: 1170px;
-       
+
         margin: 40px;
     }
 
     .post-view-container h1 {
         text-align: center;
         color: rgb(255, 255, 255);
-       
+
         font-family: 'Fre9';
         font-size: 40px;
         margin-top: 45px;
         margin-bottom: 15px;
     }
 
+    .post-date,
     .post-meta {
         text-align: right;
         color: rgba(255, 255, 255, 0.7);
@@ -143,5 +146,38 @@ if (!$post) {
         padding: 0 15px;
         border-radius: 8px;
         padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .content {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 900px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .post-view-container {
+            width: 520px;
+            margin-left: 40px;
+        }
+
+        .post-meta {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'Fre3';
+            font-size: 16px;
+            margin-top: 35px;
+            margin-bottom: 30px;
+            margin-right: 15px;
+        }
+
+        .post-date {
+            margin-top: 20px;
+            margin-bottom: 0;
+        }
     }
 </style>

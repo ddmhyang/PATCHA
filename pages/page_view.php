@@ -1,14 +1,12 @@
 <?php
-// /pages/page_view.php
+
 if (!isset($mysqli)) {
     $redirect_name = $_GET['name'] ?? 'eden';
     header("Location: main.php?page=page_view&name=" . $redirect_name);
     exit;
 }
 
-
 $current_profile = $_GET['name'] ?? 'eden';
-
 
 $stmt = $mysqli->prepare("SELECT content FROM eden_pages_content WHERE page_name = ?");
 $stmt->bind_param("s", $current_profile);
@@ -18,22 +16,74 @@ $page_content_row = $result->fetch_assoc();
 
 $page_content = $page_content_row['content'] ?? '';
 $stmt->close();
+
+$profile_titles = [
+    'eden' => 'Eden',
+    'white' => 'White',
+    'rivlen' => 'Rivlen'
+];
+$current_title = $profile_titles[$current_profile] ?? ucfirst($current_profile);
 ?>
 
+<div class="gallery-page-wrapper">
+    <div class="left-menu">
+        <a
+            class="<?php echo ($current_profile === 'eden') ? 'active' : ''; ?>"
+            href="#/page_view?name=eden">Eden</a>
+        <a
+            class="<?php echo ($current_profile === 'white') ? 'active' : ''; ?>"
+            href="#/page_view?name=white">White</a>
+        <a
+            class="<?php echo ($current_profile === 'rivlen') ? 'active' : ''; ?>"
+            href="#/page_view?name=rivlen">Rivlen</a>
+    </div>
+
+    <div class="gallery-content-area">
+        <h1 class="gallery-main-title"><?php echo $current_title; ?></h1>
+
+        <div class="profile-content">
+            <?php if ($is_admin): ?>
+            <div id="view-mode">
+                <div class="edit-button-container">
+                    <button type="button" id="edit-btn">수정하기</button>
+                </div>
+                <div class="content-display">
+                    <?php echo !empty($page_content) ? $page_content : '<p>내용이 없습니다. 수정하기 버튼을 눌러 내용을 추가하세요.</p>'; ?>
+                </div>
+            </div>
+            <div id="edit-mode" style="display: none;">
+                <form id="edit-form" action="ajax_save_page.php" method="post">
+                    <input
+                        type="hidden"
+                        name="page_name"
+                        value="<?php echo htmlspecialchars($current_profile); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <textarea id="summernote" name="content"><?php echo htmlspecialchars($page_content); ?></textarea>
+                    <button type="submit" class="btn-submit">완료</button>
+                    <button type="button" id="cancel-btn" class="btn-cancel">취소</button>
+                </form>
+            </div>
+        <?php else: ?>
+            <div class="content-display">
+                <?php echo !empty($page_content) ? $page_content : '<p>아직 작성된 내용이 없습니다.</p>'; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
 <style>
-   
-    .profile-container {
+
+    .gallery-page-wrapper {
         display: flex;
         gap: 32px;
-       
         position: absolute;
         top: 220px;
         left: 96px;
         width: 1250px;
-       
         height: 605px;
     }
-    .profile_left_menu {
+    .left-menu {
         width: 204px;
         height: 100%;
         flex-shrink: 0;
@@ -44,113 +94,144 @@ $stmt->close();
         padding-top: 107px;
         box-sizing: border-box;
     }
-    .profile_left_menu > a {
+    .left-menu > a {
         color: #FFF;
         text-align: center;
         font-family: 'Fre1';
-       
         font-size: 32px;
-        font-style: normal;
-        line-height: normal;
         cursor: pointer;
         text-decoration-line: none;
     }
-   
-    .profile_left_menu > a.active {
+    .left-menu > a.active {
         font-family: 'Fre9';
-       
     }
-    .profile_main {
+    .gallery-content-area {
         width: 1016px;
         height: 100%;
         flex-shrink: 0;
         background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
-        padding: 20px;
-       
-        padding-left: 30px;
+        padding: 20px 30px;
         box-sizing: border-box;
         color: white;
-       
         overflow-y: scroll;
     }
-
-    .profile_main::-webkit-scrollbar {
+    .gallery-content-area::-webkit-scrollbar {
         width: 0;
         height: 0;
     }
-
-   
-    .profile_main .note-editor {
-        background-color: white;
-       
-        color: black;
-       
+    .gallery-main-title {
+        text-align: center;
+        color: rgb(255, 255, 255);
+        font-family: 'Fre7';
+        font-size: 40px;
+        margin-top: 40px;
+        margin-bottom: 20px;
     }
 
-    .content-display {}
-
-    #edit-btn {
+    .profile-content {
         padding: 10px;
-        color: #000000;
-        text-align: center;
-        font-family: 'Fre9';
-       
-        font-size: 16px;
-        font-style: normal;
-        line-height: normal;
-        background: #eee;
+    }
+    .content-display {
+        min-height: 400px;
+    }
+
+    .edit-button-container {
+        text-align: right;
+
+        padding-right: 20px;
+        margin-bottom: 15px;
+
+    }
+
+    #edit-btn,
+    .btn-cancel,
+    .btn-submit {
         border: none;
-        padding: 5px 10px;
+        padding: 8px 15px;
         cursor: pointer;
+        border-radius: 5px;
+        font-family: 'Fre9';
+        font-size: 16px;
+        margin-top: 10px;
+    }
+    #edit-btn {
+        background: #eee;
+        color: #000;
+    }
+    .btn-submit {
+        background: white;
+        color: black;
+    }
+    .btn-cancel {
+        background: black;
+        color: white;
+        margin-left: 5px;
+    }
+
+    .note-editor.note-frame {
+        background-color: rgba(0, 0, 0, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 5px !important;
+    }
+    .note-editor .note-editing-area .note-editable {
+        background-color: rgba(0, 0, 0, 0.4) !important;
+        color: white !important;
+        min-height: 250px !important;
+
+        padding: 15px !important;
+    }
+    .note-toolbar {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    @media (max-width: 768px) {
+        .gallery-page-wrapper {
+            position: static;
+            display: block;
+            height: auto;
+        }
+        .gallery-content-area {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 804px;
+            padding: 60px 40px;
+            margin: 0;
+            overflow-y: scroll;
+        }
+        .left-menu {
+            width: 100%;
+            height: 150px;
+            flex-direction: row;
+            position: absolute;
+            bottom: 0;
+            background: linear-gradient(180deg, rgb(0, 0, 0) 0%, rgba(0, 0, 0) 100%);
+            left: 0;
+            padding-top: 0;
+            gap: 82px;
+        }
+        .left-menu > a {
+            margin: 60px 0 0 83px;
+        }
+        .gallery-main-title {
+            font-size: 40px;
+            margin-top: 0;
+            text-align: left;
+        }
+        .note-editor .note-editing-area .note-editable {
+            min-height: 350px !important;
+        }
     }
 </style>
-
-<div class="profile-container">
-    <div class="profile_left_menu">
-        <a class="<?php echo ($current_profile === 'eden') ? 'active' : ''; ?>" href="#/page_view?name=eden">Eden</a>
-        <a class="<?php echo ($current_profile === 'white') ? 'active' : ''; ?>" href="#/page_view?name=white">White</a>
-        <a class="<?php echo ($current_profile === 'rivlen') ? 'active' : ''; ?>" href="#/page_view?name=rivlen">Rivlen</a>
-    </div>
-
-    <div class="profile_main">
-        <?php if ($is_admin): ?>
-        <div id="view-mode">
-            <div class="content-display">
-                <?php echo !empty($page_content) ? $page_content : '<p>내용이 없습니다. 수정하기 버튼을 눌러 내용을 추가하세요.</p>'; ?>
-            </div>
-            <button type="button" id="edit-btn">수정하기</button>
-        </div>
-        <div id="edit-mode" style="display: none;">
-            <form id="edit-form" action="ajax_save_page.php" method="post">
-                <input
-                    type="hidden"
-                    name="page_name"
-                    value="<?php echo htmlspecialchars($current_profile); ?>">
-                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                <textarea id="summernote" name="content"><?php echo htmlspecialchars($page_content); ?></textarea>
-                <button
-                    type="submit"
-                    style="font-family:Fre7; background:rgb(255, 255, 255); color:black; border:1px; borde-radius 10px; padding: 5px 10px; cursor:pointer; margin-top:5px;">완료</button>
-                <button
-                    type="button"
-                    id="cancel-btn"
-                    style="font-family:Fre7; background:rgb(0, 0, 0); color:white; border:none; padding: 5px 10px; cursor:pointer; margin-top:5px;">취소</button>
-            </form>
-        </div>
-    <?php else: ?>
-        <div class="content-display">
-            <?php echo !empty($page_content) ? $page_content : '<p>아직 작성된 내용이 없습니다.</p>'; ?>
-        </div>
-        <?php endif; ?>
-    </div>
-</div>
 
 <?php if ($is_admin): ?>
 <script>
     $(document).ready(function () {
-        
         $('#summernote').summernote({
-            height: 450, 
+            height: 250,
             dialogsInBody: true,
             callbacks: {
                 onImageUpload: function (files) {
@@ -158,7 +239,7 @@ $stmt->close();
                 }
             }
         });
-        
+
         $('#edit-btn').on('click', function () {
             $('#view-mode').hide();
             $('#edit-mode').show();
@@ -167,6 +248,7 @@ $stmt->close();
             $('#edit-mode').hide();
             $('#view-mode').show();
         });
+
         $('#edit-form').on('submit', function (e) {
             e.preventDefault();
             $('textarea[name="content"]').val($('#summernote').summernote('code'));
@@ -187,6 +269,7 @@ $stmt->close();
                 }
             });
         });
+
         function uploadImage(file, editor) {
             let data = new FormData();
             data.append("file", file);

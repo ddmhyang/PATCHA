@@ -1,15 +1,10 @@
 <?php
-// /pages/timeline.php (수정됨)
 if (!isset($mysqli)) {
-    // 데이터베이스 연결이 없는 경우 main.php를 통해 로드하도록 리디렉션합니다.
     $page_name = basename($_SERVER['PHP_SELF'], '.php');
     header("Location: main.php?page=" . $page_name);
     exit;
 }
 
-/**
- * HTML 콘텐츠에서 짧은 텍스트 미리보기를 추출합니다.
- */
 function get_preview_from_html($html, $length = 100) {
     if (empty($html)) { return '내용 없음'; }
     $text = strip_tags($html);
@@ -19,15 +14,13 @@ function get_preview_from_html($html, $length = 100) {
     return $text !== '' ? $text : '내용 없음';
 }
 
-// eden_gallery 테이블에서 gallery_type이 'timeline'인 게시물을 가져옵니다.
-$stmt = $mysqli->prepare("SELECT id, title, content, thumbnail FROM eden_gallery WHERE gallery_type = 'timeline' ORDER BY created_at DESC");
+$stmt = $mysqli->prepare("SELECT id, title, content, thumbnail FROM eden_gallery WHERE gallery_type = 'timeline' ORDER BY created_at ASC");
 $stmt->execute();
 $timeline_items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
 
 <style>
-    /* 페이지의 시각적 스타일링을 정의합니다. */
     .content {
         position: absolute !important;
         top: 220px;
@@ -44,18 +37,6 @@ $stmt->close();
         top: 28px;
         right: 28px;
         z-index: 10;
-    }
-    .admin-controls button {
-        background: white;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        width: 28px;
-        height: 28px;
-        font-size: 18px;
-        line-height: 28px;
-        text-align: center;
-        border-radius: 10px;
     }
     .timeline-wrapper {
         position: absolute;
@@ -130,6 +111,111 @@ $stmt->close();
         max-width: 150px;
         white-space: normal;
         word-break: keep-all;
+    }
+
+
+    @media (max-width: 768px) {
+        .content {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 900px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .admin-controls {
+            position: absolute;
+            top: 28px;
+            right: 28px;
+            z-index: 10;
+        }
+        .timeline-wrapper {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 100%;
+            width: 100%;
+            padding: 0px;
+            box-sizing: border-box;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+        .timeline-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        .timeline-line {
+            position: absolute;
+            width: 5px;
+            height: 800px;
+            background: white;
+            left: 50%;
+            top: 0px;
+            transform: translate(-50%, 0%);
+            margin-top:50px;
+            z-index: 1;
+        }
+        .timeline-events {
+            flex-direction: column;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+            gap: 0px;
+            margin-top: 86px;
+            width: 100%;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .timeline-item.top {
+            margin: 0px;
+            margin-right: 295px;
+        }
+        .timeline-item.bottom {
+            margin: 0px;
+            margin-left: 295px;
+        }
+        .item-container {
+            flex-direction: column;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        .item-thumbnail {
+            width: 145px;
+            height: 145px;
+            flex-shrink: 0;
+            border-radius: 15px;
+            background-color: white;
+            background-size: cover;
+            background-position: center;
+        }
+        .item-text {
+            margin-top:20px;
+            color: white;
+            margin-left: 0;
+        }
+        .item-text .timeline_year {
+            font-size: 20px;
+            text-align: center;
+            font-family: 'fre9';
+        }
+        .item-text .timeline_title {
+            font-family: 'fre1';
+            font-size: 14px;
+            max-width: 150px;
+            text-align: center;
+            white-space: normal;
+            word-break: keep-all;
+        }
     }
 </style>
 

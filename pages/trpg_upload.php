@@ -22,16 +22,6 @@ $gallery_type = 'trpg';
             <label for="thumbnail_file">썸네일 이미지 (선택 사항)</label>
             <input type="file" id="thumbnail_file" name="thumbnail_file" accept="image/*">
             <input type="hidden" id="thumbnail" name="thumbnail" value="">
-            <div
-                id="thumbnailPreview"
-                style="margin-top: 15px; border: 1px solid #ddd; padding: 10px; background-color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; height: 150px; overflow: hidden;">
-                <img
-                    id="currentThumbnail"
-                    src=""
-                    alt="썸네일 미리보기"
-                    style="max-width: 100%; max-height: 100%; display: none;">
-                <span id="noThumbnailText" style="color: rgba(255,255,255,0.7);">선택된 썸네일 없음</span>
-            </div>
         </div>
         <div class="form-group">
             <label for="content">세션 내용</label>
@@ -166,6 +156,23 @@ $gallery_type = 'trpg';
     }
     .content::-webkit-scrollbar-track {
         background-color: #333;
+    }
+    @media (max-width: 768px) {
+        .content {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 900px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .form-page-container {
+            width: 520px;
+            margin-left: 40px;
+        }
     }
 </style>
 

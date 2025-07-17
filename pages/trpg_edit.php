@@ -52,18 +52,6 @@ if (!$post) {
                 id="thumbnail"
                 name="thumbnail"
                 value="<?php echo isset($post['thumbnail']) ? htmlspecialchars($post['thumbnail']) : ''; ?>">
-            <div
-                id="thumbnailPreview"
-                style="margin-top: 15px; border: 1px solid #ddd; padding: 10px; background-color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; height: 150px; overflow: hidden;">
-                <img
-                    id="currentThumbnail"
-                    src="<?php echo isset($post['thumbnail']) ? htmlspecialchars($post['thumbnail']) : ''; ?>"
-                    alt="썸네일 미리보기"
-                    style="max-width: 100%; max-height: 100%; <?php echo isset($post['thumbnail']) && !empty($post['thumbnail']) ? 'display: block;' : 'display: none;'; ?>">
-                <span
-                    id="noThumbnailText"
-                    style="color: rgba(255,255,255,0.7); <?php echo isset($post['thumbnail']) && !empty($post['thumbnail']) ? 'display: none;' : 'display: block;'; ?>">선택된 썸네일 없음</span>
-            </div>
         </div>
 
         <div class="form-group">
@@ -73,7 +61,7 @@ if (!$post) {
         
         <button type="submit">수정 완료</button>
         <a
-            href="main.php?page=trpg_view&id=<?php echo $post['id']; ?>"
+            href="#/trpg_view?id=<?php echo $post['id']; ?>"
             class="btn-cancel">취소</a>
         <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
     </form>
@@ -183,6 +171,23 @@ if (!$post) {
     .content::-webkit-scrollbar-track {
         background-color: #333;
     }
+    @media (max-width: 768px) {
+        .content {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 900px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .form-page-container {
+            width: 520px;
+            margin-left: 40px;
+        }
+    }
 </style>
 
 <script>
@@ -215,4 +220,5 @@ if (!$post) {
                 }
             });
         }
+    });
 </script>

@@ -21,21 +21,6 @@ $gallery_type = $_GET['type'] ?? 'gallery1';
             <label for="thumbnail_file">썸네일 이미지 (선택 사항)</label>
             <input type="file" id="thumbnail_file" name="thumbnail_file" accept="image/*">
             <input type="hidden" id="thumbnail" name="thumbnail" value="">
-            <div
-                id="thumbnailPreview"
-                style="margin-top: 15px; border: 1px solid #ddd; padding: 10px; background-color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; height: 150px; overflow: hidden;">
-                <img
-                    id="currentThumbnail"
-                    src=""
-                    alt="썸네일 미리보기"
-                    style="max-width: 100%; max-height: 100%; display: none;">
-                <span id="noThumbnailText" style="color: rgba(255,255,255,0.7);">선택된 썸네일 없음</span>
-            </div>
-            <button
-                type="button"
-                id="autoSetThumbnail"
-                style="margin-top: 10px; padding: 8px 15px; background-color: #555; color: white; border: none; border-radius: 5px; cursor: pointer;">본문 첫 이미지로 자동 설정</button>
-        </div>
         <div class="form-group">
             <label for="content">내용</label>
             <textarea id="summernote" name="content"></textarea>
@@ -107,7 +92,6 @@ $gallery_type = $_GET['type'] ?? 'gallery1';
    
     .form-page-container {
         width: 1170px;
-       
         margin: 40px;
     }
 
@@ -181,5 +165,22 @@ $gallery_type = $_GET['type'] ?? 'gallery1';
 
     button[type="submit"]:hover {
         transform: scale(1.05);
+    }
+    @media (max-width: 768px) {
+        .content {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 900px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .form-page-container {
+            width: 520px;
+            margin-left: 40px;
+        }
     }
 </style>

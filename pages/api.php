@@ -5,7 +5,6 @@ require_once '../includes/db.php';
 $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
 $csrf_token = $_SESSION['csrf_token'];
 
-// 허용된 페이지 목록
 $allowed_pages = [
     'page_view',
     'gallery1', 'gallery2', 'gallery_etc', 'gallery_view', 'gallery_upload', 'gallery_edit',
@@ -15,7 +14,6 @@ $allowed_pages = [
 
 $page = $_GET['page'] ?? 'page_view';
 
-// 기본값이 eden인 page_view를 위해
 if ($page === 'page_view' && !isset($_GET['name'])) {
     $_GET['name'] = 'eden';
 }

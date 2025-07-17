@@ -138,14 +138,14 @@ $stmt->close();
 
     .trpg_title {
         font-family: 'Fre9';
-        font-size: 48px;
+        font-size: 40px;
         color: rgb(255, 255, 255);
         margin: 0;
     }
 
     .upload-button {
-        background-color: rgb(0, 0, 0);
-        color: white;
+        background-color: rgb(255, 255, 255);
+        color: black;
         padding: 12px 25px;
         border-radius: 8px;
         text-decoration: none;
@@ -281,5 +281,65 @@ $stmt->close();
         background-size: cover;
         background-position: center;
         margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .content {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 900px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+            padding: 0;
+            box-sizing: border-box;
+            margin-left:0;
+        }
+
+        .gallery-container {
+            width: 520px;
+            padding: 0px;
+            box-sizing: border-box;
+            color: white;
+            margin-top: 60px;
+            margin-bottom: 60px;
+            margin-left: 40px;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 50px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            justify-items: center;
+            margin-bottom: 30px;
+        }
+
+        .gallery-item {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            width: 235px;
+            text-align: center;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .item-thumbnail {
+            width: 180px;
+            height: 180px;
+            border-radius: 15px;
+            background-color: #ffffff;
+            background-size: cover;
+            background-position: center;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
     }
 </style>

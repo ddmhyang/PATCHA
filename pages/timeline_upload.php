@@ -157,6 +157,36 @@ $gallery_type = 'timeline';
     .content::-webkit-scrollbar-track {
         background-color: #333;
     }
+
+    @media (max-width: 768px) {
+        .form-page-container {
+            width: 520px;
+            margin-left: 40px;
+        }
+
+        .content {
+            position: absolute !important;
+            top: 273px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 900px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .content::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 4px;
+        }
+        .content::-webkit-scrollbar-track {
+            background-color: #333;
+        }
+    }
 </style>
 
 <script>
