@@ -1,5 +1,5 @@
 <?php
-// --- 파일 경로: /pages/trpg_view.php ---
+// --- 파일 경로: /pages/trpg_view.php (최종 수정본) ---
 require_once __DIR__ . '/../includes/db.php';
 $is_admin = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
 
@@ -23,12 +23,8 @@ if (!$post) { exit("게시물이 존재하지 않습니다."); }
         <span>작성일: <?php echo date("Y-m-d", strtotime($post['created_at'])); ?></span>
     </div>
 
-    <?php if (!empty($post['thumbnail_path'])): ?>
-        <img class="view-thumbnail" src="<?php echo htmlspecialchars($post['thumbnail_path']); ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
-    <?php endif; ?>
-
     <div class="view-content">
-        <?php echo $post['content']; ?>
+        <?php echo $post['content']; // 썸네일 출력 코드를 완전히 제거하고 본문 내용만 출력합니다. ?>
     </div>
     
     <?php if ($is_admin): ?>

@@ -14,7 +14,7 @@ $messages = $mysqli->query("SELECT * FROM messages ORDER BY created_at ASC")->fe
         <?php foreach ($messages as $msg): ?>
             <div class="message-row <?php echo ($msg['character_name'] === 'Lilian') ? 'received' : 'sent'; ?>" 
                  data-id="<?php echo $msg['id']; ?>"
-                 data-is-admin="<?php echo $is_admin ? 'true' : 'false'; ?>">
+                 data-is-admin="<?php echo $is_admin ? 'true' : 'false'; // 관리자 여부 속성 추가 ?>">
                 
                 <img class="profile-pic" src="../assets/images/<?php echo ($msg['character_name'] === 'Lilian') ? 'torken2.png' : 'torken.png'; ?>">
                 

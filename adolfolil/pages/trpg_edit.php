@@ -1,11 +1,11 @@
 <?php
-// --- 파일 경로: /pages/gallery_edit.php ---
+// --- 파일 경로: /pages/trpg_edit.php ---
 require_once __DIR__ . '/../includes/db.php';
 if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) { exit("권한이 없습니다."); }
 if (!isset($_GET['id'])) { exit("잘못된 접근입니다."); }
 
 $post_id = intval($_GET['id']);
-$stmt = $mysqli->prepare("SELECT * FROM posts WHERE id = ? AND type = 'gallery'");
+$stmt = $mysqli->prepare("SELECT * FROM posts WHERE id = ? AND type = 'trpg'");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -18,7 +18,7 @@ if (!$post) { exit("게시물이 없습니다."); }
     <h2>게시물 수정</h2>
     <form action="../actions/gallery_save.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $post['id']; ?>">
-        <input type="hidden" name="type" value="gallery">
+        <input type="hidden" name="type" value="trpg">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         
         <div class="form-group">
@@ -37,7 +37,7 @@ if (!$post) { exit("게시물이 없습니다."); }
             <textarea class="summernote" name="content"><?php echo htmlspecialchars($post['content']); ?></textarea>
         </div>
         <button type="submit">수정 완료</button>
-        <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="btn-cancel">취소</a>
+        <a href="#/trpg_view?id=<?php echo $post['id']; ?>" class="btn-cancel">취소</a>
     </form>
 </div>
 <script>

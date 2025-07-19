@@ -1,5 +1,5 @@
 <?php
-// --- 파일 경로: /pages/main_content.php (최종 수정본) ---
+// --- 파일 경로: /pages/main_content.php ---
 require_once __DIR__ . '/../includes/db.php';
 $is_admin = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
 $page_name = 'main_content';
@@ -16,8 +16,8 @@ $stmt->close();
 <div class="page-container" data-page-name="<?php echo $page_name; ?>">
     <?php if ($is_admin): ?>
         <div id="view-mode">
-            <div class="admin-buttons"><button type="button" class="edit-btn">수정하기</button></div>
             <div class="content-display"><?php echo $page_content; ?></div>
+            <div class="admin-buttons"><button type="button" class="edit-btn">수정하기</button></div>
         </div>
         <div id="edit-mode" style="display: none;">
             <form class="edit-form" action="../actions/ajax_save_page.php" method="post">
@@ -36,21 +36,19 @@ $stmt->close();
 
 <?php if ($is_admin): ?>
 <script>
+// JavaScript 코드는 이전과 동일하게 유지합니다.
 $(document).ready(function() {
     var pageContainer = $('.page-container[data-page-name="<?php echo $page_name; ?>"]');
     
-    // Summernote 초기화
     pageContainer.find('.summernote').summernote({
         height: 350,
         callbacks: {
             onImageUpload: function(files) {
-                // 이미지가 업로드되면 아래 함수를 호출
                 uploadSummernoteImage(files[0], $(this));
             }
         }
     });
 
-    // Summernote 이미지 업로드 전용 함수
     function uploadSummernoteImage(file, editor) {
         let data = new FormData();
         data.append("file", file);
@@ -69,7 +67,6 @@ $(document).ready(function() {
         });
     }
 
-    // 수정/보기 모드 전환 버튼
     pageContainer.on('click', '.edit-btn', function() {
         pageContainer.find('#view-mode').hide();
         pageContainer.find('#edit-mode').show();

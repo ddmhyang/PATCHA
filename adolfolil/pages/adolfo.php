@@ -15,8 +15,8 @@ $stmt->close();
 <div class="page-container" data-page-name="<?php echo $page_name; ?>">
     <?php if ($is_admin): ?>
         <div id="view-mode">
-            <div class="admin-buttons"><button type="button" id="edit-btn">수정하기</button></div>
             <div class="content-display"><?php echo $page_content; ?></div>
+            <div class="admin-buttons"><button type="button" class="edit-btn">수정하기</button></div>
         </div>
 
         <div id="edit-mode" style="display: none;">
@@ -25,7 +25,7 @@ $stmt->close();
                 <textarea class="summernote" name="content"><?php echo htmlspecialchars($page_content); ?></textarea>
                 <div class="admin-buttons">
                     <button type="submit">저장하기</button>
-                    <button type="button" id="cancel-btn">취소</button>
+                    <button type="button" class="cancel-btn">취소</button>
                 </div>
             </form>
         </div>
@@ -47,13 +47,13 @@ $stmt->close();
         });
 
         // 수정 버튼 클릭 시 모드 전환
-        pageContainer.find('#edit-btn').on('click', function() {
+        pageContainer.find('.edit-btn').on('click', function() {
             pageContainer.find('#view-mode').hide();
             pageContainer.find('#edit-mode').show();
         });
 
         // 취소 버튼 클릭 시 모드 전환
-        pageContainer.find('#cancel-btn').on('click', function() {
+        pageContainer.find('.cancel-btn').on('click', function() {
             pageContainer.find('#edit-mode').hide();
             pageContainer.find('#view-mode').show();
         });
