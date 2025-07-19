@@ -1,15 +1,15 @@
 <?php
-// /pages/trpg_upload.php
+// /pages/timeline_upload.php
 
 if (!$is_admin) {
     echo "권한이 없습니다.";
     exit;
 }
-$gallery_type = 'trpg'; 
+$gallery_type = 'timeline'; 
 ?>
 <div class="form-page-container">
-    <a class="gallery_form_title">새 TRPG 세션 기록</a>
-    <form action="trpg_save.php" method="post">
+    <a class="gallery_form_title">새 timeline 세션 기록</a>
+    <form action="timeline_save.php" method="post">
         <input
             type="hidden"
             name="gallery_type"
@@ -157,7 +157,13 @@ $gallery_type = 'trpg';
     .content::-webkit-scrollbar-track {
         background-color: #333;
     }
+
     @media (max-width: 768px) {
+        .form-page-container {
+            width: 520px;
+            margin-left: 40px;
+        }
+
         .content {
             position: absolute !important;
             top: 273px;
@@ -169,99 +175,49 @@ $gallery_type = 'trpg';
             padding: 0;
             box-sizing: border-box;
         }
-        .form-page-container {
-            width: 520px;
-            margin-left: 40px;
+
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .content::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 4px;
+        }
+        .content::-webkit-scrollbar-track {
+            background-color: #333;
         }
     }
 </style>
 
 <script>
-$(document).ready(function () {
-    // Summernote 에디터 초기화
-    $('#summernote').summernote({
-        height: 350,
-        callbacks: {
-            onImageUpload: function (files) {
-                // 한 번에 하나의 파일만 처리하도록 하여 안정성 확보
-                if (files.length > 0) {
-                    uploadFile(files[0], $(this));
+    $(document).ready(function () {
+        $('#summernote').summernote({
+            height: 350,
+            callbacks: {
+                onImageUpload: function (files) {
+                    uploadImage(files[0], $(this));
                 }
-            }
-        }
-    });
-
-    // 파일 업로드 및 본문 삽입을 위한 단일 통합 함수
-    function uploadFile(file, editor) {
-        let data = new FormData();
-        data.append("file", file);
-
-        let loadingNode = null;
-        if (file.type === 'application/pdf') {
-             loadingNode = $('<p><em>PDF를 고화질 이미지로 변환 중입니다. 페이지 수에 따라 시간이 걸릴 수 있습니다...</em></p>')[0];
-             editor.summernote('insertNode', loadingNode);
-        }
-
-        $.ajax({
-            url: 'ajax_upload_image.php',
-            type: "POST",
-            data: data,
-            contentType: false,
-            processData: false,
-            dataType: 'json',
-            success: function (response) {
-                if(loadingNode) $(loadingNode).remove();
-
-                if (response.success && response.urls && response.urls.length > 0) {
-                    // ▼▼▼▼▼ 여기가 최종 해결책입니다. PDF.js 관련 코드를 모두 제거합니다. ▼▼▼▼▼
-                    let imagesHtml = '';
-                    // 1. 서버가 보내준 모든 이미지 URL을 <p>와 <img> 태그로 감싸 하나의 HTML 덩어리로 만듭니다.
-                    response.urls.forEach(function(url) {
-                        imagesHtml += '<p><img src="' + url + '" style="max-width:100%;"></p>';
-                    });
-
-                    // 2. 에디터에 포커스를 맞추고, 완성된 HTML 덩어리를 한번에 삽입합니다.
-                    editor.summernote('focus');
-                    editor.summernote('pasteHTML', imagesHtml);
-                    // ▲▲▲▲▲ 여기까지가 최종 코드입니다. ▲▲▲▲▲
-
-                } else {
-                    alert('업로드 실패: ' + (response.error || '알 수 없는 오류가 발생했습니다.'));
-                }
-            },
-            error: function (jqXHR) {
-                if(loadingNode) $(loadingNode).remove();
-                console.error("Upload failed:", jqXHR.responseText);
-                alert("파일 업로드 중 서버 오류가 발생했습니다. 개발자 도구를 확인해주세요.");
             }
         });
-    }
 
-    // 폼 저장 로직 (기존과 동일하게 유지)
-    $('form[action$="_save.php"], form[id="edit-form"]').on('submit', function (e) {
-        e.preventDefault();
-        if ($(this).find('#summernote').length) {
-             $('textarea[name="content"]').val($('#summernote').summernote('code'));
-        }
-        var formData = new FormData(this);
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function (response) {
-                if (response.success && response.redirect_url) {
-                    window.location.hash = response.redirect_url;
-                } else {
-                    alert('저장 실패: ' + (response.message || '알 수 없는 오류'));
+        function uploadImage(file, editor) {
+            let data = new FormData();
+            data.append("file", file);
+            $.ajax({
+                url: 'ajax_upload_image.php',
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: data,
+                type: "POST",
+                success: function (url) {
+                    editor.summernote('insertImage', url);
+                },
+                error: function (data) {
+                    console.error("Image upload failed:", data);
+                    alert("이미지 업로드 실패.");
                 }
-            },
-            error: function () {
-                alert('저장 요청 처리 중 오류가 발생했습니다.');
-            }
-        });
+            });
+        }
     });
-});
 </script>

@@ -1,28 +1,30 @@
 <?php
-// /pages/gallery_view.php
+// /pages/timeline_view.php
+
 if (!isset($_GET['id'])) {
     echo "잘못된 접근입니다.";
     exit;
 }
 $post_id = intval($_GET['id']);
 
-
-$stmt = $mysqli->prepare("SELECT * FROM eden_gallery WHERE id = ?");
+$stmt = $mysqli->prepare("SELECT * FROM eden_gallery WHERE id = ? AND gallery_type = 'timeline'");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $post = $result->fetch_assoc();
+$stmt->close();
 
 if (!$post) {
-    echo "게시물이 존재하지 않습니다.";
+    echo "게시물이 존재하지 않거나 timeline 게시물이 아닙니다.";
     exit;
 }
 ?>
-<div class="post-view-container">
+<div class="timeline-session-view-container">
     <h1><?php echo htmlspecialchars($post['title']); ?></h1>
     <div class="post-meta">
         <?php if ($is_admin): ?>
-        <a href="#/gallery_edit?id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
+        &nbsp;
+        <a href="#/timeline_edit?id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
         <a
             href="#"
             class="btn-action btn-delete"
@@ -38,49 +40,19 @@ if (!$post) {
         <?php echo $post['content']; ?>
     </div>
     <div class="post-actions">
-        <a
-            href="#/<?php echo htmlspecialchars($post['gallery_type']); ?>"
-            class="btn-back-to-list">목록으로</a>
+        <a href="#/timeline" class="btn-back-to-list">목록으로</a>
     </div>
 </div>
-<script></script>
+
 <style>
 
-    .content {
-        position: absolute !important;
-        top: 220px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 1250px;
-        height: 605px;
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
-        padding: 0;
-        box-sizing: border-box;
-        overflow-x: hidden;
-        overflow-y: scroll;
-    }
-
-    .content::-webkit-scrollbar {
-        width: 8px;
-    }
-    .content::-webkit-scrollbar-thumb {
-        background-color: #555;
-        border-radius: 4px;
-    }
-    .content::-webkit-scrollbar-track {
-        background-color: #333;
-    }
-
-    .post-view-container {
+    .timeline-session-view-container {
         width: 1170px;
-
-        margin: 40px;
+        margin-left: 40px;
     }
-
-    .post-view-container h1 {
+    .timeline-session-view-container h1 {
         text-align: center;
         color: rgb(255, 255, 255);
-
         font-family: 'Fre9';
         font-size: 40px;
         margin-top: 45px;
@@ -88,7 +60,7 @@ if (!$post) {
     }
 
     .post-date,
-    .post-meta {
+    .timeline-session-view-container .post-meta {
         text-align: right;
         color: rgba(255, 255, 255, 0.7);
         font-family: 'Fre3';
@@ -97,7 +69,7 @@ if (!$post) {
         margin-right: 15px;
     }
 
-    .btn-action {
+    .timeline-session-view-container .post-meta .btn-action {
         margin-left: 10px;
         padding: 12px 25px;
         border-radius: 5px;
@@ -110,12 +82,27 @@ if (!$post) {
         margin-right: 10px;
     }
 
-    .btn-action.btn-delete {
+    .timeline-session-view-container .post-meta .btn-delete {
         background-color: rgb(0, 0, 0);
         color: white;
     }
 
-    .btn-back-to-list {
+    .post-date {
+        margin-top: 35px;
+    }
+
+    .timeline-session-view-container .post-content {
+        font-family: 'Fre3', sans-serif;
+        font-size: 20px;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.95);
+        min-height: 250px;
+        padding: 0 15px;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .timeline-session-view-container .btn-back-to-list {
         display: block;
         width: fit-content;
         margin: 30px auto 0;
@@ -131,21 +118,29 @@ if (!$post) {
         margin-bottom: 50px;
     }
 
-    .post-view-container hr {
-        border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.3);
-        margin: 20px 0;
+    .content {
+        position: absolute !important;
+        top: 220px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1250px;
+        height: 605px;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
+        padding: 0;
+        box-sizing: border-box;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
-    .post-content {
-        font-family: 'Fre3', sans-serif;
-        font-size: 20px;
-        line-height: 1.8;
-        color: rgba(255, 255, 255, 0.95);
-        min-height: 250px;
-        padding: 0 15px;
-        border-radius: 8px;
-        padding: 20px;
+    .content::-webkit-scrollbar {
+        width: 8px;
+    }
+    .content::-webkit-scrollbar-thumb {
+        background-color: #555;
+        border-radius: 4px;
+    }
+    .content::-webkit-scrollbar-track {
+        background-color: #333;
     }
 
     @media (max-width: 768px) {
@@ -160,12 +155,12 @@ if (!$post) {
             padding: 0;
             box-sizing: border-box;
         }
-        .post-view-container {
+        .timeline-session-view-container {
             width: 520px;
             margin-left: 40px;
         }
 
-        .post-meta {
+        .timeline-session-view-container .post-meta {
             text-align: right;
             color: rgba(255, 255, 255, 0.7);
             font-family: 'Fre3';
