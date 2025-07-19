@@ -1,362 +1,118 @@
 <?php
-// /pages/login.php
-require_once '../includes/db.php';
+// --- 파일 경로: /pages/login.php ---
 
+// DB 연결 및 세션 시작을 위해 가장 먼저 호출합니다.
+require_once __DIR__ . '/../includes/db.php';
 
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+// 만약 이미 로그인 상태라면, main.php로 즉시 이동시킵니다.
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     header('Location: main.php');
     exit;
 }
 
-$error = '';
+$error_message = '';
+// 사용자가 폼을 통해 아이디와 비밀번호를 제출했을 때
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        $error = '잘못된 접근입니다. 페이지를 새로고침한 후 다시 시도해주세요.';
-    } else {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-        
-        $stmt = $mysqli->prepare("SELECT id, password_hash FROM eden_admin WHERE username = ?");
+    if (!empty($username) && !empty($password)) {
+        // 1. 데이터베이스에서 'admin' 사용자를 찾습니다.
+        $sql = "SELECT id, username, password_hash FROM users WHERE username = ?";
+        $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
+        
+        if ($result->num_rows === 1) {
+            $user = $result->fetch_assoc();
 
-        if ($user = $result->fetch_assoc()) {
+            // 2. DB에 저장된 암호화된 비밀번호와 사용자가 입력한 '1234'가 일치하는지 확인합니다.
             if (password_verify($password, $user['password_hash'])) {
+                // 3. 로그인 성공! 세션에 중요한 정보들을 저장합니다.
+                $_SESSION['loggedin'] = true;
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['user_id'] = $user['id']; // 이 값이 있어야 글쓰기/수정/삭제 권한이 생깁니다.
                 
-                $_SESSION['admin_logged_in'] = true;
-                $_SESSION['admin_id'] = $user['id'];
-                
-                session_regenerate_id(true);
-                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                // 메인 페이지로 이동합니다.
                 header('Location: main.php');
                 exit;
             }
         }
-        $error = '아이디 또는 비밀번호가 잘못되었습니다.';
     }
+    
+    // 로그인에 실패한 경우 에러 메시지를 설정합니다.
+    $error_message = '아이디 또는 비밀번호가 올바르지 않습니다.';
 }
-
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrf_token = $_SESSION['csrf_token']; 
 ?>
 <!DOCTYPE html>
 <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="icon" type="image/png" href="../assets/img/기타/동물1.png">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>관리자 로그인</title>
-        <style>
-            @font-face {
-                font-family: 'Bonheur-Royale';
-                src: url("../assets/fonts/Bonheur-Royale.ttf") format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-
-            @font-face {
-                font-family: 'Fre1';
-                src: url("../assets/fonts/Freesentation-1Thin.ttf") format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-
-            @font-face {
-                font-family: 'Fre9';
-                src: url("../assets/fonts/Freesentation-9Black.ttf") format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-
-            body,
-            html {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgb(0, 0, 0);
-                overflow: hidden;
-                position: relative;
-                visibility: hidden;
-                font-family: 'Fre1', sans-serif;
-               
-            }
-
-            .container {
-                width: 1440px;
-                height: 900px;
-                background-color: #000000;
-                transform-origin: top left;
-                position: absolute;
-                transform: scale(0);
-            }
-
-            .container,
-            body,
-            html {
-                transition: background-color 1s ease-in-out;
-            }
-
-            .login-container {
-                width: 1440px;
-                height: 900px;
-                flex-shrink: 0;
-                aspect-ratio: 1440/900;
-                background: url("../assets/img/background.png") rgb(0, 0, 0) 50% / cover no-repeat;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                border-left: 2px solid rgb(160, 160, 160);
-                border-right: 2px solid rgb(160, 160, 160);
-                box-sizing: border-box;
-            }
-
-            .title {
-                color: #FFF;
-                text-align: center;
-                font-family: "Bonheur-Royale";
-                font-size: 96px;
-                font-style: normal;
-                font-weight: 400;
-                line-height: normal;
-                position: absolute;
-                top: 168px;
-               
-               
-            }
-
-            form {
-                position: absolute;
-                top: 440px;
-               
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 30px;
-               
-            }
-
-            input[type="text"],
-            input[type="password"] {
-                width: 409px;
-                height: 84px;
-                flex-shrink: 0;
-                background: rgba(255, 255, 255, 0.50);
-                border: none;
-                text-align: center;
-                font-family: "Fre9";
-               
-                font-size: 24px;
-                color: #000000;
-               
-                padding: 0 20px;
-               
-                box-sizing: border-box;
-               
-            }
-
-            input[type="text"]::placeholder,
-            input[type="password"]::placeholder {
-                color: rgba(255, 255, 255, 0.7);
-               
-            }
-
-            input:focus {
-                outline: none;
-            }
-
-            button[type="submit"] {
-                width: 201px;
-                height: 52px;
-                flex-shrink: 0;
-                color: #FFF;
-                text-align: center;
-                font-family: "Fre9";
-                font-size: 20px;
-                font-style: normal;
-                font-weight: 900;
-                line-height: normal;
-                background: rgba(255, 255, 255, 0.50);
-                cursor: pointer;
-                border: none;
-                transition-duration: 0.25s;
-            }
-
-            button[type="submit"]:hover {
-                transform: scale(1.05);
-            }
-
-            .error {
-                color: red;
-                font-family: 'Fre1', sans-serif;
-                font-size: 18px;
-                margin-top: 20px;
-                position: absolute;
-                top: 750px;  
-            }
-
-            @media (max-width: 768px) {
-                .container {
-                    width: 720px;
-                    height: 1280px;
-                    background-color: #000000;
-                    transform-origin: top left;
-                    position: absolute;
-                    transform: scale(0);
-                
-                }
-
-                .login-container {
-                    width: 720px;
-                    height: 1280px;
-                    flex-shrink: 0;
-                    background: url("../assets/img/background.png") lightgray -664px 0px / 284.444% 100% no-repeat;
-                }
-
-                .title {
-                    color: #FFF;
-                    text-align: center;
-                    font-family: "Bonheur-Royale";
-                    font-size: 96px;
-                    font-style: normal;
-                    font-weight: 400;
-                    line-height: normal;
-                    position: absolute;
-                    left: 50%;
-                    top: 263px;
-                    transform: translateX(-50%);
-                }
-
-
-
-                form {
-                    position: absolute;
-                    top: 600px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 50px;
-                }
-
-                input[type="text"],
-                input[type="password"] {
-                    width: 409px;
-                    height: 84px;
-                    flex-shrink: 0;
-                    background: rgba(255, 255, 255, 0.50);
-                    border: none;
-                    text-align: center;
-                    font-family: "Fre9";
-                
-                    font-size: 24px;
-                    color: #000000;
-                
-                    padding: 0 20px;
-                
-                    box-sizing: border-box;
-                
-                }
-
-                input[type="text"]::placeholder,
-                input[type="password"]::placeholder {
-                    color: rgba(255, 255, 255, 0.7);
-                
-                }
-
-                input:focus {
-                    outline: none;
-                }
-
-                button[type="submit"] {
-                    width: 201px;
-                    height: 52px;
-                    flex-shrink: 0;
-                    color: #FFF;
-                    text-align: center;
-                    font-family: "Fre9";
-                    font-size: 20px;
-                    font-style: normal;
-                    font-weight: 900;
-                    line-height: normal;
-                    background: rgba(255, 255, 255, 0.50);
-                    cursor: pointer;
-                    border: none;
-                    transition-duration: 0.25s;
-                }
-
-                button[type="submit"]:hover {
-                    transform: scale(1.05);
-                }
-
-                .error {
-                    color: red;
-                    font-family: 'Fre1', sans-serif;
-                    font-size: 18px;
-                    margin-top: 20px;
-                    position: absolute;
-                    top: 750px;  
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="login-container">
-
-                <div class="title">EDEN</div>
-
-                <form method="post" action="login.php">
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                    <input type="text" name="username" required="required">
-                    <input type="password" name="password" required="required">
-                    <button type="submit">Login</button>
-                </form>
-                <?php if ($error): ?>
-                <p class="error"><?php echo $error; ?></p>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <script>
-            function adjustScale() {
-                const container = document.querySelector('.container');
-                if (!container) 
-                    return;
-                
-                let containerWidth,
-                    containerHeight;
-                const windowWidth = window.innerWidth;
-                const windowHeight = window.innerHeight;
-
-                if (windowWidth <= 784) {
-                    containerWidth = 720;
-                    containerHeight = 1280;
-                } else {
-                    containerWidth = 1440;
-                    containerHeight = 900;
-                }
-
-                const scale = Math.min(
-                    windowWidth / containerWidth,
-                    windowHeight / containerHeight
-                );
-                container.style.transform = `scale(${scale})`;
-                container.style.left = `${ (windowWidth - containerWidth * scale) / 2}px`;
-                container.style.top = `${ (windowHeight - containerHeight * scale) / 2}px`;
-            }
-
-            window.addEventListener('load', () => {
-                adjustScale();
-                document.body.style.visibility = 'visible';
-            });
-            window.addEventListener('resize', adjustScale);
-        </script>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 로그인 - DolfoLil</title>
+    <style>
+        @font-face {
+            font-family: 'DungGeunMo';
+            src: url("../assets/fonts/DungGeunMo.ttf") format('truetype');
+        }
+        @font-face {
+            font-family: 'Galmuri9';
+            src: url("../assets/fonts/Galmuri9.ttf") format('truetype');
+        }
+        body { 
+            background-color: #000; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            font-family: 'Galmuri9', sans-serif;
+        }
+        .login-form { 
+            padding: 40px; 
+            background: #1A1A1A; 
+            border-radius: 10px; 
+            color: #FAFAFA; 
+            width: 300px; 
+            text-align: center; 
+        }
+        .login-form h1 { 
+            font-family: 'DungGeunMo'; 
+            font-size: 24px; 
+        }
+        .login-form input { 
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            border: 1px solid #333; 
+            background: #222; 
+            color: #fff; 
+            box-sizing: border-box; 
+        }
+        .login-form button { 
+            width: 100%; 
+            padding: 10px; 
+            background: #FAFAFA; 
+            color: #1A1A1A; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+        .error { 
+            color: #ff6b6b; 
+            margin-top: 15px; 
+        }
+    </style>
+</head>
+<body>
+    <form class="login-form" method="POST" action="login.php">
+        <h1>관리자 로그인</h1>
+        <input type="text" name="username" placeholder="아이디" value="admin" required>
+        <input type="password" name="password" placeholder="비밀번호" required>
+        <button type="submit">로그인</button>
+        <?php if ($error_message): ?>
+            <p class="error"><?php echo $error_message; ?></p>
+        <?php endif; ?>
+    </form>
+</body>
 </html>

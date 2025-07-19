@@ -1,183 +1,52 @@
 <?php
-// /pages/gallery_view.php
-if (!isset($_GET['id'])) {
-    echo "잘못된 접근입니다.";
-    exit;
-}
+// --- 파일 경로: /pages/gallery_view.php (최종 수정본) ---
+require_once __DIR__ . '/../includes/db.php';
+$is_admin = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
+
+if (!isset($_GET['id'])) { exit("잘못된 접근입니다."); }
 $post_id = intval($_GET['id']);
 
-
-$stmt = $mysqli->prepare("SELECT * FROM eden_gallery WHERE id = ?");
+$stmt = $mysqli->prepare("SELECT * FROM posts WHERE id = ? AND type = 'gallery'");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $post = $result->fetch_assoc();
+$stmt->close();
 
-if (!$post) {
-    echo "게시물이 존재하지 않습니다.";
-    exit;
+if (!$post) { exit("게시물이 존재하지 않습니다."); }
+
+// ▼▼▼ 본문 내용을 별도의 변수에 저장 ▼▼▼
+$display_content = $post['content'];
+
+// 썸네일이 존재하고, 그 썸네일이 본문의 첫 이미지와 동일하다면 본문에서 해당 이미지를 제거합니다.
+if (!empty($post['thumbnail_path'])) {
+    preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
+    if (isset($matches[1]) && $matches[1] === $post['thumbnail_path']) {
+        // 이미지를 감싸는 <p> 태그까지 포함하여 한 번만 교체합니다.
+        $display_content = preg_replace('/<p>\s*<img[^>]+src="'.preg_quote($matches[1], '/').'"[^>]*>\s*<\/p>/', '', $post['content'], 1);
+    }
 }
 ?>
-<div class="post-view-container">
+
+<div class="view-container">
     <h1><?php echo htmlspecialchars($post['title']); ?></h1>
-    <div class="post-meta">
-        <?php if ($is_admin): ?>
-        <a href="#/gallery_edit?id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
-        <a
-            href="#"
-            class="btn-action btn-delete"
-            data-id="<?php echo $post['id']; ?>"
-            data-token="<?php echo $csrf_token; ?>"
-            data-url="gallery_delete.php">삭제</a>
-        <?php endif; ?>
+    <div class="view-meta">
+        <span>작성일: <?php echo date("Y-m-d", strtotime($post['created_at'])); ?></span>
     </div>
-    <hr>
-    <div class="post-date">작성일:
-        <?php echo $post['created_at']; ?></div>
-    <div class="post-content">
-        <?php echo $post['content']; ?>
+
+    <?php if (!empty($post['thumbnail_path'])): ?>
+        <img class="view-thumbnail" src="<?php echo htmlspecialchars($post['thumbnail_path']); ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
+    <?php endif; ?>
+
+    <div class="view-content">
+        <?php echo $display_content; ?>
     </div>
-    <div class="post-actions">
-        <a
-            href="#/<?php echo htmlspecialchars($post['gallery_type']); ?>"
-            class="btn-back-to-list">목록으로</a>
+    
+    <?php if ($is_admin): ?>
+    <div class="admin-buttons">
+        <a href="#/gallery_edit?id=<?php echo $post_id; ?>">수정</a>
+        <button class="delete-btn" data-id="<?php echo $post_id; ?>" data-type="gallery">삭제</button>
     </div>
+    <?php endif; ?>
+    <a href="#/gallery" class="btn-back-to-list">목록으로</a>
 </div>
-<script></script>
-<style>
-
-    .content {
-        position: absolute !important;
-        top: 220px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 1250px;
-        height: 605px;
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
-        padding: 0;
-        box-sizing: border-box;
-        overflow-x: hidden;
-        overflow-y: scroll;
-    }
-
-    .content::-webkit-scrollbar {
-        width: 8px;
-    }
-    .content::-webkit-scrollbar-thumb {
-        background-color: #555;
-        border-radius: 4px;
-    }
-    .content::-webkit-scrollbar-track {
-        background-color: #333;
-    }
-
-    .post-view-container {
-        width: 1170px;
-
-        margin: 40px;
-    }
-
-    .post-view-container h1 {
-        text-align: center;
-        color: rgb(255, 255, 255);
-
-        font-family: 'Fre9';
-        font-size: 40px;
-        margin-top: 45px;
-        margin-bottom: 15px;
-    }
-
-    .post-date,
-    .post-meta {
-        text-align: right;
-        color: rgba(255, 255, 255, 0.7);
-        font-family: 'Fre3';
-        font-size: 16px;
-        margin-bottom: 25px;
-        margin-right: 15px;
-    }
-
-    .btn-action {
-        margin-left: 10px;
-        padding: 12px 25px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-family: 'Fre9';
-        font-size: 16px;
-        color: black;
-        background-color: rgb(255, 255, 255);
-        transition: background-color 0.3s ease;
-        margin-right: 10px;
-    }
-
-    .btn-action.btn-delete {
-        background-color: rgb(0, 0, 0);
-        color: white;
-    }
-
-    .btn-back-to-list {
-        display: block;
-        width: fit-content;
-        margin: 30px auto 0;
-        padding: 12px 35px;
-        background-color: #ffffff;
-        color: black;
-        border-radius: 5px;
-        text-decoration: none;
-        font-size: 20px;
-        font-family: 'Fre9';
-        text-align: center;
-        transition: background-color 0.3s ease;
-        margin-bottom: 50px;
-    }
-
-    .post-view-container hr {
-        border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.3);
-        margin: 20px 0;
-    }
-
-    .post-content {
-        font-family: 'Fre3', sans-serif;
-        font-size: 20px;
-        line-height: 1.8;
-        color: rgba(255, 255, 255, 0.95);
-        min-height: 250px;
-        padding: 0 15px;
-        border-radius: 8px;
-        padding: 20px;
-    }
-
-    @media (max-width: 768px) {
-        .content {
-            position: absolute !important;
-            top: 273px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 900px;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(255, 255, 255, 0.35) 100%);
-            padding: 0;
-            box-sizing: border-box;
-        }
-        .post-view-container {
-            width: 520px;
-            margin-left: 40px;
-        }
-
-        .post-meta {
-            text-align: right;
-            color: rgba(255, 255, 255, 0.7);
-            font-family: 'Fre3';
-            font-size: 16px;
-            margin-top: 35px;
-            margin-bottom: 30px;
-            margin-right: 15px;
-        }
-
-        .post-date {
-            margin-top: 20px;
-            margin-bottom: 0;
-        }
-    }
-</style>
