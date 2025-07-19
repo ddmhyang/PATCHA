@@ -42,12 +42,11 @@ $csrf_token = $_SESSION['csrf_token'] ?? '';
 
         <div class="bottom_bar">
             </div>
+    
+        <div id="messenger-overlay" style="display:none; position:absolute; left:829px; top:99px; z-index: 100;"></div>
     </div>
     
-    <script>
-        // PHP 변수를 JavaScript 전역 변수로 선언합니다.
-        const csrfToken = '<?php echo $csrf_token; ?>';
-    </script>
+    <script> const csrfToken = '<?php echo $csrf_token; ?>'; </script>
     <script src="../assets/js/main.js"></script>
 </body>
 </html>
