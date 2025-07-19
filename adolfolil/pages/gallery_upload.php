@@ -8,7 +8,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 ?>
 <div class="form-page-container">
     <h2>새 게시물 작성</h2>
-    <form action="actions/gallery_save.php" method="post" enctype="multipart/form-data">
+    <form action="../actions/gallery_save.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="type" value="gallery">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         

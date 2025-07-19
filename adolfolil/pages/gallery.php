@@ -30,11 +30,11 @@ if ($result) {
         <?php else: ?>
             <?php foreach ($posts as $post): ?>
                 <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="gallery-item">
-                    <?php if (!empty($post['thumbnail_path'])): ?>
-                        <img src="<?php echo htmlspecialchars($post['thumbnail_path']); ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
-                    <?php else: ?>
-                        <div class="thumbnail-placeholder">No Image</div>
-                    <?php endif; ?>
+                    <?php
+                        // 썸네일 경로가 있으면 style 속성에 배경 이미지 추가
+                        $thumbnail_style = !empty($post['thumbnail_path']) ? 'background-image: url(\'' . htmlspecialchars($post['thumbnail_path']) . '\');' : '';
+                    ?>
+                    <div class="item-thumbnail" style="<?php echo $thumbnail_style; ?>"></div>
                     <div class="gallery-item-title"><?php echo htmlspecialchars($post['title']); ?></div>
                 </a>
             <?php endforeach; ?>

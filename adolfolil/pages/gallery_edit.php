@@ -16,7 +16,7 @@ if (!$post) { exit("게시물이 없습니다."); }
 ?>
 <div class="form-page-container">
     <h2>게시물 수정</h2>
-    <form action="actions/gallery_save.php" method="post" enctype="multipart/form-data">
+    <form action="../actions/gallery_save.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $post['id']; ?>">
         <input type="hidden" name="type" value="gallery">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">

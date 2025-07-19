@@ -13,11 +13,11 @@ $csrf_token = $_SESSION['csrf_token'] ?? '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DolfoLil</title>
     <link rel="icon" type="image/png" href="../assets/images/logo1.jpg">
-    <link rel="stylesheet" href="../assets/css/style.css">
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <div class="container">
@@ -40,10 +40,9 @@ $csrf_token = $_SESSION['csrf_token'] ?? '';
             <main class="main_box" id="content-container"></main>
         </div>
 
-        <div class="bottom_bar">
-            </div>
+        <div class="bottom_bar"></div>
     
-        <div id="messenger-overlay" style="display:none; position:absolute; left:829px; top:99px; z-index: 100;"></div>
+        <div id="messenger-overlay" style="display: none; position: absolute; left: 829px; top: 99px; z-index: 100;"></div>
     </div>
     
     <script> const csrfToken = '<?php echo $csrf_token; ?>'; </script>
