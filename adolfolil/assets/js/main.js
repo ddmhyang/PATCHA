@@ -101,14 +101,20 @@ $(document).ready(function () {
                 success: function (response) {
                     if (response.success) {
                         const safeMessage = messageText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                        let profileHtml = (characterName === 'Adolfo') ? '<div class="phone_profile1"></div>' : '<div class="phone_profile2"></div>';
-                        let chatHtml = (characterName === 'Adolfo') ?
-                            `<div class="phone_chat1"><a>${safeMessage}</a></div>` :
-                            `<div class="phone_chat2"><a>${safeMessage}</a></div>`;
-                        const newMessageBox = $('<div class="message-row ' + (characterName === 'Lilian' ? 'right' : '') + '">' + profileHtml + chatHtml + '</div>');
+                        const profilePic = (characterName === 'Lilian') ? 'torken2.png' : 'torken.png';
+                        const messageSide = (characterName === 'Lilian') ? 'received' : 'sent';
+                        
+                        const newMessageHtml = `
+                            <div class="message-row ${messageSide}" data-id="${response.new_id}" data-is-admin="true">
+                                <img class="profile-pic" src="../assets/images/${profilePic}">
+                                <div class="message-bubble">
+                                    <div class="character-name">${characterName}</div>
+                                    <p class="message-text">${safeMessage}</p>
+                                </div>
+                            </div>`;
 
                         const messageList = $('#message-list');
-                        messageList.append(newMessageBox);
+                        messageList.append(newMessageHtml);
                         messageList.scrollTop(messageList[0].scrollHeight);
                         messageInput.val('');
                     } else {
@@ -124,7 +130,7 @@ $(document).ready(function () {
                 processData: false, contentType: false, dataType: 'json',
                 success: function (response) {
                     if (response.success) {
-                        alert('성공적으로 처리되었습니다.');
+                        alert(response.message || '성공적으로 처리되었습니다.');
                         if (form.hasClass('edit-form')) {
                             pageContainer.find('.content-display').html(formData.get('content'));
                             pageContainer.find('#edit-mode').hide();

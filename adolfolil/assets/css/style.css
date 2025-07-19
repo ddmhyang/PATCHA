@@ -327,126 +327,6 @@ html {
     line-height: normal;
 }
 
-
-
-
-
-.phone_border{
-    position: relative;
-    width: 458px;
-    height: 638px;
-    flex-shrink: 0;
-    background: #1A1A1A;
-}
-
-.phone_back{
-    position: absolute;
-    top:75px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 422px;
-    height: 544px;
-    flex-shrink: 0;
-    background: linear-gradient(0deg, rgba(250, 250, 250, 0.50) 0%, rgba(250, 250, 250, 0.50) 100%), linear-gradient(0deg, rgba(26, 26, 26, 0.50) 0%, rgba(26, 26, 26, 0.50) 100%), url('../img/logo1.jpg') lightgray -81.576px 0px / 136.599% 100% no-repeat;
-}
-
-.phone_title{
-    position: absolute;
-    top:31px;
-    left: 25px;
-    color: #FAFAFA;
-    text-align: center;
-    font-family: DungGeunMo;
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.phone_bottom{
-    position: absolute;
-    top:467px;
-    width: 422px;
-    height: 77px;
-    flex-shrink: 0;
-    background: #FAFAFA;
-}
-
-.phone_profile1{
-    position: absolute;
-    top:23px;
-    left: 23px;
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
-    border-radius: 68px;
-    border: 2px solid #1A1A1A;
-    background: url("../img/torken.png") lightgray 50% / cover no-repeat;
-}
-
-.phone_chat1{
-    position: absolute;
-    top:27px;
-    left: 104px;
-    width: 279px;
-    height: 69px;
-    flex-shrink: 0;
-    border-radius: 15px;
-    background: #1A1A1A;
-}
-
-.phone_chat1>a{
-    position: absolute;
-    top:50%;
-    left: 23px;
-    transform: translateY(-50%);
-    color: #FAFAFA;
-    text-align: left;
-    font-family: DungGeunMo;
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.phone_profile2{
-    position: absolute;
-    top:120px;
-    right: 23px;
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
-    border-radius: 68px;
-    border: 2px solid #1A1A1A;
-    background: url("../img/torken2.png") lightgray 50% / cover no-repeat;
-}
-
-.phone_chat2{
-    position: absolute;
-    top:120px;
-    left: 39px;
-    width: 279px;
-    height: 69px;
-    flex-shrink: 0;
-    border-radius: 15px;
-    background: #FAFAFA;
-}
-
-.phone_chat2>a{
-    position: absolute;
-    top:50%;
-    right: 23px;
-    transform: translateY(-50%);
-    color: #1a1a1a;
-    text-align: left;
-    font-family: DungGeunMo;
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-
 .note-modal-backdrop{
     z-index: -1;
 }
@@ -459,4 +339,35 @@ html {
     background-size: cover;
     background-position: center;
     border-radius: 5px;
+}
+
+.admin-buttons {
+    text-align: right; /* 내부 요소를 오른쪽으로 정렬 */
+    margin-top: 15px; /* 본문 내용과의 간격 */
+}
+
+.edit-btn, .cancel-btn, .admin-buttons button {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.page-container {
+    margin: 20px;
+    box-sizing: border-box;
+    color: #333;
+    border-radius: 5px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.page-container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
