@@ -129,6 +129,69 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on('submit', 'form#messenger-form', function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var messageInput = form.find('input[name="message"]');
+        var characterSelect = form.find('select[name="character"]');
+
+        // 전송할 데이터 미리 저장
+        var messageText = messageInput.val();
+        var characterName = characterSelect.val();
+
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: new FormData(this),
+            processData: false, contentType: false, dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    // 1. 성공 시, 새 말풍선 HTML을 동적으로 생성
+                    let profileHtml, chatHtml;
+                    if (characterName === 'Adolfo') {
+                        profileHtml = '<div class="phone_profile1"></div>';
+                        chatHtml = '<div class="phone_chat1"><a>' + messageText + '</a></div>';
+                    } else { // Lilian
+                        profileHtml = '<div class="phone_chat2"><a>' + messageText + '</a></div>';
+                        chatHtml = '<div class="phone_profile2"></div>';
+                    }
+                    const newMessageBox = $('<div class="message-row ' + (characterName === 'Lilian' ? 'right' : '') + '">' + profileHtml + chatHtml + '</div>');
+
+                    // 2. 채팅 목록에 새 말풍선 추가하고 스크롤 내리기
+                    const messageList = $('#message-list');
+                    messageList.append(newMessageBox);
+                    messageList.scrollTop(messageList[0].scrollHeight);
+
+                    // 3. 입력창 비우기
+                    messageInput.val('');
+                } else {
+                    alert('전송 실패: ' + (response.message || '알 수 없는 오류'));
+                }
+            },
+            error: () => alert('메신저 전송 중 오류가 발생했습니다.')
+        });
+    });
+
+    // ▼▼▼ 메신저 삭제 로직 추가 (오류 해결) ▼▼▼
+    let pressTimer;
+    $(document).on('mousedown', '.message-item[data-is-admin="true"]', function() {
+        let messageElement = $(this);
+        pressTimer = window.setTimeout(function() {
+            if (confirm('이 메시지를 삭제하시겠습니까?')) {
+                let messageId = messageElement.data('id');
+                $.post('../actions/messenger_delete.php', { id: messageId, csrf_token: csrfToken }, function(response) {
+                    if (response.success) {
+                        messageElement.fadeOut(300, function() { $(this).remove(); });
+                    } else {
+                        alert('삭제 실패: ' + response.message);
+                    }
+                }, 'json');
+            }
+        }, 800);
+    }).on('mouseup mouseleave', '.message-item[data-is-admin="true"]', function() {
+        clearTimeout(pressTimer);
+    });
+
     // 삭제 버튼 처리 (경로 수정됨)
     $(document).on('click', '.delete-btn', function (e) {
         e.preventDefault();
