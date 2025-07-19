@@ -1,65 +1,90 @@
-// --- 파일 경로: /assets/js/main.js (전체 교체) ---
+/**
+ * ===================================================================
+ * DolfoLil 프로젝트 메인 JavaScript (최종 수정본)
+ * - AJAX 경로 수정, Summernote 수정/보기 모드 전환 로직 추가
+ * ===================================================================
+ */
 $(document).ready(function () {
-    const contentContainer = $('#content-container');
 
-    // 1. 페이지 로드 함수
+    const contentContainer = $('#content-container');
+    const messengerOverlay = $('#messenger-overlay');
+
+    // --- 핵심 함수 ---
     function loadPage(url) {
-        // api.php를 통해 페이지 콘텐츠를 비동기적으로 요청
         $.ajax({
-            url: `api.php?${url}`,
-            type: 'GET',
+            url: `api.php?${url}`, type: 'GET',
             success: function (response) {
                 contentContainer.html(response);
-                updateActiveLink(url);
+                const pageName = new URLSearchParams(url).get('page');
+                updateSMLine(pageName);
             },
-            error: function () {
-                contentContainer.html('<h2>페이지를 불러오는 데 실패했습니다.</h2>');
-            }
+            error: () => contentContainer.html('<h2>페이지 로딩 실패</h2>')
         });
     }
 
-    // 2. 현재 페이지에 맞춰 메뉴 활성화
-    function updateActiveLink(url) {
-        const page = new URLSearchParams(url).get('page');
-        $('nav > a').removeClass('active');
-        $(`nav > a[data-page="${page}"]`).addClass('active');
+    function updateSMLine(pageName) {
+        let styles = {};
+        let pageGroup = pageName;
+        if (pageName && (pageName.startsWith('gallery_') || pageName.startsWith('trpg_'))) {
+            pageGroup = pageName.split('_')[0];
+        } else if (pageName === 'adolfo' || pageName === 'lilian') {
+            pageGroup = 'dolfolil';
+        }
+
+        switch (pageGroup) {
+            case 'main_content': styles = { top: '85px', width: '80px' }; break;
+            case 'dolfolil': styles = { top: '182px', width: '90px' }; break;
+            case 'gallery': styles = { top: '284px', width: '95px' }; break;
+            case 'trpg': styles = { top: '384px', width: '80px' }; break;
+            case 'messenger': styles = { top: '468px', width: '120px' }; break;
+            default: $('.sMLine').hide(); return;
+        }
+        $('.sMLine').show().css(styles);
     }
 
-    // 3. 라우터: 주소창의 # 값 변경을 감지하여 페이지 로드
     function router() {
         const path = window.location.hash.substring(2) || 'main_content';
         const [page, queryString] = path.split('?');
         
-        const allowed_pages = [
-             'main_content', 'dolfolil', 'adolfo', 'lilian', 'messenger',
-             'gallery', 'gallery_view', 'gallery_upload', 'gallery_edit',
-             'trpg', 'trpg_view', 'trpg_upload', 'trpg_edit'
-        ];
-        
         if (page === 'messenger') {
-             toggleMessenger(); // 메신저 전용 함수 호출
-        } else if (allowed_pages.includes(page)) {
-            $('#messenger-overlay').fadeOut(); // 다른 페이지로 가면 메신저 닫기
-            loadPage(`page=${page}${queryString ? '&' + queryString : ''}`);
+            toggleMessenger();
+            updateSMLine('messenger');
         } else {
-            window.location.hash = '#/main_content';
+            messengerOverlay.fadeOut();
+            loadPage(`page=${page}${queryString ? '&' + queryString : ''}`);
         }
     }
 
     function toggleMessenger() {
-        const overlay = $('#messenger-overlay');
-        if (overlay.is(':visible')) {
-            overlay.fadeOut();
+        if (messengerOverlay.is(':visible')) {
+            messengerOverlay.fadeOut();
         } else {
-            $.get('api.php?page=messenger', function(response) {
-                overlay.html(response).fadeIn();
+            $.get(`api.php?page=messenger`, (response) => {
+                messengerOverlay.html(response).fadeIn();
             });
         }
     }
 
-    // --- 이벤트 핸들러 ---
+    // Summernote 이미지 업로드 함수 (경로 수정됨)
+    function uploadImage(file, editor) {
+        let data = new FormData();
+        data.append("file", file);
+        $.ajax({
+            url: '../actions/ajax_upload_image.php', // ✅ 경로 수정
+            type: "POST", data: data,
+            contentType: false, processData: false, dataType: 'json',
+            success: function(response) {
+                if (response.success && response.urls) {
+                    response.urls.forEach(url => editor.summernote('insertImage', url));
+                } else {
+                    alert('이미지 업로드 실패: ' + response.error);
+                }
+            },
+            error: () => alert('이미지 업로드 중 서버 오류 발생')
+        });
+    }
 
-    // a 태그 클릭 시 SPA 라우팅 처리
+    // --- 이벤트 핸들러 ---
     $(document).on('click', 'a', function (e) {
         const href = $(this).attr('href');
         if (href && href.startsWith('#/')) {
@@ -68,52 +93,51 @@ $(document).ready(function () {
         }
     });
 
-    // 폼 제출(글쓰기/수정) 처리
+    // 모든 폼 제출 처리 (경로 수정됨)
     $(document).on('submit', 'form', function (e) {
         e.preventDefault();
-        
-        // Summernote 내용 업데이트
-        if ($(this).find('.note-editor').length) {
-            $(this).find('textarea[name="content"]').val($(this).find('.summernote').summernote('code'));
+        var form = $(this);
+        var pageContainer = form.closest('.page-container');
+        if (form.find('.summernote').length) {
+            form.find('textarea[name="content"]').val(form.find('.summernote').summernote('code'));
         }
-
-        var formData = new FormData(this);
+        
         $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
+            url: form.attr('action'), // 폼의 action 속성 값을 그대로 사용
+            type: 'POST', data: new FormData(this),
+            processData: false, contentType: false, dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    alert('성공적으로 처리되었습니다.');
-                    if (response.redirect_url) {
-                        window.location.hash = response.redirect_url;
+                    if (form.hasClass('edit-form')) {
+                        alert('성공적으로 저장되었습니다.');
+                        pageContainer.find('.content-display').html(form.find('textarea[name="content"]').val());
+                        pageContainer.find('#edit-mode').hide();
+                        pageContainer.find('#view-mode').show();
+                    } else if (form.attr('id') === 'messenger-form') {
+                         router();
+                    } else {
+                        alert('성공적으로 처리되었습니다.');
+                        if (response.redirect_url) {
+                            window.location.hash = response.redirect_url;
+                        }
                     }
                 } else {
-                    alert('오류: ' + response.message);
+                    alert('오류: ' + (response.message || '알 수 없는 오류'));
                 }
             },
-            error: function () {
-                alert('요청 처리 중 오류가 발생했습니다.');
-            }
+            error: () => alert('요청 처리 중 오류가 발생했습니다.')
         });
     });
 
-    // 삭제 버튼 처리
-    $(document).on('click', '.btn-delete', function (e) {
+    // 삭제 버튼 처리 (경로 수정됨)
+    $(document).on('click', '.delete-btn', function (e) {
         e.preventDefault();
         if (!confirm('정말 삭제하시겠습니까?')) return;
-        
         var postId = $(this).data('id');
-        var deleteUrl = $(this).data('url');
-        
+        var type = $(this).data('type');
         $.ajax({
-            url: deleteUrl,
-            type: 'POST',
-            data: { id: postId, token: csrfToken },
-            dataType: 'json',
+            url: `../actions/${type}_delete.php`, // ✅ 경로 수정
+            type: 'POST', data: { id: postId, token: csrfToken }, dataType: 'json',
             success: function (response) {
                 if (response.success && response.redirect_url) {
                     alert('삭제되었습니다.');
@@ -122,38 +146,43 @@ $(document).ready(function () {
                     alert('삭제 실패: ' + response.message);
                 }
             },
-            error: function () {
-                alert('삭제 요청 처리 중 오류가 발생했습니다.');
-            }
+            error: () => alert('삭제 요청 처리 중 오류가 발생했습니다.')
         });
     });
+    
+    // 수정/보기 모드 전환 버튼
+    $(document).on('click', '#edit-btn', function() {
+        var pageContainer = $(this).closest('.page-container');
+        pageContainer.find('#view-mode').hide();
+        pageContainer.find('#edit-mode').show();
+    });
+    $(document).on('click', '#cancel-btn', function() {
+        var pageContainer = $(this).closest('.page-container');
+        pageContainer.find('#edit-mode').hide();
+        pageContainer.find('#view-mode').show();
+    });
+
+    // --- 반응형 스케일링 ---
+    function adjustScale() {
+        const container = document.querySelector('.container');
+        if (!container) return;
+        const windowWidth = window.innerWidth, windowHeight = window.innerHeight;
+        let containerWidth, containerHeight;
+
+        if (windowWidth <= 784) {
+            containerWidth = 720; containerHeight = 1280;
+        } else {
+            containerWidth = 1440; containerHeight = 900;
+        }
+        const scale = Math.min(windowWidth / containerWidth, windowHeight / containerHeight);
+        container.style.transform = `scale(${scale})`;
+        container.style.left = `${(windowWidth - containerWidth * scale) / 2}px`;
+        container.style.top = `${(windowHeight - containerHeight * scale) / 2}px`;
+    }
 
     // --- 초기 실행 ---
     $(window).on('hashchange', router).trigger('hashchange');
-
-    function adjustScale() {
-        const container = document.querySelector('.container');
-        if (!container) 
-            return;
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-
-        if (windowWidth <= 784) {
-            containerWidth = 720;
-            containerHeight = 1280;
-        } else {
-            containerWidth = 1440;
-            containerHeight = 900;
-        }
-
-        const scale = Math.min(
-            windowWidth / containerWidth,
-            windowHeight / containerHeight
-        );
-        container.style.transform = `scale(${scale})`;
-        container.style.left = `${ (windowWidth - containerWidth * scale) / 2}px`;
-        container.style.top = `${ (windowHeight - containerHeight * scale) / 2}px`;
-    }
+    
     window.addEventListener('load', () => {
         adjustScale();
         document.body.style.visibility = 'visible';
