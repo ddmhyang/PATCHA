@@ -3,7 +3,7 @@
 // 데이터베이스 연결 설정
 define('DB_HOST', 'localhost');      // 데이터베이스 호스트
 define('DB_USER', 'dolfolil');       // 데이터베이스 사용자 이름
-define('DB_PASS', 'xx*'); // 데이터베이스 비밀번호
+define('DB_PASS', 'dlatlqjsghs2*'); // 데이터베이스 비밀번호
 define('DB_NAME', 'dolfolil');       // 데이터베이스 이름
 
 // MySQLi 객체 지향 방식으로 연결
