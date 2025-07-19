@@ -1,63 +1,74 @@
 <?php
-// /index.php
+// /pages/login.php
+require_once '../includes/db.php';
 
-require_once 'includes/db.php';
 
-if (isset($_SESSION['player_logged_in']) && $_SESSION['player_logged_in'] === true) {
-    $_SESSION = array();
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
-    }
-    session_destroy(); 
-    header('Location: index.php');
+if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+    header('Location: main.php');
     exit;
 }
 
-
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $error = '잘못된 접근입니다. 페이지를 새로고침한 후 다시 시도해주세요.';
-    } elseif (isset($_POST['password']) && $_POST['password'] === 'eden311') {
-        $_SESSION['player_logged_in'] = true;
-        session_regenerate_id(true);
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        header('Location: pages/main.php');
-        exit;
     } else {
-        $error = '비밀번호가 올바르지 않습니다.';
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+
+        
+        $stmt = $mysqli->prepare("SELECT id, password_hash FROM eden_admin WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($user = $result->fetch_assoc()) {
+            if (password_verify($password, $user['password_hash'])) {
+                
+                $_SESSION['admin_logged_in'] = true;
+                $_SESSION['admin_id'] = $user['id'];
+                
+                session_regenerate_id(true);
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                header('Location: main.php');
+                exit;
+            }
+        }
+        $error = '아이디 또는 비밀번호가 잘못되었습니다.';
     }
 }
+
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token']; 
 ?>
 <!DOCTYPE html>
 <html lang="ko">
     <head>
         <meta charset="UTF-8">
+        <link rel="icon" type="image/png" href="../assets/img/기타/동물1.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" href="assets/img/기타/동물1.png">
-        <title>Eden</title>
+        <title>관리자 로그인</title>
         <style>
             @font-face {
                 font-family: 'Bonheur-Royale';
-                src: url("assets/fonts/Bonheur-Royale.ttf") format('truetype');
+                src: url("../assets/fonts/Bonheur-Royale.ttf") format('truetype');
                 font-weight: normal;
                 font-style: normal;
             }
 
             @font-face {
                 font-family: 'Fre1';
-                src: url("assets/fonts/Freesentation-1Thin.ttf") format('truetype');
+                src: url("../assets/fonts/Freesentation-1Thin.ttf") format('truetype');
                 font-weight: normal;
                 font-style: normal;
             }
 
             @font-face {
                 font-family: 'Fre9';
-                src: url("assets/fonts/Freesentation-9Black.ttf") format('truetype');
+                src: url("../assets/fonts/Freesentation-9Black.ttf") format('truetype');
                 font-weight: normal;
                 font-style: normal;
             }
@@ -72,7 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 overflow: hidden;
                 position: relative;
                 visibility: hidden;
-                font-family: 'S-CoreDream-3Light', sans-serif;
+                font-family: 'Fre1', sans-serif;
+               
             }
 
             .container {
@@ -95,7 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 height: 900px;
                 flex-shrink: 0;
                 aspect-ratio: 1440/900;
-                background: url("assets/img/background.png") rgb(0, 0, 0) 50% / cover no-repeat;
+                background: url("../assets/img/background.png") rgb(0, 0, 0) 50% / cover no-repeat;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                position: relative;
                 border-left: 2px solid rgb(160, 160, 160);
                 border-right: 2px solid rgb(160, 160, 160);
                 box-sizing: border-box;
@@ -110,59 +127,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 font-weight: 400;
                 line-height: normal;
                 position: absolute;
-                left: 50%;
                 top: 168px;
-                transform: translateX(-50%);
+               
+               
             }
 
-            .index_submit {
-                width: 201px;
-                height: 52px;
-                flex-shrink: 0;
-                color: #FFF;
-                text-align: center;
-                font-family: "Freesentation9";
-                font-size: 20px;
-                font-style: normal;
-                font-weight: 900;
-                line-height: normal;
-            }
-
-            .index_login {
+            form {
                 position: absolute;
-                left: 50%;
-                top: 576px;
-                transform: translateX(-50%);
+                top: 440px;
+               
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+               
+            }
+
+            input[type="text"],
+            input[type="password"] {
                 width: 409px;
                 height: 84px;
                 flex-shrink: 0;
                 background: rgba(255, 255, 255, 0.50);
                 border: none;
                 text-align: center;
+                font-family: "Fre9";
+               
                 font-size: 24px;
-
+                color: #000000;
+               
+                padding: 0 20px;
+               
+                box-sizing: border-box;
+               
             }
 
-            .index_login:focus {
+            input[type="text"]::placeholder,
+            input[type="password"]::placeholder {
+                color: rgba(255, 255, 255, 0.7);
+               
+            }
+
+            input:focus {
                 outline: none;
             }
 
-            .index_submit {
-                position: absolute;
-                left: 50%;
-                top: 685px;
-                transform: translateX(-50%);
+            button[type="submit"] {
                 width: 201px;
                 height: 52px;
                 flex-shrink: 0;
+                color: #FFF;
+                text-align: center;
+                font-family: "Fre9";
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 900;
+                line-height: normal;
                 background: rgba(255, 255, 255, 0.50);
                 cursor: pointer;
                 border: none;
                 transition-duration: 0.25s;
             }
 
-            .index_submit:hover {
-                transform: translateX(-50%) scale(1.05);
+            button[type="submit"]:hover {
+                transform: scale(1.05);
+            }
+
+            .error {
+                color: red;
+                font-family: 'Fre1', sans-serif;
+                font-size: 18px;
+                margin-top: 20px;
+                position: absolute;
+                top: 750px;  
             }
 
             @media (max-width: 768px) {
@@ -173,19 +210,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     transform-origin: top left;
                     position: absolute;
                     transform: scale(0);
-                }
-
-                .container,
-                body,
-                html {
-                    transition: background-color 1s ease-in-out;
+                
                 }
 
                 .login-container {
                     width: 720px;
                     height: 1280px;
                     flex-shrink: 0;
-                    background: url("assets/img/background.png") lightgray -664px 0px / 284.444% 100% no-repeat;
+                    background: url("../assets/img/background.png") lightgray -664px 0px / 284.444% 100% no-repeat;
                 }
 
                 .title {
@@ -198,58 +230,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     line-height: normal;
                     position: absolute;
                     left: 50%;
-                    top: 243px;
+                    top: 263px;
                     transform: translateX(-50%);
                 }
 
-                .index_submit {
-                    width: 201px;
-                    height: 52px;
-                    flex-shrink: 0;
-                    color: #FFF;
-                    text-align: center;
-                    font-family: "Freesentation9";
-                    font-size: 20px;
-                    font-style: normal;
-                    font-weight: 900;
-                    line-height: normal;
-                }
 
-                .index_login {
+
+                form {
                     position: absolute;
-                    left: 50%;
-                    top: 808px;
-                    transform: translateX(-50%);
+                    top: 600px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 50px;
+                }
+
+                input[type="text"],
+                input[type="password"] {
                     width: 409px;
                     height: 84px;
                     flex-shrink: 0;
                     background: rgba(255, 255, 255, 0.50);
                     border: none;
                     text-align: center;
+                    font-family: "Fre9";
+                
                     font-size: 24px;
-
+                    color: #000000;
+                
+                    padding: 0 20px;
+                
+                    box-sizing: border-box;
+                
                 }
 
-                .index_login:focus {
+                input[type="text"]::placeholder,
+                input[type="password"]::placeholder {
+                    color: rgba(255, 255, 255, 0.7);
+                
+                }
+
+                input:focus {
                     outline: none;
                 }
 
-                .index_submit {
-                    position: absolute;
-                    left: 50%;
-                    top: 944px;
-                    transform: translateX(-50%);
+                button[type="submit"] {
                     width: 201px;
                     height: 52px;
                     flex-shrink: 0;
+                    color: #FFF;
+                    text-align: center;
+                    font-family: "Fre9";
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 900;
+                    line-height: normal;
                     background: rgba(255, 255, 255, 0.50);
                     cursor: pointer;
                     border: none;
                     transition-duration: 0.25s;
                 }
 
-                .index_submit:hover {
-                    transform: translateX(-50%) scale(1.05);
+                button[type="submit"]:hover {
+                    transform: scale(1.05);
+                }
+
+                .error {
+                    color: red;
+                    font-family: 'Fre1', sans-serif;
+                    font-size: 18px;
+                    margin-top: 20px;
+                    position: absolute;
+                    top: 750px;  
                 }
             }
         </style>
@@ -260,21 +312,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="title">EDEN</div>
 
-                <form method="post" action="index.php">
+                <form method="post" action="login.php">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                    <input class="index_login" type="password" name="password" required="required">
-                    <button class="index_submit" type="submit">Login</button>
+                    <input type="text" name="username" required="required">
+                    <input type="password" name="password" required="required">
+                    <button type="submit">Login</button>
                 </form>
-                <?php if (!empty($error)): ?>
-                <script>
-                    alert("<?= addslashes($error) ?>");
-                </script>
+                <?php if ($error): ?>
+                <p class="error"><?php echo $error; ?></p>
                 <?php endif; ?>
             </div>
         </div>
 
         <script>
-
             function adjustScale() {
                 const container = document.querySelector('.container');
                 if (!container) 
@@ -300,7 +350,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 container.style.transform = `scale(${scale})`;
                 container.style.left = `${ (windowWidth - containerWidth * scale) / 2}px`;
                 container.style.top = `${ (windowHeight - containerHeight * scale) / 2}px`;
-
             }
 
             window.addEventListener('load', () => {
