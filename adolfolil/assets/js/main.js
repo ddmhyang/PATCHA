@@ -36,10 +36,24 @@ $(document).ready(function () {
              'trpg', 'trpg_view', 'trpg_upload', 'trpg_edit'
         ];
         
-        if (allowed_pages.includes(page)) {
+        if (page === 'messenger') {
+             toggleMessenger(); // 메신저 전용 함수 호출
+        } else if (allowed_pages.includes(page)) {
+            $('#messenger-overlay').fadeOut(); // 다른 페이지로 가면 메신저 닫기
             loadPage(`page=${page}${queryString ? '&' + queryString : ''}`);
         } else {
             window.location.hash = '#/main_content';
+        }
+    }
+
+    function toggleMessenger() {
+        const overlay = $('#messenger-overlay');
+        if (overlay.is(':visible')) {
+            overlay.fadeOut();
+        } else {
+            $.get('api.php?page=messenger', function(response) {
+                overlay.html(response).fadeIn();
+            });
         }
     }
 
