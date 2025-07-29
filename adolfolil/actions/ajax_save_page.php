@@ -1,4 +1,5 @@
 <?php
+
 require_once '../includes/db.php';
 header('Content-Type: application/json');
 
@@ -12,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $page_name = $_POST['page_name'];
         $content = $_POST['content'];
 
+        
         $stmt = $mysqli->prepare("INSERT INTO pages (slug, content) VALUES (?, ?) ON DUPLICATE KEY UPDATE content = ?");
         $stmt->bind_param("sss", $page_name, $content, $content);
 
@@ -25,6 +27,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => false, 'message' => '필수 데이터가 누락되었습니다.']);
     }
 }
-exit; 
-
+$mysqli->close();
 ?>

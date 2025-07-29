@@ -7,7 +7,9 @@ header('Content-Type: application/json');
 
 
 if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
-    echo json_encode(['success' => false, 'message' => '권한이 없습니다.']);
+    http_response_code(403); 
+    
+    echo json_encode(['success' => false, 'error' => '권한 오류: 로그인 상태가 아닙니다.']);
     exit;
 }
 
