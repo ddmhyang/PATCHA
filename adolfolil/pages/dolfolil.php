@@ -1,5 +1,5 @@
 <?php
-// --- 파일 경로: /pages/dolfolil.php ---
+
 ?>
 <div class="iCB1" onclick="window.location.hash = '#/adolfo'">
     <div class="iC1">

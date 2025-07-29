@@ -1,10 +1,10 @@
 <?php
-// --- 파일 경로: /pages/main_content.php ---
+
 require_once __DIR__ . '/../includes/db.php';
 $is_admin = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
 $page_name = 'main_content';
 
-// DB에서 콘텐츠 불러오기
+
 $stmt = $mysqli->prepare("SELECT content FROM pages WHERE slug = ?");
 $stmt->bind_param("s", $page_name);
 $stmt->execute();
@@ -36,7 +36,7 @@ $stmt->close();
 
 <?php if ($is_admin): ?>
 <script>
-// JavaScript 코드는 이전과 동일하게 유지합니다.
+
 $(document).ready(function() {
     var pageContainer = $('.page-container[data-page-name="<?php echo $page_name; ?>"]');
     

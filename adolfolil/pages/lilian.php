@@ -1,5 +1,5 @@
 <?php
-// --- 파일 경로: /pages/lilian.php ---
+
 require_once __DIR__ . '/../includes/db.php';
 $is_admin = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
 $page_name = 'lilian';
@@ -36,23 +36,46 @@ $stmt->close();
 
 <?php if ($is_admin): ?>
 <script>
-    // 이 페이지가 로드될 때 실행될 스크립트
+    
     $(document).ready(function() {
         var pageContainer = $('.page-container[data-page-name="<?php echo $page_name; ?>"]');
         
-        // Summernote 초기화
+        
         pageContainer.find('.summernote').summernote({
             height: 350,
-            callbacks: { onImageUpload: function(files) { uploadImage(files[0], $(this)); } }
+            callbacks: { 
+                onImageUpload: function(files) { 
+                    uploadSummernoteImage(files[0], $(this)); 
+                } 
+            }
         });
 
-        // 수정 버튼 클릭 시 모드 전환
+        
+        function uploadSummernoteImage(file, editor) {
+            let data = new FormData();
+            data.append("file", file);
+            $.ajax({
+                url: '../actions/ajax_upload_image.php',
+                type: "POST", data: data,
+                contentType: false, processData: false, dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.urls) {
+                        response.urls.forEach(url => editor.summernote('insertImage', url));
+                    } else {
+                        alert('이미지 업로드 실패: ' + (response.error || '알 수 없는 오류'));
+                    }
+                },
+                error: () => alert('이미지 업로드 중 서버 오류가 발생했습니다.')
+            });
+        }
+
+        
         pageContainer.find('.edit-btn').on('click', function() {
             pageContainer.find('#view-mode').hide();
             pageContainer.find('#edit-mode').show();
         });
 
-        // 취소 버튼 클릭 시 모드 전환
+        
         pageContainer.find('.cancel-btn').on('click', function() {
             pageContainer.find('#edit-mode').hide();
             pageContainer.find('#view-mode').show();

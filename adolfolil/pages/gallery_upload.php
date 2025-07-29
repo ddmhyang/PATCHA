@@ -1,12 +1,12 @@
 <?php
-// --- 파일 경로: /pages/gallery_upload.php (최종 수정본) ---
+
 require_once __DIR__ . '/../includes/db.php';
 if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
     echo "권한이 없습니다."; exit;
 }
 ?>
 <div class="form-page-container">
-    <h2>새 게시물 작성</h2>
+    <h2>Gallery 추가</h2>
     <form action="../actions/gallery_save.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="type" value="gallery">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
@@ -23,7 +23,9 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
             <label for="content">내용</label>
             <textarea class="summernote" name="content"></textarea>
         </div>
-        <button type="submit">저장하기</button>
+        <div class="view-footer">
+            <button type="submit" class="btn btn-primary">저장하기</button>
+        </div>
     </form>
 </div>
 

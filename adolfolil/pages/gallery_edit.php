@@ -1,5 +1,5 @@
 <?php
-// --- 파일 경로: /pages/gallery_edit.php ---
+
 require_once __DIR__ . '/../includes/db.php';
 if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) { exit("권한이 없습니다."); }
 if (!isset($_GET['id'])) { exit("잘못된 접근입니다."); }
@@ -29,19 +29,46 @@ if (!$post) { exit("게시물이 없습니다."); }
             <label for="thumbnail_file">썸네일 (변경 시에만 업로드)</label>
             <input type="file" id="thumbnail_file" name="thumbnail">
             <?php if(!empty($post['thumbnail_path'])): ?>
-                <p>현재 이미지: <img src="<?php echo $post['thumbnail_path']; ?>" width="100"></p>
+                <p>현재 이미지: <img src="/<?php echo $gallery['thumbnail']; ?>" width="100"></p>
             <?php endif; ?>
         </div>
         <div class="form-group">
             <label for="content">내용</label>
             <textarea class="summernote" name="content"><?php echo htmlspecialchars($post['content']); ?></textarea>
         </div>
-        <button type="submit">수정 완료</button>
-        <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="btn-cancel">취소</a>
+        <div class="view-footer">
+            <button type="submit" class="btn btn-primary">수정 완료</button>
+            <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="btn btn-secondary">취소</a>
+        </div>
     </form>
 </div>
 <script>
-    $(document).ready(function() {
-        $('.summernote').summernote({ height: 350, /* ... onImageUpload 콜백 ... */ });
+$(document).ready(function() {
+    $('.summernote').summernote({
+        height: 350,
+        callbacks: {
+            onImageUpload: function(files) {
+                uploadSummernoteImage(files[0], $(this));
+            }
+        }
     });
+
+    function uploadSummernoteImage(file, editor) {
+        let data = new FormData();
+        data.append("file", file);
+        $.ajax({
+            url: '../actions/ajax_upload_image.php',
+            type: "POST", data: data,
+            contentType: false, processData: false, dataType: 'json',
+            success: function(response) {
+                if (response.success && response.urls) {
+                    response.urls.forEach(url => editor.summernote('insertImage', url));
+                } else {
+                    alert('이미지 업로드 실패: ' + (response.error || '알 수 없는 오류'));
+                }
+            },
+            error: () => alert('이미지 업로드 중 서버 오류가 발생했습니다.')
+        });
+    }
+});
 </script>
