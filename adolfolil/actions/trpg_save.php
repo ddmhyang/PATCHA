@@ -3,8 +3,10 @@ require_once __DIR__ . '/../includes/db.php';
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
-    die(json_encode(['success' => false, 'message' => '권한이 없습니다.']));
+    echo json_encode(['success' => false, 'message' => '권한이 없습니다.']);
+    exit;
 }
+
 $id = isset($_POST['id']) ? intval($_POST['id']) : null;
 $type = 'trpg';
 $title = $_POST['title'];
@@ -61,5 +63,8 @@ if ($stmt->execute()) {
 } else {
     echo json_encode(['success' => false, 'message' => '저장 실패: ' . $stmt->error]);
 }
+
+$stmt->close();
+exit; 
 
 ?>

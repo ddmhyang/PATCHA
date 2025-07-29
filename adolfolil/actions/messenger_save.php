@@ -1,16 +1,19 @@
 <?php
-
 require_once '../includes/db.php';
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { die(json_encode(['success' => false, 'message' => '잘못된 접근입니다.'])); }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'message' => '잘못된 접근입니다.']);
+    exit;
+}
 
 $character = $_POST['character'] ?? '';
 $message = $_POST['message'] ?? '';
-$author_id = $_SESSION['user_id'] ?? 1; 
+$author_id = $_SESSION['user_id'] ?? 1;
 
 if (empty($message) || !in_array($character, ['Adolfo', 'Lilian'])) {
-    die(json_encode(['success' => false, 'message' => '내용이 올바르지 않습니다.']));
+    echo json_encode(['success' => false, 'message' => '내용이 올바르지 않습니다.']);
+    exit;
 }
 
 $stmt = $mysqli->prepare("INSERT INTO messages (author_id, character_name, message_text) VALUES (?, ?, ?)");
@@ -21,4 +24,8 @@ if ($stmt->execute()) {
 } else {
     echo json_encode(['success' => false, 'message' => '저장 실패: ' . $stmt->error]);
 }
+
+$stmt->close();
+exit;
+
 ?>

@@ -1,10 +1,11 @@
 <?php
-
 require_once '../includes/db.php';
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) { die(json_encode(['success' => false, 'message' => '권한이 없습니다.'])); }
-
+if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
+    echo json_encode(['success' => false, 'message' => '권한이 없습니다.']);
+    exit;
+}
 
 $title = $_POST['title'];
 $content = $_POST['content'];
@@ -12,7 +13,6 @@ $type = $_POST['type'];
 $post_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 $author_id = $_SESSION['user_id'];
 $thumbnail_path = null;
-
 
 if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = '../uploads/thumbnails/';
@@ -24,12 +24,10 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
     }
 }
 
-
 if (empty($thumbnail_path)) {
     preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
     $thumbnail_path = $matches[1] ?? null;
 }
-
 
 if ($post_id > 0) {
     if ($thumbnail_path) {
@@ -50,4 +48,8 @@ if ($stmt->execute()) {
 } else {
     echo json_encode(['success' => false, 'message' => '저장 실패: ' . $stmt->error]);
 }
+
+$stmt->close();
+exit;
+
 ?>
