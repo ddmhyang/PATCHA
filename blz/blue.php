@@ -21,10 +21,11 @@ $stmt->close();
 <div class="page-content" data-slug="<?php echo $page_slug; ?>">
     <!-- 보기 모드 -->
     <div class="view-mode">
-        <div class="content-display"><?php echo $page_content; ?></div>
-        <?php if ($is_admin): ?>
-            <button type="button" class="edit-btn">수정하기</button>
-        <?php endif; ?>
+        <div class="content-display"><?php echo $page_content; ?>
+            <?php if ($is_admin): ?>
+                <button type="button" class="edit-btn">수정하기</button>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- 수정 모드 (숨겨져 있음) -->

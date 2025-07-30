@@ -18,12 +18,13 @@ $stmt->close();
 
 <div class="page-content" data-slug="<?php echo $page_slug; ?>">
     <div class="view-mode">
-        <div class="content-display"><?php echo $page_content; ?></div>
-        <?php if ($is_admin): ?>
-            <div class="button-wrapper">
-                <button type="button" class="edit-btn">수정하기</button>
-            </div>
-        <?php endif; ?>
+        <div class="content-display"><?php echo $page_content; ?>
+            <?php if ($is_admin): ?>
+                <div class="button-wrapper">
+                    <button type="button" class="edit-btn">수정하기</button>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 
     <div class="edit-mode" style="display: none;">

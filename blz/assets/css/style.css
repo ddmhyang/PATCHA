@@ -247,8 +247,15 @@ main#content {
 .blz-note-item .cancel-btn {
     float: none; /* blz 페이지에서는 float 해제 */
     display: inline-block;
-    background-color: rgba(255, 255, 255, 0.8);
-    color: #1a1a1a;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 15px;
+    margin-top: 10px;
 }
 
 /* 갤러리 페이지 (art, novel) */
@@ -275,7 +282,7 @@ main#content {
     color: #1a1a1a;
     text-decoration: none;
     border-radius: 20px;
-    font-weight: bold;
+    font-weight: 900;
     transition: transform 0.2s;
 }
 .add-post-btn:hover {
@@ -350,4 +357,196 @@ main#content {
 }
 .note-modal-backdrop{
     z-index: -1;
+}
+
+
+/* === Eden Gallery Styles for BLZ (REVISED) === */
+
+/* Post View Page (post_view.php) */
+.post-view-container {
+    width: 90%; /* 너비 조정 */
+    margin: 0 auto; /* 중앙 정렬 추가 */
+    padding: 0 20px;
+    box-sizing: border-box;
+    color: white;
+    height: 100%;
+    overflow-y: auto; /* 내용이 길면 스크롤 */
+    display: flex;
+    flex-direction: column;
+}
+.post-view-container::-webkit-scrollbar { display: none; }
+.post-view-container h1 {
+    text-align: center;
+    font-size: 36px;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+.post-meta {
+    text-align: right;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+.post-date {
+    text-align: right;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+.btn-action {
+    margin-left: 10px;
+    padding: 8px 18px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 900;
+    color: black;
+    background-color: rgb(224, 224, 224);
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+.btn-action.btn-delete {
+    background-color: rgb(50, 50, 50);
+    color: white;
+}
+.post-actions {
+    text-align: center;
+    margin-top: 30px;
+    flex-shrink: 0;
+    padding-bottom: 20px;
+}
+.btn-back-to-list {
+    display: inline-block;
+    padding: 10px 30px;
+    background-color: #ffffff;
+    color: black;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 900;
+    transition: background-color 0.3s ease;
+}
+.post-view-container hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 15px 0;
+    flex-shrink: 0;
+}
+.post-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 10px;
+    border-radius: 8px;
+    flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+    overflow-y: auto; /* 내용이 넘칠 경우 자체 스크롤 */
+}
+.post-content::-webkit-scrollbar { display: none; }
+
+
+/* Form Pages (post_upload.php, post_edit.php) */
+.form-page-container {
+    width: 100%;
+    height: 100%;
+    padding: 0 40px;
+    box-sizing: border-box;
+    color: white;
+    overflow-y: auto;
+}
+.form-page-container::-webkit-scrollbar { display: none; }
+
+.form-page-container h1 {
+    text-align: center;
+    font-size: 36px;
+    margin-top: 25px;
+    margin-bottom: 30px;
+}
+.form-group {
+    margin-bottom: 25px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+}
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid rgba(198, 196, 196, 0.3);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.edit-btn, .save-btn, .cancel-btn, .btn-action, .btn-back-to-list {
+    display: inline-block;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 15px;
+    margin-top: 10px;
+    color: black;
+    background-color: white;
+    transition: transform 0.2s;
+}
+.edit-btn:hover, .save-btn:hover, .cancel-btn:hover, .btn-action:hover, .btn-back-to-list:hover {
+    transform: scale(1.05);
+}
+.cancel-btn, .btn-action.btn-delete {
+    background-color: #333;
+    color: white;
+}
+.blz-note-item .edit-btn, .blz-note-item .save-btn, .blz-note-item .cancel-btn {
+    padding: 8px 15px;
+    font-size: 14px;
+}
+.btn-submit, .btn-cancel {
+    display: inline-block;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 15px;
+    margin-top: 10px;
+}
+.btn-submit {
+    background-color: white;
+    color: black;
+}
+.btn-cancel {
+    background-color: #333;
+    color: white;
+}
+/* Summernote Editor in Form */
+.form-page-container .note-editor.note-frame {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.form-page-container .note-editing-area .note-editable {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #000;
+}
+
+/* blz.php 링크 스타일 제거 */
+.blz-notes-container .blz-note-item-link {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit; /* 부모 요소의 색상 상속 */
+}
+
+.blz-notes-container .blz-note-item-link:hover {
+    /* 필요하다면 호버 시 스타일 변경 */
+    text-decoration: none;
 }

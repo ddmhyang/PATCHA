@@ -24,17 +24,18 @@ if (!$post) {
 <div class="post-view-container">
     <h1><?php echo htmlspecialchars($post['title']); ?></h1>
     <div class="post-meta">
-        <span>작성일: <?php echo date("Y-m-d", strtotime($post['created_at'])); ?></span>
         <?php if ($is_admin): ?>
-            <div class="admin-actions">
-                <a href="#/post_edit?id=<?php echo $post['id']; ?>">수정</a>
-                <button class="delete-post-btn" data-id="<?php echo $post['id']; ?>" data-type="<?php echo $post['type']; ?>">삭제</button>
-            </div>
+            <a href="#/post_edit?id=<?php echo $post['id']; ?>" class="btn-action">수정</a>
+            <button class="btn-action btn-delete delete-post-btn" data-id="<?php echo $post['id']; ?>" data-type="<?php echo $post['type']; ?>">삭제</button>
         <?php endif; ?>
     </div>
     <hr>
+    <div class="post-date">작성일: <?php echo date("Y-m-d", strtotime($post['created_at'])); ?></div>
     <div class="post-content">
         <?php echo $post['content']; ?>
+        <div class="post-actions">
+            <a href="#/<?php echo htmlspecialchars($post['type']); ?>" class="btn-back-to-list">목록으로</a>
+        </div>
     </div>
-    <a href="#/<?php echo htmlspecialchars($post['type']); ?>" class="back-to-list">목록으로</a>
+
 </div>

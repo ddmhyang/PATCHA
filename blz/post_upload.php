@@ -1,12 +1,12 @@
 <?php
-// /blz/post_upload.php (수정된 코드)
+// /blz/post_upload.php
 require_once 'includes/db.php';
 if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) { exit; }
 $type = $_GET['type'] ?? 'art';
 ?>
 
-<div class="form-container">
-    <h2><?php echo ucfirst($type); ?> 갤러리 새 글 작성</h2>
+<div class="form-page-container">
+    <h1><?php echo ucfirst($type); ?> 갤러리 새 글 작성</h1>
     <form id="post-form" action="ajax_save_post.php" method="post">
         <input type="hidden" name="type" value="<?php echo htmlspecialchars($type); ?>">
         <div class="form-group">
@@ -23,7 +23,7 @@ $type = $_GET['type'] ?? 'art';
             <label for="content">내용</label>
             <textarea id="summernote-post" name="content"></textarea>
         </div>
-        <button type="submit">저장하기</button>
-        <a href="#/<?php echo htmlspecialchars($type); ?>" class="cancel-link">취소</a>
+        <button type="submit" class="btn-submit">저장하기</button>
+        <a href="#/<?php echo htmlspecialchars($type); ?>" class="btn-cancel">취소</a>
     </form>
 </div>

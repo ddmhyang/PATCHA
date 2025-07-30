@@ -1,5 +1,5 @@
 <?php
-// /blz/post_edit.php (수정된 코드)
+// /blz/post_edit.php
 require_once 'includes/db.php';
 if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) { exit; }
 if (!isset($_GET['id'])) { exit; }
@@ -10,8 +10,8 @@ $post = $stmt->get_result()->fetch_assoc(); $stmt->close();
 if (!$post) { exit; }
 ?>
 
-<div class="form-container">
-    <h2><?php echo ucfirst($post['type']); ?> 갤러리 글 수정</h2>
+<div class="form-page-container">
+    <h1><?php echo ucfirst($post['type']); ?> 갤러리 글 수정</h1>
     <form id="post-form" action="ajax_save_post.php" method="post">
         <input type="hidden" name="id" value="<?php echo $post['id']; ?>">
         <input type="hidden" name="type" value="<?php echo htmlspecialchars($post['type']); ?>">
@@ -33,7 +33,7 @@ if (!$post) { exit; }
             <label for="content">내용</label>
             <textarea id="summernote-post" name="content"><?php echo htmlspecialchars($post['content']); ?></textarea>
         </div>
-        <button type="submit">수정 완료</button>
-        <a href="#/post_view?id=<?php echo $post['id']; ?>" class="cancel-link">취소</a>
+        <button type="submit" class="btn-submit">수정 완료</button>
+        <a href="#/post_view?id=<?php echo $post['id']; ?>" class="btn-cancel">취소</a>
     </form>
 </div>
