@@ -1,31 +1,28 @@
-/* /assets/css/style.css (최종 수정본) */
-body,
-html {
+/* /assets/css/style.css (최종 정리본) */
+
+/* --- 1. 기본 및 레이아웃 설정 --- */
+body, html {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
     background-color: #000;
     overflow: hidden;
-    /* 스크롤바 숨김 */
     font-family: 'Malgun Gothic', sans-serif;
-    visibility: hidden;
-    /* 로드 시 깜빡임 방지 */
+    visibility: hidden; /* 로드 시 깜빡임 방지 */
 }
 
 .container {
     width: 1440px;
     height: 900px;
     background: url("../img/background.png") #1a1a1a 50% / cover no-repeat;
-    /* 배경 이미지 경로 */
     position: absolute;
     transform-origin: top left;
-    /* 스케일링 기준점 */
     overflow: hidden;
-    /* 내부 스크롤바 숨김 */
     box-sizing: border-box;
     color: #f0f0f0;
 }
+
 header nav {
     position: absolute;
     top: 196px;
@@ -36,6 +33,19 @@ header nav {
     z-index: 100;
 }
 
+main#content {
+    position: absolute;
+    left: 110px;
+    top: 100px;
+    width: 1150px;
+    height: 700px;
+    border: 4px solid #FFF;
+    background: rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+/* --- 2. 내비게이션 버튼 --- */
 .nav_btn {
     position: relative;
     width: 50px;
@@ -50,22 +60,18 @@ header nav {
     transform: scale(1.1);
 }
 
-/* 기본 상태: 15x15 채워진 원 */
 .nav-default {
     width: 15px;
     height: 15px;
     background: white;
     border-radius: 9999px;
 }
-
-/* 활성 상태: 평소에는 숨김 */
 .nav-active {
     display: none;
     position: absolute;
     width: 100%;
     height: 100%;
 }
-/* 큰 원 테두리 */
 .nav-active-ring {
     width: 50px;
     height: 50px;
@@ -73,13 +79,10 @@ header nav {
     border-radius: 9999px;
     border: 1px white solid;
     box-sizing: border-box;
-    /* border가 크기에 포함되도록 */
 }
-/* 테두리에 걸친 작은 점 */
 .nav-active-dot {
     position: absolute;
     left: 47.5px;
-    /* 원의 절반만큼 위로 올려 테두리에 걸치게 함 */
     top: 50%;
     transform: translateY(-50%);
     width: 5px;
@@ -88,118 +91,248 @@ header nav {
     border-radius: 9999px;
 }
 
-/* JS가 .active 클래스를 추가하면 활성 상태를 보여줌 */
-
 .nav_btn.active .nav-active {
     display: block;
-    /* 활성 상태 보이기 */
 }
-/* --- --- */
 
-main#content {
-    position: absolute;
-    left: 110px;
-    top: 100px;
-    width: 1150px;
-    height: 700px;
-    border: 4px solid #FFF;
-    background: rgba(0, 0, 0, 0.5);
+/* --- 3. 공용 컴포넌트 --- */
+.page-header {
+    padding: 20px 40px 30px 40px;
     box-sizing: border-box;
-    padding: 20px;
 }
-.form-container,
-.gallery-container,
-.page-content,
-.post-view-container {
-    height: 500px;
-    overflow-y: auto;
+.page-title {
+    color: white;
+    font-size: 48px;
+    font-family: 'Bonheur Royale', cursive;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    text-align: center;
 }
-.form-container::-webkit-scrollbar,
-.gallery-container::-webkit-scrollbar,
-.page-content::-webkit-scrollbar,
-.post-view-container::-webkit-scrollbar {
+.page-divider {
+    width: 100%;
+    height: 0px;
+    border: 1.5px white solid;
+    margin-top: 20px;
+}
+.content-display {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1020px;
+}
+
+/* 콘텐츠 영역 스크롤바 숨김 처리 */
+.form-container, .gallery-container, .page-content, .post-view-container, .blz-page-wrapper {
+    height: 100%;
+    overflow-y: auto; /* 내용이 길어지면 스크롤 생성 */
+    box-sizing: border-box;
+    display: flex; /* 자식 요소(view-mode, edit-mode)가 높이를 채우도록 설정 */
+    flex-direction: column;
+}
+.form-container::-webkit-scrollbar, .gallery-container::-webkit-scrollbar,
+.page-content::-webkit-scrollbar, .post-view-container::-webkit-scrollbar, .blz-page-wrapper::-webkit-scrollbar {
     display: none;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
+
+.view-mode {
+    flex-grow: 1; /* 남은 공간을 모두 차지 */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 부모 높이에 맞춤 */
+}
+
+/* ▼▼▼ 문제 해결 핵심 코드 ▼▼▼ */
+.content-display {
+    width: 100%; /* 너비를 부모에 맞춤 */
+    height: 500px; /* 높이를 500px로 고정 */
+    overflow-y: auto; /* 내용이 500px를 넘어가면 내부 스크롤 생성 */
+    padding: 0 40px; /* 좌우 여백 */
+    box-sizing: border-box; /* 패딩을 크기에 포함 */
+    position: static; /* position 속성 초기화 */
+    transform: none; /* transform 속성 초기화 */
+}
+.content-display::-webkit-scrollbar { display: none; } /* 스크롤바 숨김 */
+
+.button-wrapper {
+    padding: 10px 40px;
+    text-align: right; /* 버튼을 오른쪽으로 정렬 */
+}
+
+/* --- 4. 페이지별 스타일 --- */
+
 /* 로그인 페이지 */
-.login-page {
+.login-form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: calc(100% - 122px);
+}
+#login-form {
+    text-align: center;
+    margin-top: 50px;
+}
+#login-form input {
+    display: block;
+    width: 400px;
+    height: 80px;
+    border-radius: 30px;
+    border: 4px solid #FFF;
+    background: rgba(255, 255, 255, 0.25);
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+#login-form button {
+    width: 220px;
+    height: 70px;
+    color: #000;
+    background: #fff;
+    border: 4px solid #FFF;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+#login-error {
+    color: #ffcccc;
+    margin-top: 20px;
+    height: 20px;
+}
+
+/* blz.php 페이지 */
+.blz-page-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+.blz-notes-container {
+    flex-grow: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    gap: 85px;
+    padding: 0 10px;
+    box-sizing: border-box;
 }
-.login-container {
-    background-color: #2a2a2a;
-    padding: 2rem;
-    border-radius: 8px;
+.blz-note-item {
+    width: 450px;
+    height: 450px;
+    background: rgba(255, 255, 255, 0.50);
+    border-radius: 50px;
+    padding: 30px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    color: white;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+.blz-note-item::-webkit-scrollbar { display: none; }
+.blz-note-item a { color: white; word-break: break-all; }
+.blz-note-item * { max-width: 100%; }
+.blz-note-item .note-editor.note-frame {
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.blz-note-item .note-editing-area .note-editable {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: #1a1a1a;
+}
+.blz-note-item .edit-btn,
+.blz-note-item .save-btn,
+.blz-note-item .cancel-btn {
+    float: none; /* blz 페이지에서는 float 해제 */
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #1a1a1a;
+}
+
+/* 갤러리 페이지 (art, novel) */
+.gallery-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.gallery-container {
+    flex-grow: 1; /* 남은 공간을 모두 차지 */
+    overflow-y: auto; /* 내용이 많아지면 스크롤 */
+    padding: 20px 40px; /* 좌우 여백 추가 */
+    box-sizing: border-box;
+}
+.gallery-container::-webkit-scrollbar { display: none; }
+
+.add-post-btn {
+    display: block;
+    width: fit-content;
+    margin: 0 auto 30px auto;
+    padding: 10px 25px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #1a1a1a;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+.add-post-btn:hover {
+    transform: scale(1.05);
+}
+
+.gallery-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left; /* ★★★ 여기가 핵심! 왼쪽 정렬에서 중앙 정렬로 변경 ★★★ */
+    gap: 40px;
+    padding: 10px;
+}
+
+.gallery-item {
     width: 300px;
+    height: 350px;
+    background: rgba(255, 255, 255, 0.50);
+    border-radius: 30px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
+    box-sizing: border-box;
+    transition: transform 0.2s;
+}
+.gallery-item:hover {
+    transform: translateY(-10px);
+}
+
+.gallery-item .thumbnail {
+    width: 230px;
+    height: 230px;
+    background-color: #D9D9D9;
+    border-radius: 15px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.gallery-item h3 {
+    margin-top: 25px;
+    font-size: 20px;
+    color: #333;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.no-posts {
+    color: white;
+    font-size: 1.2em;
+    width: 100%;
     text-align: center;
 }
-.login-container input {
-    width: 100%;
-    padding: 0.7rem;
-    margin-bottom: 1rem;
-    box-sizing: border-box;
-    background: #333;
-    border: 1px solid #555;
-    color: #fff;
-}
-.login-container button {
-    width: 100%;
-    padding: 0.8rem;
-    background-color: #a0c4ff;
-    border: none;
-    color: #1a1a1a;
-    font-weight: bold;
-    cursor: pointer;
-}
 
-/* Summernote 에디터 */
-.note-editor.note-frame {
-    background-color: #fff;
-    color: #333;
-}
-.save-btn {
-    padding: 0.5rem 1rem;
-    background-color: #a0c4ff;
-    border: none;
-    color: #1a1a1a;
-    cursor: pointer;
-    margin-top: 1rem;
-}
-
-/* 갤러리 */
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-.gallery-item {
-    cursor: pointer;
-}
-.gallery-item .thumbnail {
-    width: 100%;
-    height: 180px;
-    background-color: #333;
-    background-size: cover;
-    background-position: center;
-    border-radius: 5px;
-}
-.gallery-item h3 {
-    margin: 0.5rem 0 0;
-    font-size: 1.1rem;
-}
-
-.thumbnail {
-    background-color: #ffffff;
-    /* 기본 흰색 배경 */
-    background-size: cover;
-    background-position: center;
-}
-
-/* 글 작성/수정 폼의 썸네일 미리보기 */
+/* 썸네일 미리보기 */
 .thumbnail-preview {
     margin-top: 10px;
 }
@@ -210,32 +343,11 @@ main#content {
     border-radius: 4px;
 }
 
-
-.page-header {
-    padding: 20px 40px 30px 40px; /* 위, 좌우, 아래 여백 */
-    box-sizing: border-box;
+/* --- 5. Summernote 에디터 --- */
+.note-editor.note-frame {
+    background-color: #fff;
+    color: #333;
 }
-
-.page-title {
-    color: white;
-    font-size: 48px;
-    font-family: 'Bonheur Royale', cursive; /* 'Bonheur Royale' 폰트 적용 */
-    font-weight: 400;
-    margin: 0;
-    padding: 0;
-    text-align: center; /* 제목 중앙 정렬 */
-}
-
-.page-divider {
-    width: 100%; /* 부모 요소(콘텐츠 박스) 전체 너비 */
-    height: 0px;
-    border: 1.5px white solid; /* 3px처럼 보이게 하려면 border-width를 절반으로 */
-    margin-top: 20px;
-}
-
-.content-display{
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1020px;
+.note-modal-backdrop{
+    z-index: -1;
 }

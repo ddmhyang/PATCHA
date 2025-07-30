@@ -19,34 +19,19 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
             <nav>
                 <div class="nav_btn" data-page="main">
                     <div class="nav-default"></div>
-                    <div class="nav-active">
-                        <div class="nav-active-ring"></div>
-                        <div class="nav-active-dot"></div>
-                    </div>
+                    <div class="nav-active"><div class="nav-active-ring"></div><div class="nav-active-dot"></div></div>
                 </div>
-
                 <div class="nav_btn" data-page="blz">
                     <div class="nav-default"></div>
-                    <div class="nav-active">
-                        <div class="nav-active-ring"></div>
-                        <div class="nav-active-dot"></div>
-                    </div>
+                    <div class="nav-active"><div class="nav-active-ring"></div><div class="nav-active-dot"></div></div>
                 </div>
-
                 <div class="nav_btn" data-page="art">
                     <div class="nav-default"></div>
-                    <div class="nav-active">
-                        <div class="nav-active-ring"></div>
-                        <div class="nav-active-dot"></div>
-                    </div>
+                    <div class="nav-active"><div class="nav-active-ring"></div><div class="nav-active-dot"></div></div>
                 </div>
-
                 <div class="nav_btn" data-page="novel">
                     <div class="nav-default"></div>
-                    <div class="nav-active">
-                        <div class="nav-active-ring"></div>
-                        <div class="nav-active-dot"></div>
-                    </div>
+                    <div class="nav-active"><div class="nav-active-ring"></div><div class="nav-active-dot"></div></div>
                 </div>
                 
                 <?php if ($is_admin): ?>
@@ -56,11 +41,10 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
                         </div>
                     </a>
                 <?php else: ?>
-                    <a href="login.php" class="nav_btn_link">
-                        <div class="nav_btn" data-page="login">
-                            <div class="nav-default"></div>
-                        </div>
-                    </a>
+                    <div class="nav_btn" data-page="login">
+                        <div class="nav-default"></div>
+                        <div class="nav-active"><div class="nav-active-ring"></div><div class="nav-active-dot"></div></div>
+                    </div>
                 <?php endif; ?>
             </nav>
         </header>

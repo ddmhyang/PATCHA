@@ -171,6 +171,29 @@ $(window).on('load', function() {
             });
         }
     });
+
+        content.on('submit', '#login-form', function(e) {
+        e.preventDefault();
+        $('#login-error').text('');
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // 로그인 성공 시, 페이지를 새로고침하면 자동으로 main.php로 이동됩니다.
+                    window.location.href = 'index.php'; 
+                } else {
+                    $('#login-error').text(response.message);
+                }
+            },
+            error: function() {
+                $('#login-error').text('로그인 중 서버 오류가 발생했습니다.');
+            }
+        });
+    });
     
     router();
     $(window).on('hashchange', router);
