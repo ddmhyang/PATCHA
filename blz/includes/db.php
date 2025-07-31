@@ -1,9 +1,8 @@
 <?php
-// /includes/db.php
 define('DB_HOST', 'localhost');
-define('DB_USER', 'ddmhyang'); // 본인 DB 아이디
-define('DB_PASS', 'Rkwhr1027hyun!'); // 본인 DB 비밀번호
-define('DB_NAME', 'ddmhyang');     // 위에서 생성한 테이블이 있는 DB 이름
+define('DB_USER', 'bloowen');
+define('DB_PASS', 'h94911213!'); 
+define('DB_NAME', 'bloowen');
 
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

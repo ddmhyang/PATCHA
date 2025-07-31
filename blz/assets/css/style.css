@@ -1,7 +1,8 @@
-/* /assets/css/style.css (최종 정리본) */
 
-/* --- 1. 기본 및 레이아웃 설정 --- */
-body, html {
+
+
+body,
+html {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -9,7 +10,8 @@ body, html {
     background-color: #000;
     overflow: hidden;
     font-family: 'Malgun Gothic', sans-serif;
-    visibility: hidden; /* 로드 시 깜빡임 방지 */
+    visibility: hidden;
+   
 }
 
 .container {
@@ -35,17 +37,17 @@ header nav {
 
 main#content {
     position: absolute;
+    top: 50px;
     left: 110px;
-    top: 100px;
     width: 1150px;
-    height: 700px;
-    border: 4px solid #FFF;
-    background: rgba(0, 0, 0, 0.5);
+    height: 800px;
+    background: rgba(255, 0, 0, 0.5);
     box-sizing: border-box;
     padding: 20px;
+    display: flex;
 }
 
-/* --- 2. 내비게이션 버튼 --- */
+
 .nav_btn {
     position: relative;
     width: 50px;
@@ -95,86 +97,64 @@ main#content {
     display: block;
 }
 
-/* --- 3. 공용 컴포넌트 --- */
-.page-header {
-    padding: 20px 40px 30px 40px;
-    box-sizing: border-box;
-}
-.page-title {
-    color: white;
-    font-size: 48px;
-    font-family: 'Bonheur Royale', cursive;
-    font-weight: 400;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-}
-.page-divider {
-    width: 100%;
-    height: 0px;
-    border: 1.5px white solid;
-    margin-top: 20px;
-}
-.content-display {
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1020px;
-}
-
-/* 콘텐츠 영역 스크롤바 숨김 처리 */
-.form-container, .gallery-container, .page-content, .post-view-container, .blz-page-wrapper {
+.blz-page-wrapper,
+.form-container,
+.gallery-container,
+.page-content,
+.post-view-container {
     height: 100%;
-    overflow-y: auto; /* 내용이 길어지면 스크롤 생성 */
+    overflow-y: auto;
     box-sizing: border-box;
-    display: flex; /* 자식 요소(view-mode, edit-mode)가 높이를 채우도록 설정 */
+    display: flex;
     flex-direction: column;
 }
-.form-container::-webkit-scrollbar, .gallery-container::-webkit-scrollbar,
-.page-content::-webkit-scrollbar, .post-view-container::-webkit-scrollbar, .blz-page-wrapper::-webkit-scrollbar {
+.blz-page-wrapper::-webkit-scrollbar,
+.form-container::-webkit-scrollbar,
+.gallery-container::-webkit-scrollbar,
+.page-content::-webkit-scrollbar,
+.post-view-container::-webkit-scrollbar {
     display: none;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
-
 .view-mode {
-    flex-grow: 1; /* 남은 공간을 모두 차지 */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    height: 100%; /* 부모 높이에 맞춤 */
 }
 
-/* ▼▼▼ 문제 해결 핵심 코드 ▼▼▼ */
+
 .content-display {
-    width: 100%; /* 너비를 부모에 맞춤 */
-    height: 500px; /* 높이를 500px로 고정 */
-    overflow-y: auto; /* 내용이 500px를 넘어가면 내부 스크롤 생성 */
-    padding: 0 40px; /* 좌우 여백 */
-    box-sizing: border-box; /* 패딩을 크기에 포함 */
-    position: static; /* position 속성 초기화 */
-    transform: none; /* transform 속성 초기화 */
+    flex-grow: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding: 0 40px;
+    box-sizing: border-box;
 }
-.content-display::-webkit-scrollbar { display: none; } /* 스크롤바 숨김 */
+.content-display::-webkit-scrollbar {
+    display: none;
+}
 
 .button-wrapper {
-    padding: 10px 40px;
-    text-align: right; /* 버튼을 오른쪽으로 정렬 */
+    padding: 10px 40px 0;
+   
+    text-align: right;
+    flex-shrink: 0;
+   
 }
 
-/* --- 4. 페이지별 스타일 --- */
 
-/* 로그인 페이지 */
 .login-form-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: calc(100% - 122px);
+    height: calc(100% - 52px);
 }
 #login-form {
     text-align: center;
-    margin-top: 50px;
+    margin-top: -50px;
 }
 #login-form input {
     display: block;
@@ -205,7 +185,6 @@ main#content {
     height: 20px;
 }
 
-/* blz.php 페이지 */
 .blz-page-wrapper {
     display: flex;
     flex-direction: column;
@@ -224,59 +203,38 @@ main#content {
     height: 450px;
     background: rgba(255, 255, 255, 0.50);
     border-radius: 50px;
-    padding: 30px;
-    box-sizing: border-box;
-    overflow-y: auto;
     color: white;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
 }
-.blz-note-item::-webkit-scrollbar { display: none; }
-.blz-note-item a { color: white; word-break: break-all; }
-.blz-note-item * { max-width: 100%; }
-.blz-note-item .note-editor.note-frame {
-    background-color: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+.blz-note-item .content-display {
+    padding: 30px;
+    height: 100%;
 }
-.blz-note-item .note-editing-area .note-editable {
-    background-color: rgba(255, 255, 255, 0.7);
-    color: #1a1a1a;
+.blz-note-item .button-wrapper {
+    padding: 10px 10px 20px;
 }
-.blz-note-item .edit-btn,
-.blz-note-item .save-btn,
-.blz-note-item .cancel-btn {
-    float: none; /* blz 페이지에서는 float 해제 */
-    display: inline-block;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 900;
-    cursor: pointer;
-    text-decoration: none;
-    margin-right: 15px;
-    margin-top: 10px;
+.blz-note-item * {
+    max-width: 100%;
 }
 
-/* 갤러리 페이지 (art, novel) */
+
 .gallery-page-wrapper {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
-
 .gallery-container {
-    flex-grow: 1; /* 남은 공간을 모두 차지 */
-    overflow-y: auto; /* 내용이 많아지면 스크롤 */
-    padding: 20px 40px; /* 좌우 여백 추가 */
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px 40px;
     box-sizing: border-box;
 }
-.gallery-container::-webkit-scrollbar { display: none; }
-
+.gallery-container::-webkit-scrollbar {
+    display: none;
+}
 .add-post-btn {
     display: block;
     width: fit-content;
-    margin: 0 auto 30px auto;
+    margin: 0 auto 30px;
     padding: 10px 25px;
     background: rgba(255, 255, 255, 0.8);
     color: #1a1a1a;
@@ -288,15 +246,13 @@ main#content {
 .add-post-btn:hover {
     transform: scale(1.05);
 }
-
 .gallery-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: left; /* ★★★ 여기가 핵심! 왼쪽 정렬에서 중앙 정렬로 변경 ★★★ */
+    justify-content: left;
     gap: 40px;
     padding: 10px;
 }
-
 .gallery-item {
     width: 300px;
     height: 350px;
@@ -313,7 +269,6 @@ main#content {
 .gallery-item:hover {
     transform: translateY(-10px);
 }
-
 .gallery-item .thumbnail {
     width: 230px;
     height: 230px;
@@ -323,7 +278,6 @@ main#content {
     background-position: center;
     flex-shrink: 0;
 }
-
 .gallery-item h3 {
     margin-top: 25px;
     font-size: 20px;
@@ -331,7 +285,6 @@ main#content {
     text-align: center;
     padding: 0 20px;
 }
-
 .no-posts {
     color: white;
     font-size: 1.2em;
@@ -339,7 +292,7 @@ main#content {
     text-align: center;
 }
 
-/* 썸네일 미리보기 */
+
 .thumbnail-preview {
     margin-top: 10px;
 }
@@ -350,31 +303,31 @@ main#content {
     border-radius: 4px;
 }
 
-/* --- 5. Summernote 에디터 --- */
+
 .note-editor.note-frame {
     background-color: #fff;
     color: #333;
 }
-.note-modal-backdrop{
+.note-modal-backdrop {
     z-index: -1;
 }
 
 
-/* === Eden Gallery Styles for BLZ (REVISED) === */
 
-/* Post View Page (post_view.php) */
 .post-view-container {
-    width: 90%; /* 너비 조정 */
-    margin: 0 auto; /* 중앙 정렬 추가 */
+    width: 90%;
+    margin: 0 auto;
     padding: 0 20px;
     box-sizing: border-box;
     color: white;
-    height: 100%;
-    overflow-y: auto; /* 내용이 길면 스크롤 */
+    height: calc(100% - 52px);
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
-.post-view-container::-webkit-scrollbar { display: none; }
+.post-view-container::-webkit-scrollbar {
+    display: none;
+}
 .post-view-container h1 {
     text-align: center;
     font-size: 36px;
@@ -382,6 +335,7 @@ main#content {
     margin-bottom: 15px;
     flex-shrink: 0;
 }
+.post-date,
 .post-meta {
     text-align: right;
     color: rgba(255, 255, 255, 0.7);
@@ -389,46 +343,11 @@ main#content {
     margin-bottom: 15px;
     flex-shrink: 0;
 }
-.post-date {
-    text-align: right;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 16px;
-    margin-bottom: 15px;
-    flex-shrink: 0;
-}
-.btn-action {
-    margin-left: 10px;
-    padding: 8px 18px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 900;
-    color: black;
-    background-color: rgb(224, 224, 224);
-    transition: background-color 0.3s ease;
-    border: none;
-    cursor: pointer;
-}
-.btn-action.btn-delete {
-    background-color: rgb(50, 50, 50);
-    color: white;
-}
 .post-actions {
     text-align: center;
     margin-top: 30px;
     flex-shrink: 0;
     padding-bottom: 20px;
-}
-.btn-back-to-list {
-    display: inline-block;
-    padding: 10px 30px;
-    background-color: #ffffff;
-    color: black;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 18px;
-    font-weight: 900;
-    transition: background-color 0.3s ease;
 }
 .post-view-container hr {
     border: none;
@@ -442,23 +361,25 @@ main#content {
     color: rgba(255, 255, 255, 0.95);
     padding: 10px;
     border-radius: 8px;
-    flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-    overflow-y: auto; /* 내용이 넘칠 경우 자체 스크롤 */
+    flex-grow: 1;
+    overflow-y: auto;
 }
-.post-content::-webkit-scrollbar { display: none; }
+.post-content::-webkit-scrollbar {
+    display: none;
+}
 
 
-/* Form Pages (post_upload.php, post_edit.php) */
 .form-page-container {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 52px);
     padding: 0 40px;
     box-sizing: border-box;
     color: white;
     overflow-y: auto;
 }
-.form-page-container::-webkit-scrollbar { display: none; }
-
+.form-page-container::-webkit-scrollbar {
+    display: none;
+}
 .form-page-container h1 {
     text-align: center;
     font-size: 36px;
@@ -485,7 +406,13 @@ main#content {
     box-sizing: border-box;
 }
 
-.edit-btn, .save-btn, .cancel-btn, .btn-action, .btn-back-to-list {
+
+.btn-action,
+.btn-back-to-list,
+.btn-submit,
+.cancel-btn,
+.edit-btn,
+.save-btn {
     display: inline-block;
     padding: 12px 25px;
     border: none;
@@ -500,53 +427,64 @@ main#content {
     background-color: white;
     transition: transform 0.2s;
 }
-.edit-btn:hover, .save-btn:hover, .cancel-btn:hover, .btn-action:hover, .btn-back-to-list:hover {
+.btn-action:hover,
+.btn-back-to-list:hover,
+.btn-submit:hover,
+.cancel-btn:hover,
+.edit-btn:hover,
+.save-btn:hover {
     transform: scale(1.05);
 }
-.cancel-btn, .btn-action.btn-delete {
+.btn-action.btn-delete,
+.cancel-btn {
     background-color: #333;
     color: white;
 }
-.blz-note-item .edit-btn, .blz-note-item .save-btn, .blz-note-item .cancel-btn {
+.blz-note-item .button-wrapper {
+    text-align: right;
+    padding-top: 0;
+}
+.blz-note-item .cancel-btn,
+.blz-note-item .edit-btn,
+.blz-note-item .save-btn {
     padding: 8px 15px;
     font-size: 14px;
 }
-.btn-submit, .btn-cancel {
-    display: inline-block;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 900;
-    cursor: pointer;
-    text-decoration: none;
-    margin-right: 15px;
-    margin-top: 10px;
+
+
+.form-page-container .note-editor,
+.page-content .note-editor {
+    margin: 0 auto;
 }
-.btn-submit {
-    background-color: white;
-    color: black;
-}
-.btn-cancel {
-    background-color: #333;
-    color: white;
-}
-/* Summernote Editor in Form */
-.form-page-container .note-editor.note-frame {
+.form-page-container .note-editor.note-frame,
+.page-content .note-editor.note-frame {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
-.form-page-container .note-editing-area .note-editable {
+.note-editing-area .note-editable {
     background-color: rgba(255, 255, 255, 0.9);
     color: #000;
 }
-
-/* blz.php 링크 스타일 제거 */
-.blz-notes-container .blz-note-item-link {
-    text-decoration: none; /* 밑줄 제거 */
-    color: inherit; /* 부모 요소의 색상 상속 */
+/* .form-page-container .note-editing-area .note-editable {
+    min-height: 350px;
+}
+.page-content .note-editing-area .note-editable {
+    min-height: 250px;
+} */
+.blz-note-item .note-editor {
+    width: 90%;
+    margin-top: 30px;
 }
 
-.blz-notes-container .blz-note-item-link:hover {
-    /* 필요하다면 호버 시 스타일 변경 */
+
+.page-content[data-slug="main_content"] .note-editor,
+.page-content[data-slug="blue"] .note-editor,
+.page-content[data-slug="owen"] .note-editor {
+    width: 93%;
+}
+
+
+.blz-note-item-link {
     text-decoration: none;
+    color: inherit;
+    display: block;
 }
