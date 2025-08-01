@@ -20,7 +20,7 @@ $stmt->close();
             <div class="admin-buttons"><button type="button" class="edit-btn">수정하기</button></div>
         </div>
         <div id="edit-mode" style="display: none;">
-            <form class="edit-form" action="../actions/ajax_save_page.php" method="post">
+            <form class="edit-form" action="ajax_save_page.php" method="post">
                 <input type="hidden" name="page_name" value="<?php echo $page_name; ?>">
                 <textarea class="summernote" name="content"><?php echo htmlspecialchars($page_content); ?></textarea>
                 <div class="admin-buttons">
@@ -53,7 +53,7 @@ $(document).ready(function() {
         let data = new FormData();
         data.append("file", file);
         $.ajax({
-            url: '../actions/ajax_upload_image.php',
+            url: 'ajax_upload_image.php',
             type: "POST", data: data,
             contentType: false, processData: false, dataType: 'json',
             success: function(response) {

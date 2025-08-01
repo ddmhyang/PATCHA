@@ -6,7 +6,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 ?>
 <div class="form-page-container">
     <h2>새 TRPG 세션 기록</h2>
-    <form action="../actions/trpg_save.php" method="post" enctype="multipart/form-data">
+    <form action="trpg_save.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="type" value="trpg">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         
@@ -68,7 +68,7 @@ $(document).ready(function() {
         let data = new FormData();
         data.append("file", file);
         $.ajax({
-            url: '../actions/ajax_upload_image.php',
+            url: 'ajax_upload_image.php',
             type: "POST",
             data: data,
             contentType: false,
@@ -84,7 +84,7 @@ $(document).ready(function() {
             error: () => alert('이미지 업로드 중 서버 오류가 발생했습니다.')
         });
     }
-    $(document).off('submit', 'form[action="../actions/trpg_save.php"]').on('submit', 'form[action="../actions/trpg_save.php"]', function(e) {
+    $(document).off('submit', 'form[action="trpg_save.php"]').on('submit', 'form[action="trpg_save.php"]', function(e) {
         e.preventDefault();
 
         $('textarea[name="content"]').val($('.summernote').summernote('code'));

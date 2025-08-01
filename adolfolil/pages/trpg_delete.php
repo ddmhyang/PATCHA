@@ -15,7 +15,7 @@ $stmt = $mysqli->prepare("DELETE FROM posts WHERE id = ?");
 $stmt->bind_param("i", $post_id);
 if ($stmt->execute()) {
     
-    echo json_encode(['success' => true, 'redirect_url' => '#/gallery']);
+    echo json_encode(['success' => true, 'redirect_url' => '#/trpg']);
 } else {
     echo json_encode(['success' => false, 'message' => '삭제 실패: ' . $stmt->error]);
 }

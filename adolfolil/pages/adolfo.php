@@ -20,7 +20,7 @@ $stmt->close();
         </div>
 
         <div id="edit-mode" style="display: none;">
-            <form class="edit-form" action="../actions/ajax_save_page.php" method="post">
+            <form class="edit-form" action="ajax_save_page.php" method="post">
                 <input type="hidden" name="page_name" value="<?php echo $page_name; ?>">
                 <textarea class="summernote" name="content"><?php echo htmlspecialchars($page_content); ?></textarea>
                 <div class="admin-buttons">

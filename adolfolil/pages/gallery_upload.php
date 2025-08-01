@@ -7,7 +7,7 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 ?>
 <div class="form-page-container">
     <h2>Gallery 추가</h2>
-    <form action="../actions/gallery_save.php" method="post" enctype="multipart/form-data">
+    <form action="gallery_save.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="type" value="gallery">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         
@@ -44,7 +44,7 @@ $(document).ready(function() {
         let data = new FormData();
         data.append("file", file);
         $.ajax({
-            url: '../actions/ajax_upload_image.php',
+            url: 'ajax_upload_image.php',
             type: "POST", data: data,
             contentType: false, processData: false, dataType: 'json',
             success: function(response) {

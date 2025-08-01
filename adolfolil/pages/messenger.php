@@ -1,5 +1,4 @@
 <?php
-// --- 파일 경로: /pages/messenger.php (카카오톡 방식 최종 수정본) ---
 require_once __DIR__ . '/../includes/db.php';
 $is_admin = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
 
@@ -37,7 +36,7 @@ $messages = $mysqli->query("SELECT * FROM messages ORDER BY created_at ASC")->fe
     </div>
 
     <div class="chat-input-area">
-        <form id="messenger-form" action="../actions/messenger_save.php" method="post">
+        <form id="messenger-form" action="messenger_save.php" method="post">
             <select style="font-family: 'Galmuri9';" name="character">
                 <option style="font-family: 'Galmuri9';" value="Adolfo">Adolfo</option>
                 <option style="font-family: 'Galmuri9';" value="Lilian">Lilian</option>

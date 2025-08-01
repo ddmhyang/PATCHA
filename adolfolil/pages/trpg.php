@@ -188,10 +188,30 @@ if ($result) {
         transition: background-color 0.3s ease;
     }
     .dot.active, .dot:hover { background-color: #fafafa; }
+
+    @media (max-width: 768px) {
+        .slider-container{
+            margin-top: 30px;
+            width: 400px;
+        }
+
+        
+        .slide-content-box {
+            flex-direction: column;
+        }
+
+        
+        .slider-btn.prev {
+            left: 0px;
+        }
+        .slider-btn.next { 
+            right: 0px; 
+        }
+        
+    }
 </style>
 
 <script>
-// JavaScript는 변경할 필요가 없습니다.
 $(document).ready(function() {
     const sliderContainer = $('.slider-container');
     const sliderWrapper = $('.slider-wrapper');

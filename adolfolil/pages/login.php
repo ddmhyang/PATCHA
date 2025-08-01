@@ -1,7 +1,4 @@
 <?php
-
-
-
 require_once __DIR__ . '/../includes/db.php';
 
 
@@ -34,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['user_id'] = $user['id']; 
                 
+                session_regenerate_id(true);
                 
                 header('Location: main.php');
                 exit;

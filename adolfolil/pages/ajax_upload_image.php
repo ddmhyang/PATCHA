@@ -1,99 +1,76 @@
 <?php
-// /pages/ajax_upload_image.php (고화질/다중 페이지 최종 완성 버전)
+
 require_once '../includes/db.php';
 
-// --- 1. 사전 준비 및 보안 확인 ---
+
 header('Content-Type: application/json');
-if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => '권한이 없습니다.']);
+
+
+if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
+    http_response_code(403); 
+    
+    echo json_encode(['success' => false, 'error' => '권한 오류: 로그인 상태가 아닙니다.']);
     exit;
 }
+
+
 if (empty($_FILES['file'])) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => '업로드된 파일이 없습니다.']);
+    http_response_code(400); 
+    echo json_encode(['success' => false, 'error' => '파일 없음: 서버로 전송된 파일이 없습니다.']);
     exit;
 }
 
 $file = $_FILES['file'];
-$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-// --- 2. PDF 파일 처리 로직 ---
-if ($ext === 'pdf') {
-    if (!class_exists('Imagick')) {
-        echo json_encode(['success' => false, 'error' => '서버에 PDF 변환 기능(ImageMagick)이 설치되지 않았습니다.']);
+
+if ($file['error'] !== UPLOAD_ERR_OK) {
+    http_response_code(500); 
+    $upload_errors = [
+        UPLOAD_ERR_INI_SIZE   => '서버 설정(php.ini)보다 큰 파일입니다.',
+        UPLOAD_ERR_FORM_SIZE  => 'HTML 폼에서 지정한 크기보다 큰 파일입니다.',
+        UPLOAD_ERR_PARTIAL    => '파일이 부분적으로만 업로드되었습니다.',
+        UPLOAD_ERR_NO_FILE    => '파일이 업로드되지 않았습니다.',
+        UPLOAD_ERR_NO_TMP_DIR => '임시 폴더가 없습니다.',
+        UPLOAD_ERR_CANT_WRITE => '디스크에 파일을 쓸 수 없습니다.',
+        UPLOAD_ERR_EXTENSION  => 'PHP 확장 기능에 의해 파일 업로드가 중단되었습니다.',
+    ];
+    $error_message = $upload_errors[$file['error']] ?? '알 수 없는 업로드 오류';
+    echo json_encode(['success' => false, 'error' => '업로드 오류: ' . $error_message]);
+    exit;
+}
+
+
+
+$uploadDir = '../uploads/';
+if (!is_dir($uploadDir)) {
+    
+    if (!mkdir($uploadDir, 0777, true)) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => '폴더 생성 실패: ' . $uploadDir . ' 폴더를 만들 수 없습니다. 상위 폴더의 권한을 확인해주세요.']);
         exit;
     }
+}
+
+
+if (!is_writable($uploadDir)) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => '권한 오류: ' . $uploadDir . ' 폴더에 파일을 쓸 권한이 없습니다.']);
+    exit;
+}
+
+
+$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+$newFileName = uniqid('img-') . '.' . $ext;
+$targetPath = $uploadDir . $newFileName;
+
+if (move_uploaded_file($file['tmp_name'], $targetPath)) {
     
-    $uploadDir = '../uploads/pdf_images/';
-    if (!is_dir($uploadDir)) {
-        @mkdir($uploadDir, 0777, true);
-    }
-
-    $baseFileName = uniqid('pdf-hq-') . '-' . pathinfo($file['name'], PATHINFO_FILENAME);
-    
-    try {
-        $imagick = new Imagick();
-        // 고해상도 설정을 readImage 앞에 두는 것이 더 안정적입니다.
-        $imagick->setResolution(600, 600);
-        $imagick->readImage($file['tmp_name']);
-        
-        $num_pages = $imagick->getNumberImages();
-        if ($num_pages === 0) {
-            throw new Exception('PDF 파일에서 페이지를 인식할 수 없습니다.');
-        }
-
-        $image_urls = [];
-        for ($i = 0; $i < $num_pages; $i++) {
-            $imagick->setIteratorIndex($i);
-            // 각 페이지를 새로운 Imagick 객체로 복제하여 안전하게 처리
-            $page = $imagick->clone();
-            $page->setImageFormat('jpeg'); // jpg보다 jpeg가 정식 명칭
-            $page->setImageCompressionQuality(95);
-            $page->stripImage(); 
-            
-            $imageFileName = $baseFileName . '-' . ($i + 1) . '.jpeg';
-            $imagePath = $uploadDir . $imageFileName;
-            
-            if ($page->writeImage($imagePath)) {
-                $image_urls[] = '../uploads/pdf_images/' . $imageFileName;
-            }
-            $page->clear();
-        }
-        
-        $imagick->clear();
-        $imagick->destroy();
-        
-        if (empty($image_urls)) {
-             throw new Exception('PDF에서 이미지를 생성하지 못했습니다.');
-        }
-
-        echo json_encode(['success' => true, 'urls' => $image_urls]);
-
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'PDF 변환 중 오류 발생: ' . $e->getMessage()]);
-    }
-    
-// --- 3. 일반 이미지 파일 처리 로직 ---
+    echo json_encode([
+        'success' => true, 
+        'urls' => ['../uploads/' . $newFileName]
+    ]);
 } else {
-    $uploadDir = '../uploads/';
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
-    
-    $newFileName = uniqid('img-') . '.' . $ext;
-    $targetPath = $uploadDir . $newFileName;
-    
-    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        // 성공 시, 이미지 URL을 배열에 담아 JSON으로 반환 (형식 통일)
-        echo json_encode([
-            'success' => true, 
-            'urls' => ['../uploads/' . $newFileName]
-        ]);
-    } else {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'error' => '이미지 파일 저장에 실패했습니다.']);
-    }
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => '파일 저장 실패: 임시 파일을 최종 목적지로 옮기는 데 실패했습니다.']);
 }
 ?>
