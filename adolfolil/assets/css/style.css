@@ -59,7 +59,6 @@ html {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 74px; 
 }
 
 .sub_menu > a {
@@ -72,6 +71,7 @@ html {
     font-weight: 400;
     line-height: normal;
     text-decoration-line: none;
+    padding: 37px 0;
 }
 
 .sMLine{
@@ -121,8 +121,8 @@ html {
 
 .bottom_play_btn{
     position: absolute;
-    left:710px;
-    top: 28px;
+    left:708px;
+    top: 32px;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
 }
@@ -331,37 +331,65 @@ html {
     z-index: -1;
 }
 
-/* style.css 파일에 추가 */
+
 .item-thumbnail {
     width: 250px;
     height: 150px;
-    background-color: #333; /* 썸네일 없을 때 기본 회색 배경 */
+    background-color: #333;
     background-size: cover;
     background-position: center;
     border-radius: 5px;
 }
 
 .admin-buttons {
-    text-align: right; /* 내부 요소를 오른쪽으로 정렬 */
-    margin-top: 15px; /* 본문 내용과의 간격 */
+    text-align: right;
+    margin-top: 15px;
 }
 
 .edit-btn, .cancel-btn, .admin-buttons button {
     display: inline-block;
-    padding: 8px 20px;
-    background-color: #333;
-    color: white;
-    border: 1px solid #555;
+    padding: 12px 20px;
+    background-color: #1a1a1a;
+    color: #fafafa;
+    border: 1px solid #1a1a1a;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 20px;
     cursor: pointer;
     text-decoration: none;
+    font-family: 'DungGeunMo';
+}
+
+.admin-buttons > a{
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #fafafa;
+    color: #1a1a1a;
+    border: 1px solid #fafafa;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'DungGeunMo';
+    margin-right: 10px;
+}
+
+.admin-buttons button {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #1a1a1a;
+    color: #fafafa;
+    border: 1px solid #1a1a1a;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'DungGeunMo';
 }
 
 .page-container {
     margin: 20px;
     box-sizing: border-box;
-    color: #333;
+    color: #1a1a1a;
     border-radius: 5px;
     height: 100%;
     overflow-y: auto;
@@ -370,4 +398,511 @@ html {
 .page-container::-webkit-scrollbar {
     width: 0;
     height: 0;
+}
+
+
+
+
+.gallery-container, .trpg-container {
+    padding: 20px;
+    box-sizing: border-box;
+    color: #1a1a1a;
+    height: 100%;
+}
+.gallery-header, .trpg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 4px solid #1a1a1a;
+}
+.gallery-header h1, .gallery-header h2, .trpg-header h1, .trpg-header h2 {
+    margin: 20px 5px;
+    font-family: 'DungGeunMo';
+    font-size: 28px;
+    color: #1a1a1a;
+}
+.add-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 16px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    background-color: #1a1a1a;
+    color: #fafafa;
+    font-size: 16px;
+}
+.gallery-grid, .trpg-grid {
+    margin-left: 50px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    list-style: none;
+    padding: 0;
+    padding-bottom: 50px;
+}
+.gallery-item {
+    width: 250px;
+    background-color: #1a1a1a70;
+    height: 300px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1a1a1a;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.item-thumbnail {
+    margin: 35px 0 0 35px;
+    width: 180px;
+    height: 180px;
+    background-color: #f0f0f0;
+    background-size: cover;
+    background-position: center;
+}
+.gallery-item-title {
+    padding: 10px;
+    font-size: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    color: #fafafa;
+}
+
+
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    font-family: 'DungGeunMo';
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.2s ease;
+}
+
+
+.btn-primary {
+    background-color: #1a1a1a;
+    color: #fafafa;
+    border-color: #1a1a1a;
+}
+.btn-primary:hover {
+    background-color: #333;
+}
+
+
+.btn-secondary {
+    background-color: #fafafa;
+    color: #1a1a1a;
+    border-color: #ddd;
+}
+.btn-secondary:hover {
+    background-color: #f0f0f0;
+}
+
+
+.view-container, .form-page-container {
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: auto;
+    color: #1a1a1a;
+}
+.view-container::-webkit-scrollbar, .form-page-container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+.view-container h1, .form-page-container h2 {
+    margin: 20px 0;
+    font-family: 'DungGeunMo';
+    font-size: 28px;
+    color: #1a1a1a;
+}
+.view-meta {
+    text-align: right;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    margin-right: 15px;
+    padding-bottom: 20px;
+}
+.view-footer {
+    margin-top: 30px;
+    text-align: right;
+}
+.view-content img {
+    max-width: 100%;
+    height: auto;
+}
+.btn-back-to-list {
+    display: inline-block;
+    margin-top: 30px;
+    background-color: #fafafa;
+    padding: 16px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: #1a1a1a;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.form-group input[type="text"], .form-group input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+
+
+
+@media (max-width: 768px) {
+    .container {
+        width: 720px;
+        height: 1280px;
+        background-color: #000000;
+        transform-origin: top left;
+        position: absolute;
+        transform: scale(0);
+        flex-shrink: 0;
+        aspect-ratio: 720/1280;
+        background: url("../img/background.png") lightgray 50% / cover no-repeat;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+    .container,
+    body,
+    html {
+        transition: background-color 1s ease-in-out;
+    }
+
+    .sub_menu_border{
+        position: absolute;
+        left: 80px;
+        top: 83px;
+        width: 560px;
+        height: 1009px;
+        flex-shrink: 0;
+        background: #1A1A1A;
+    }
+
+    .sub_menu {
+        position: absolute;
+        left: 15px;
+        top: 91px;
+        width: 530px;
+        height: 68px;
+        flex-shrink: 0;
+        background: #FAFAFA;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        z-index: 70;
+        margin: 0;
+        padding:0;
+    }
+
+    .sub_menu > a {
+        width: auto;
+        color: #1A1A1A;
+        text-align: center;
+        font-family: 'Galmuri9';
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-decoration-line: none;
+        padding: 0;
+        margin: 0 18px;
+    }
+
+    .sMLine{
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 85px;
+        width: 80px;
+        height: 2px;
+        background: #1A1A1A;
+    }
+
+    .sMChang-link {
+        text-decoration: none;
+        display: block;
+        position: absolute;
+        left: 499px;
+        top: 25px;
+        width: 25px;
+        height: 25px;
+        z-index: 100;
+    }
+
+    .sMChang {
+        width: 100%;
+        height: 100%;
+        flex-shrink: 0;
+        background: #FAFAFA;
+        z-index: 50;
+    }
+
+    .bottom_bar{
+        position: absolute;
+        bottom: 0px;
+        width: 720px;
+        height: 106px;
+        flex-shrink: 0;
+        background: #1A1A1A;
+    }
+
+    .bottom_pre_btn{
+        position: absolute;
+        left:160px;
+        top: 28px;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .bottom_play_btn{
+        position: absolute;
+        left:348px;
+        top: 32px;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .bottom_next_btn{
+        position: absolute;
+        left:480px;
+        top: 28px;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .bottom_pre_btn:hover, .bottom_play_btn:hover, .bottom_next_btn:hover{
+        transform: scale(1.1);
+    }
+
+    .main_border{
+        position: absolute;
+        left: 80px;
+        top: 83px;
+        width: 560px;
+        height: 1009px;
+        flex-shrink: 0;
+        background: #1A1A1A00;
+    }
+
+    .main_border > a{
+        position: absolute;
+        top: 24px;
+        left:30px;
+        color: #FAFAFA;
+        font-family: 'DungGeunMo';
+        font-size: 40px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-decoration-line: none;
+    }
+
+    .main_box{
+        position: absolute;
+        top: 159px;
+        left:15px;
+        width: 530px;
+        height: 835px;
+        flex-shrink: 0;
+        background: linear-gradient(0deg, rgba(250, 250, 250, 0.60) 0%, rgba(250, 250, 250, 0.60) 100%), url('../img/object.jpg') lightgray 50% / cover no-repeat;
+        overflow-y: auto;
+    }
+
+    .main_box::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    .main_chang{
+        position: absolute;
+        width: 150px;
+        height: 30px;
+        top: 25px;
+        left: 379px;
+    }
+
+
+    .iCB1{
+        position: absolute;
+        top: 111px;
+        left: 65px;
+        width: 400px;
+        height: 220px;
+        flex-shrink: 0;
+        border-radius: 30px;
+        background: #1A1A1A;
+        transition: transform 0.2s ease-in-out;
+        cursor: pointer;
+    }
+
+    .iCB1:hover{
+        transform: scale(1.02);
+    }
+
+    .iC1{
+        position: absolute;
+        top: 9.5px;
+        left: 10.5px;
+        width: 380px;
+        height: 200px;
+        flex-shrink: 0;
+        border-radius: 20px;
+        background: #FAFAFA;
+    }
+
+    .iC1_img{
+        position: absolute;
+        top: 25px;
+        left: 17px;
+        width: 120px;
+        height: 150px;
+        flex-shrink: 0;
+        border-radius: 15px;
+        background: url("../img/pic.png") lightgray 50% / cover no-repeat;
+    }
+
+    .iC1_q{
+        position: absolute;
+        top: 57px;
+        left: 165px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px; 
+    }
+
+    .iC1_a{
+        position: absolute;
+        top: 57px;
+        right: 30px;
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: right;
+        gap: 20px; 
+    }
+
+    .iC1 > div > a{
+        color: #1A1A1A;
+        font-family: DungGeunMo;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    .iCB2{
+        position: absolute;
+        top: 436px;
+        left: 65px;
+        width: 400px;
+        height: 220px;
+        flex-shrink: 0;
+        border-radius: 30px;
+        background: #1A1A1A;
+        transition: transform 0.2s ease-in-out;
+        cursor: pointer;
+    }
+
+    .iCB2:hover{
+        transform: scale(1.02);
+    }
+
+    .iC2{
+        position: absolute;
+        top: 9.5px;
+        left: 10.5px;
+        width: 380px;
+        height: 200px;
+        flex-shrink: 0;
+        border-radius: 20px;
+        background: #FAFAFA;
+    }
+
+    .iC2_img{
+        position: absolute;
+        top: 25px;
+        left: 17px;
+        width: 120px;
+        height: 150px;
+        flex-shrink: 0;
+        border-radius: 15px;
+        background: url("../img/pic2.png") lightgray 50% / cover no-repeat;
+    }
+
+    .iC2_q{
+        position: absolute;
+        top: 57px;
+        left: 165px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px; 
+    }
+
+    .iC2_a{
+        position: absolute;
+        top: 57px;
+        right: 30px;
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: right;
+        gap: 20px; 
+    }
+
+    .iC2 > div > a{
+        color: #1A1A1A;
+        font-family: DungGeunMo;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    #messenger-overlay {
+        left: 50% !important; /* Use !important to override inline styles */
+        top: 50% !important;   /* Use !important to override inline styles */
+        transform: translate(-50%, -50%);
+    }
+    .gallery-grid, .trpg-grid {
+        margin-left: 120px;
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        grid-template-rows: repeat(1, 1fr);
+        gap: 20px;
+        list-style: none;
+        padding: 0;
+        padding-bottom: 50px;
+    }
+
+    .gallery-header > .admin-buttons > .delete-btn,
+    .trpg-header > .admin-buttons > .delete-btn {
+        margin-right: 9px;
+    }
 }
