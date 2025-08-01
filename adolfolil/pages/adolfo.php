@@ -55,7 +55,7 @@ $stmt->close();
             let data = new FormData();
             data.append("file", file);
             $.ajax({
-                url: '../actions/ajax_upload_image.php',
+                url: 'ajax_upload_image.php',
                 type: "POST", data: data,
                 contentType: false, processData: false, dataType: 'json',
                 success: function(response) {

@@ -118,7 +118,7 @@ $csrf_token = $_SESSION['csrf_token'] ?? '';
                 style="display: none; position: absolute; left: 829px; top: 99px; z-index: 100;"></div>
 
             <audio id="bgm-player" loop="loop">
-                <source src="../assets/bgm/Left on our hands  DOFOLIL Themes.mp3" type="audio/mpeg">
+                <source src="../assets/bgm/Adam_Lambert_Outlaws_of_Love.mp3" type="audio/mpeg">
             </audio>
         </div>
 

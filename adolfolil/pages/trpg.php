@@ -34,7 +34,7 @@ if ($result) {
                                 <div class="slide-content-box">
                                     <div class="thumbnail-column">
                                         <?php if (!empty($post['thumbnail_path'])): ?>
-                                            <img src="/<?php echo htmlspecialchars($post['thumbnail_path']); ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
+                                            <img src="../<?php echo htmlspecialchars($post['thumbnail_path']); ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
                                         <?php else: ?>
                                             <div class="thumbnail-placeholder"></div>
                                         <?php endif; ?>

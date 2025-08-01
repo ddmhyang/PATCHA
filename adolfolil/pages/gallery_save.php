@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/db.php';
+require_once '/../includes/db.php';
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) { die(json_encode(['success' => false, 'message' => '권한이 없습니다.'])); }
