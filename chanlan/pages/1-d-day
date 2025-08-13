@@ -1,0 +1,16 @@
+<div class="d-day-counter">
+    <?php
+        $target_date = new DateTime("2025-06-11");
+        $current_date = new DateTime(); // 현재 날짜
+
+        $interval = $current_date->diff($target_date);
+        $d_day = $interval->days;
+
+        // diff()는 항상 양수를 반환하므로, invert 속성으로 과거인지 미래인지 확인
+        if ($interval->invert) {
+            echo "D+" . $d_day; // 목표일이 과거일 경우
+        } else {
+            echo "D-" . $d_day; // 목표일이 미래일 경우
+        }
+    ?>
+</div>
