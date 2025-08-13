@@ -21,8 +21,24 @@ $stmt->close();
         </form>
     </div>
     <script>
-    $('.edit-btn').click(()=>{$('#view-mode').hide();$('#edit-mode').show();$('.summernote').summernote({height:400,callbacks:{onImageUpload:(f,e)=>uploadSummernoteImage(f[0],e)}});});
-    $('.cancel-btn').click(()=>{$('.summernote').summernote('destroy');$('#edit-mode').hide();$('#view-mode').show();});
+    $('.edit-btn').on('click', function() {
+        $('#view-mode').hide();
+        $('#edit-mode').show();
+        $('.summernote').summernote({
+            height: 400,
+            focus: true,
+            callbacks: {
+                onImageUpload: function(files) {
+                    uploadSummernoteImage(files[0], $(this));
+                }
+            }
+        });
+    });
+    $('.cancel-btn').on('click', function() {
+        $('.summernote').summernote('destroy');
+        $('#edit-mode').hide();
+        $('#view-mode').show();
+    });
     </script>
     <?php endif; ?>
 </div>

@@ -2,9 +2,9 @@
 require_once '../includes/db.php';
 
 $post_id = intval($_GET['id'] ?? 0);
-if ($post_id <= 0) { die("유효하지 않은 게시물입니다."); }
+if ($post_id <= 0) { die("유효하지 않은 게시물 ID입니다."); }
 
-$stmt = $mysqli->prepare("SELECT * FROM home_gallery WHERE id = ?");
+$stmt = $mysqli->prepare("SELECT * FROM chan_gallery WHERE id = ?");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $post = $stmt->get_result()->fetch_assoc();
@@ -12,36 +12,27 @@ $stmt->close();
 
 if (!$post) { die("게시물이 존재하지 않습니다."); }
 
-// --- 비밀글 접근 제어 로직 ---
+// --- 비밀글 접근 제어 로직 수정 ---
 $can_view = false;
-if ($post['is_private'] == 0) { // 공개글
+if ($post['is_private'] == 0) { // 1. 공개글이면 통과
     $can_view = true;
-} elseif ($is_admin) { // 관리자
+} elseif ($is_admin) { // 2. 관리자면 통과
     $can_view = true;
-} else { // 비밀글 + 일반 사용자
-    // 세션에 저장된 접근 시간 확인
-    if (isset($_SESSION['post_access'][$post_id])) {
-        $access_time = $_SESSION['post_access'][$post_id];
-        // 30분(1800초)이 지났는지 확인
-        if (time() - $access_time < 1800) {
-            $can_view = true;
-        } else {
-            // 30분 초과 시 세션 정보 삭제
-            unset($_SESSION['post_access'][$post_id]);
-        }
+} else { // 3. 비밀글일 경우 세션 확인
+    if (isset($_SESSION['post_access'][$post_id]) && (time() - $_SESSION['post_access'][$post_id] < 1800)) {
+        $can_view = true;
+    } else {
+        unset($_SESSION['post_access'][$post_id]); // 시간 만료 시 세션 제거
     }
 }
 
 if (!$can_view) {
-    // 비밀번호 입력 폼으로 리디렉션 대신, 해당 파일을 include
-    include 'gallery_password.php';
-    exit; // 비밀번호 폼을 보여주고 여기서 실행 종료
+    include 'gallery_password.php'; // 비밀번호 입력 폼 표시
+    exit;
 }
-// --- 접근 제어 로직 끝 ---
 ?>
-
 <div class="view-container">
-    <h1><?php echo htmlspecialchars($post['title']); ?> 🔒</h1>
+    <h1><?php echo htmlspecialchars($post['title']); if ($post['is_private']) echo ' 🔒'; ?></h1>
     <?php if ($is_admin): ?>
         <a href="#/gallery_edit?id=<?php echo $post_id; ?>">수정</a>
         <button class="delete-btn" data-id="<?php echo $post_id; ?>" data-type="<?php echo $post['gallery_type']; ?>">삭제</button>

@@ -22,16 +22,20 @@ $stmt->close();
         </form>
     </div>
     <script>
-    $('.edit-btn').click(function() {
+    $('.edit-btn').on('click', function() {
         $('#view-mode').hide();
         $('#edit-mode').show();
         $('.summernote').summernote({
             height: 400,
             focus: true,
-            callbacks: { onImageUpload: (files) => uploadSummernoteImage(files[0], $(this)) }
+            callbacks: {
+                onImageUpload: function(files) {
+                    uploadSummernoteImage(files[0], $(this));
+                }
+            }
         });
     });
-    $('.cancel-btn').click(function() {
+    $('.cancel-btn').on('click', function() {
         $('.summernote').summernote('destroy');
         $('#edit-mode').hide();
         $('#view-mode').show();
