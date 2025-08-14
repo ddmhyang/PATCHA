@@ -1,0 +1,67 @@
+<?php
+require_once '../includes/db.php';
+header('Content-Type: application/json');
+
+if (!$is_admin) {
+    echo json_encode(['success' => false, 'message' => '권한이 없습니다.']);
+    exit;
+}
+
+// --- 1. 기존 설정값 불러오기 ---
+$current_settings_result = $mysqli->query("SELECT * FROM chan_settings");
+$current_settings = [];
+while ($row = $current_settings_result->fetch_assoc()) {
+    $current_settings[$row['setting_key']] = $row['setting_value'];
+}
+$old_char1_name = $current_settings['character1_name'] ?? 'Hyun';
+$old_char2_name = $current_settings['character2_name'] ?? 'Chan';
+
+// --- 2. 새로 제출된 이름 받기 ---
+$new_char1_name = $_POST['character1_name'];
+$new_char2_name = $_POST['character2_name'];
+
+// --- 3. 이름이 변경되었다면, chat 테이블의 모든 과거 기록 업데이트 ---
+if ($old_char1_name !== $new_char1_name) {
+    $stmt = $mysqli->prepare("UPDATE chan_chat SET character_name = ? WHERE character_name = ?");
+    $stmt->bind_param("ss", $new_char1_name, $old_char1_name);
+    $stmt->execute();
+    $stmt->close();
+}
+if ($old_char2_name !== $new_char2_name) {
+    $stmt = $mysqli->prepare("UPDATE chan_chat SET character_name = ? WHERE character_name = ?");
+    $stmt->bind_param("ss", $new_char2_name, $old_char2_name);
+    $stmt->execute();
+    $stmt->close();
+}
+
+// --- 4. settings 테이블에 새로운 설정값 저장 ---
+function update_setting($key, $value, $mysqli) {
+    $stmt = $mysqli->prepare("INSERT INTO chan_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+    $stmt->bind_param("sss", $key, $value, $value);
+    $stmt->execute();
+    $stmt->close();
+}
+
+update_setting('character1_name', $new_char1_name, $mysqli);
+update_setting('character2_name', $new_char2_name, $mysqli);
+
+// 파일 업로드 처리 (이전과 동일)
+$uploadDir = '../assets/images/';
+if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
+
+if (isset($_FILES['main_background']) && $_FILES['main_background']['error'] === UPLOAD_ERR_OK) {
+    $fileName = 'bg_main_' . uniqid() . '.png';
+    if (move_uploaded_file($_FILES['main_background']['tmp_name'], $uploadDir . $fileName)) {
+        update_setting('main_background', '../assets/images/' . $fileName, $mysqli);
+    }
+}
+
+if (isset($_FILES['chat_background']) && $_FILES['chat_background']['error'] === UPLOAD_ERR_OK) {
+    $fileName = 'bg_chat_' . uniqid() . '.png';
+    if (move_uploaded_file($_FILES['chat_background']['tmp_name'], $uploadDir . $fileName)) {
+        update_setting('chat_background', '../assets/images/' . $fileName, $mysqli);
+    }
+}
+
+echo json_encode(['success' => true, 'message' => '설정이 저장되었으며, 과거 채팅 기록도 모두 변경되었습니다.', 'redirect_url' => 'reload']);
+?>

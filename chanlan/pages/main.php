@@ -1,4 +1,12 @@
-<?php require_once '../includes/db.php'; ?>
+<?php require_once '../includes/db.php'; 
+$settings_result = $mysqli->query("SELECT * FROM chan_settings");
+$settings = [];
+while ($row = $settings_result->fetch_assoc()) {
+    $settings[$row['setting_key']] = $row['setting_value'];
+}
+$main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png';
+?>
+?>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,7 +18,8 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="background-image: url('<?php echo htmlspecialchars($main_bg); ?>');">
+
         <div class="logo"></div>
         <header>
             <nav>
