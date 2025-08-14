@@ -6,13 +6,14 @@ if ($is_admin) {
 }
 ?>
 <div class="login-container">
-    <h1>관리자 로그인</h1>
-    <form id="login-form" action="ajax_login.php" method="post">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">로그인</button>
-        <div id="login-error" style="color:red; margin-top:10px;"></div>
-    </form>
+    <div class="login-form">
+        <form id="login-form" action="ajax_login.php" method="post">
+            <input type="text" name="username" required>
+            <input type="password" name="password" required>
+            <button type="submit">로그인</button>
+            <div id="login-error" style="color:red; margin-top:10px;"></div>
+        </form>
+    </div>
 </div>
 <script>
 $('#login-form').on('submit', function(e) {

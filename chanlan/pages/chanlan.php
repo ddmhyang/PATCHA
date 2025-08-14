@@ -5,12 +5,37 @@ $page_slug = 'chanlan';
 $stmt = $mysqli->prepare("SELECT content FROM chan_pages WHERE slug = ?");
 $stmt->bind_param("s", $page_slug);
 $stmt->execute();
-$page_content = $stmt->get_result()->fetch_assoc()['content'] ?? '';
+$page_content = $stmt->get_result()->fetch_assoc()['content'] ?? '<p>콘텐츠가 없습니다.</p>';
 $stmt->close();
 ?>
+
+<?php
+if (in_array($page_slug, ['chanlan', 'chan', 'hyun'])) {
+    $width1 = '82px';
+    $width2 = '82px';
+    $width3 = '82px';
+
+    if ($page_slug === 'chanlan') {
+        $width1 = '90px';
+    } elseif ($page_slug === 'hyun') {
+        $width2 = '90px';
+    } elseif ($page_slug === 'chan') {
+        $width3 = '90px';
+    }
+
+    echo '
+        <div class="chanlan_nav_container">
+            <div class="chanlan_nav1" style="width: ' . $width1 . ';"></div>
+            <div class="chanlan_nav2" style="width: ' . $width2 . ';"></div>
+            <div class="chanlan_nav3" style="width: ' . $width3 . ';"></div>
+        </div>
+    ';
+}
+?>
 <div class="page-container">
-    <div id="view-mode"><?php echo $page_content; ?>
-        <?php if ($is_admin): ?><button class="edit-btn">수정</button><?php endif; ?>
+    <div id="view-mode">
+        <div class="content-display"><?php echo $page_content; ?></div>
+        <?php if ($is_admin): ?><button class="edit-btn">수정하기</button><?php endif; ?>
     </div>
     <?php if ($is_admin): ?>
     <div id="edit-mode" style="display:none;">
@@ -21,20 +46,16 @@ $stmt->close();
         </form>
     </div>
     <script>
-    $('.edit-btn').on('click', function() {
+    $('.edit-btn').click(function() {
         $('#view-mode').hide();
         $('#edit-mode').show();
         $('.summernote').summernote({
             height: 400,
             focus: true,
-            callbacks: {
-                onImageUpload: function(files) {
-                    uploadSummernoteImage(files[0], $(this));
-                }
-            }
+            callbacks: { onImageUpload: function(files) { uploadSummernoteImage(files[0], $(this)); } }
         });
     });
-    $('.cancel-btn').on('click', function() {
+    $('.cancel-btn').click(function() {
         $('.summernote').summernote('destroy');
         $('#edit-mode').hide();
         $('#view-mode').show();

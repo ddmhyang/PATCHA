@@ -10,7 +10,7 @@ $stmt->close();
 ?>
 <div class="page-container">
     <div id="view-mode"><?php echo $page_content; ?>
-        <?php if ($is_admin): ?><button class="edit-btn">수정</button><?php endif; ?>
+        <?php if ($is_admin): ?><button class="edit-btn">수정하기</button><?php endif; ?>
     </div>
     <?php if ($is_admin): ?>
     <div id="edit-mode" style="display:none;">

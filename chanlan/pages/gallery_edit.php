@@ -34,7 +34,7 @@ if (!$post) { die("게시물이 없습니다."); }
             <textarea class="summernote" name="content"><?php echo htmlspecialchars($post['content']); ?></textarea>
         </div>
         <button type="submit">수정 완료</button>
-        <a href="#/gallery_view?id=<?php echo $post_id; ?>">취소</a>
+        <a class="cancel_btn" href="#/gallery_view?id=<?php echo $post_id; ?>">취소</a>
     </form>
 </div>
 <script>

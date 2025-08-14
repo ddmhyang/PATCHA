@@ -19,7 +19,7 @@ $stmt = $mysqli->prepare("INSERT INTO chan_chat (character_name, message) VALUES
 $stmt->bind_param("ss", $character_name, $message);
 
 if ($stmt->execute()) {
-    echo json_encode(['success' => true]);
+    echo json_encode(['success' => true, 'id' => $mysqli->insert_id]);
 } else {
     echo json_encode(['success' => false, 'message' => '메시지 저장에 실패했습니다.']);
 }

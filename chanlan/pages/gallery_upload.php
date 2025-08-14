@@ -13,7 +13,8 @@ $gallery_type = $_GET['type'] ?? 'gallery';
         </div>
         <div class="form-group">
             <label for="thumbnail">썸네일 (선택, 없으면 본문 첫 이미지 자동 등록)</label>
-            <input type="file" id="thumbnail" name="thumbnail">
+            <label for="thumbnail" class="file-upload-button">파일 선택</label>
+            <input type="file" id="thumbnail" name="thumbnail" style="display: none;">
         </div>
         <div class="form-group">
             <label><input type="checkbox" id="is_private" name="is_private" value="1"> 비밀글</label>
@@ -24,7 +25,7 @@ $gallery_type = $_GET['type'] ?? 'gallery';
             <textarea class="summernote" name="content"></textarea>
         </div>
         <button type="submit">저장하기</button>
-        <a href="#/<?php echo htmlspecialchars($gallery_type); ?>">취소</a>
+        <a class="cancel_btn" href="#/<?php echo htmlspecialchars($gallery_type); ?>">취소</a>
     </form>
 </div>
 <script>

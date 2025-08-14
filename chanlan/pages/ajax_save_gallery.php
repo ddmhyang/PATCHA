@@ -15,7 +15,6 @@ $is_private = isset($_POST['is_private']) ? 1 : 0;
 $password = $_POST['password'] ?? '';
 $thumbnail_path = null;
 
-// 1. 썸네일 파일이 직접 업로드되었는지 확인
 if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['thumbnail'];
     $uploadDir = '../uploads/gallery/';
@@ -24,40 +23,35 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
     $newFileName = 'thumb-' . uniqid() . '.' . $ext;
     $targetPath = $uploadDir . $newFileName;
     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        $thumbnail_path = '../uploads/gallery/' . $newFileName;
+        $thumbnail_path = '/chanlan/uploads/gallery/' . $newFileName; // 절대 경로로 저장
     }
 }
 
-// 2. 업로드된 썸네일이 없다면, 본문 내용에서 첫 번째 이미지 추출
 if (empty($thumbnail_path)) {
     preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
     if (isset($matches[1])) {
-        $thumbnail_path = $matches[1];
+        $thumbnail_path = $matches[1]; // Summernote에서 넘어온 경로는 이미 절대 경로
     }
 }
 
+// (이하 비밀번호 및 DB 저장 로직은 이전 답변과 동일)
+// ...
 $password_hash = null;
 if ($is_private && !empty($password)) {
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
 }
 
 if ($post_id > 0) {
-    // 기존 썸네일 경로 유지를 위한 로직 추가
-    if (empty($thumbnail_path)) {
-        $stmt_thumb = $mysqli->prepare("SELECT thumbnail FROM chan_gallery WHERE id = ?");
-        $stmt_thumb->bind_param("i", $post_id);
-        $stmt_thumb->execute();
-        $thumbnail_path = $stmt_thumb->get_result()->fetch_assoc()['thumbnail'];
-        $stmt_thumb->close();
-    }
-    
-    if ($is_private && !empty($password_hash)) {
-        $stmt = $mysqli->prepare("UPDATE chan_gallery SET title=?, content=?, thumbnail=?, is_private=?, password_hash=? WHERE id=?");
-        $stmt->bind_param("sssisi", $title, $content, $thumbnail_path, $is_private, $password_hash, $post_id);
-    } else {
-        $stmt = $mysqli->prepare("UPDATE chan_gallery SET title=?, content=?, thumbnail=?, is_private=? WHERE id=?");
-        $stmt->bind_param("sssii", $title, $content, $thumbnail_path, $is_private, $post_id);
-    }
+    $sql = "UPDATE chan_gallery SET title=?, content=?, is_private=?";
+    $params = [$title, $content, $is_private];
+    $types = "ssi";
+    if ($thumbnail_path) { $sql .= ", thumbnail=?"; $params[] = $thumbnail_path; $types .= "s"; }
+    if ($password_hash) { $sql .= ", password_hash=?"; $params[] = $password_hash; $types .= "s"; }
+    $sql .= " WHERE id=?";
+    $params[] = $post_id;
+    $types .= "i";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param($types, ...$params);
 } else {
     $stmt = $mysqli->prepare("INSERT INTO chan_gallery (gallery_type, title, content, thumbnail, is_private, password_hash) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssssis", $gallery_type, $title, $content, $thumbnail_path, $is_private, $password_hash);

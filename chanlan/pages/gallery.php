@@ -11,13 +11,12 @@ $posts = $mysqli->query("SELECT id, title, thumbnail, is_private FROM chan_galle
             <a href="#/gallery_view?id=<?php echo $post['id']; ?>" class="gallery-item">
                 <?php
                     $thumbnail_url = $post['thumbnail'] ?? '';
-                    // 썸네일이 없으면 회색 배경, 있으면 이미지 배경
                     $style = !empty($thumbnail_url) 
                         ? "background-image: url('" . htmlspecialchars($thumbnail_url) . "');" 
-                        : "background-color: #555;"; // 회색 배경
+                        : "background-color: #7078A750;"; // 기본 회색 배경
                 ?>
                 <div class="item-thumbnail" style="<?php echo $style; ?>"></div>
-                <h3><?php echo htmlspecialchars($post['title']); if ($post['is_private']) echo ' 🔒'; ?></h3>
+                <h3><?php echo htmlspecialchars($post['title']);?></h3>
             </a>
         <?php endforeach; ?>
     </div>

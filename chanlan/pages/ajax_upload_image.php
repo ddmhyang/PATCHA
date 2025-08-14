@@ -3,32 +3,28 @@ require_once '../includes/db.php';
 header('Content-Type: application/json');
 
 if (!$is_admin) {
-    http_response_code(403);
     echo json_encode(['success' => false, 'message' => '권한이 없습니다.']);
     exit;
 }
 
 if (empty($_FILES['file'])) {
-    http_response_code(400);
     echo json_encode(['success' => false, 'message' => '업로드된 파일이 없습니다.']);
     exit;
 }
 
 $file = $_FILES['file'];
 $uploadDir = '../uploads/gallery/';
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0777, true);
-}
+if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
 
 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 $newFileName = uniqid('img-') . '.' . $ext;
 $targetPath = $uploadDir . $newFileName;
 
 if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-    $url = '../uploads/gallery/' . $newFileName;
+    // '/chanlan'은 프로젝트의 루트 폴더명입니다. 실제 환경에 맞게 수정하세요.
+    $url = '/chanlan/uploads/gallery/' . $newFileName;
     echo json_encode(['success' => true, 'url' => $url]);
 } else {
-    http_response_code(500);
     echo json_encode(['success' => false, 'message' => '파일 저장에 실패했습니다.']);
 }
 ?>
