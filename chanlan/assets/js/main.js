@@ -29,6 +29,8 @@ $(document).ready(function() {
         const navGallery = $('.gallery_nav_container');
         const nav4 = $('.gallery_nav');
         const nav5 = $('.trpg_nav');
+        const indexPanel1 = $('.index_panel1');
+
 
         ///////////////////////////////
 
@@ -72,6 +74,12 @@ $(document).ready(function() {
         } else {
             navGallery.hide(); // 그 외 페이지에서는 컨테이너를 숨김
         }
+
+        if (currentPage === 'settings') {
+            indexPanel1.css('transform', 'scaleY(1.2)');
+        } else {
+            // 다른 페이지일 경우 스타일 제거
+        }
     }
 
     function router() {
@@ -102,6 +110,10 @@ $(document).ready(function() {
         chatOverlay.hide();
         // 채팅창을 닫으면 메인 페이지로 이동
         window.location.hash = '#/main_content';
+    });
+
+    $(document).on('click', '.logo', function() {
+        window.location.href = '../index.php';
     });
 
 
@@ -168,6 +180,10 @@ $(document).ready(function() {
             contentType: false,
             dataType: 'json',
             success: function(response) {
+                if (response.redirect_url === 'reload') {
+                    window.location.reload(); // 'reload' 신호를 받으면 페이지 전체를 새로고침
+                    return;
+                }
                 if (response.success) {
                     alert('성공적으로 처리되었습니다.');
                     if (response.redirect_url) {
@@ -245,6 +261,11 @@ $(document).ready(function() {
         }
     });
     // ▲▲▲ 음악 플레이어 로직 끝 ▲▲▲
+
+    // .index_panel1 클릭 시 설정 페이지로 이동
+    $(document).on('click', '.index_panel1', function() {
+        window.location.hash = '#/settings';
+    });
 });
 
 function adjustScale() {
