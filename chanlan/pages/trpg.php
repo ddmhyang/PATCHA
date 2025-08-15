@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db.php';
 $gallery_type = 'trpg';
-// 타임라인은 시간 순서대로 보여야 하므로, ORDER BY created_at ASC 로 변경
 $posts = $mysqli->query("SELECT id, title, thumbnail, is_private FROM chan_gallery WHERE gallery_type = '$gallery_type' ORDER BY created_at ASC")->fetch_all(MYSQLI_ASSOC);
 ?>
 
@@ -17,7 +16,7 @@ $posts = $mysqli->query("SELECT id, title, thumbnail, is_private FROM chan_galle
                     $thumbnail_url = $post['thumbnail'] ?? '';
                     $style = !empty($thumbnail_url) 
                         ? "background-image: url('" . htmlspecialchars($thumbnail_url) . "');" 
-                        : ""; // 썸네일 없으면 CSS 기본 회색 배경 사용
+                        : ""; 
                 ?>
                 <div class="timeline-item <?php echo $position_class; ?>">
                     <a href="#/gallery_view?id=<?php echo $post['id']; ?>">

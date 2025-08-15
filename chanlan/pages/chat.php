@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db.php';
 
-// 설정 테이블에서 현재 캐릭터 이름 불러오기
 $settings_result = $mysqli->query("SELECT * FROM chan_settings");
 $settings = [];
 while ($row = $settings_result->fetch_assoc()) {
@@ -10,7 +9,6 @@ while ($row = $settings_result->fetch_assoc()) {
 $char1_name = $settings['character1_name'] ?? 'Chan';
 $char2_name = $settings['character2_name'] ?? 'Hyun';
 
-// 메시지 불러오기
 $messages = $mysqli->query("SELECT * FROM chan_chat ORDER BY created_at ASC")->fetch_all(MYSQLI_ASSOC);
 ?>
 
@@ -20,7 +18,6 @@ $messages = $mysqli->query("SELECT * FROM chan_chat ORDER BY created_at ASC")->f
 
         <?php foreach ($messages as $msg): ?>
         <?php
-            // DB에 저장된 2번 캐릭터 이름과 일치하면 sent로 처리
             $message_side_class = (strtolower($msg['character_name']) === strtolower($char2_name)) ? 'sent' : 'received';
         ?>
         <div class="message-row <?php echo $message_side_class; ?>" data-id="<?php echo $msg['id']; ?>">

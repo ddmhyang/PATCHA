@@ -17,7 +17,6 @@ $result = $stmt->get_result();
 $post = $result->fetch_assoc();
 
 if ($post && password_verify($password, $post['password_hash'])) {
-    // 비밀번호 일치 시, 세션에 현재 시간 기록
     $_SESSION['post_access'][$post_id] = time();
     echo json_encode(['success' => true]);
 } else {

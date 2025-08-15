@@ -12,7 +12,6 @@ $stmt->close();
 
 if (!$post) { die("게시물이 존재하지 않습니다."); }
 
-// 비밀글 접근 제어 로직
 $can_view = false;
 if ($post['is_private'] == 0 || $is_admin || (isset($_SESSION['post_access'][$post_id]) && (time() - $_SESSION['post_access'][$post_id] < 1800))) {
     $can_view = true;

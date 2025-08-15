@@ -1,6 +1,6 @@
 <?php
 require_once '../includes/db.php';
-$page_slug = 'main'; // 이 페이지의 고유 이름
+$page_slug = 'main';
 
 $stmt = $mysqli->prepare("SELECT content FROM chan_pages WHERE slug = ?");
 $stmt->bind_param("s", $page_slug);

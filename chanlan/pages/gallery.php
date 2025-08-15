@@ -1,6 +1,6 @@
 <?php
 require_once '../includes/db.php';
-$gallery_type = 'gallery'; // trpg.php에서는 'trpg'로 변경
+$gallery_type = 'gallery';
 $posts = $mysqli->query("SELECT id, title, thumbnail, is_private FROM chan_gallery WHERE gallery_type = '$gallery_type' ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
 ?>
 <div class="gallery-container">
@@ -13,7 +13,7 @@ $posts = $mysqli->query("SELECT id, title, thumbnail, is_private FROM chan_galle
                     $thumbnail_url = $post['thumbnail'] ?? '';
                     $style = !empty($thumbnail_url) 
                         ? "background-image: url('" . htmlspecialchars($thumbnail_url) . "');" 
-                        : "background-color: #7078A750;"; // 기본 회색 배경
+                        : "background-color: #7078A750;";
                 ?>
                 <div class="item-thumbnail" style="<?php echo $style; ?>"></div>
                 <h3><?php echo htmlspecialchars($post['title']);?></h3>

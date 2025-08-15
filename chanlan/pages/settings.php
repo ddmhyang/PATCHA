@@ -2,7 +2,6 @@
 require_once '../includes/db.php';
 if (!$is_admin) { die("관리자만 접근 가능합니다."); }
 
-// 현재 설정값 불러오기
 $settings_result = $mysqli->query("SELECT * FROM chan_settings");
 $settings = [];
 while ($row = $settings_result->fetch_assoc()) {

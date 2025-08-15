@@ -21,7 +21,6 @@ $newFileName = uniqid('img-') . '.' . $ext;
 $targetPath = $uploadDir . $newFileName;
 
 if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-    // '/chanlan'은 프로젝트의 루트 폴더명입니다. 실제 환경에 맞게 수정하세요.
     $url = '/chanlan/uploads/gallery/' . $newFileName;
     echo json_encode(['success' => true, 'url' => $url]);
 } else {

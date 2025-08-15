@@ -11,6 +11,7 @@ $main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChanLan</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -19,17 +20,15 @@ $main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png
 </head>
 <body>
     <div class="container" style="background-image: url('<?php echo htmlspecialchars($main_bg); ?>');">
+        <div class="mobile_sub_menu_overlay"></div>
         <div class="logo"></div>
         <div class="mobile_border">
             <header>
                 <nav>
                     <a href="#/main_content">Main</a>
                     <a href="#/chanlan">ChanLan</a>
-                    <!-- <a href="#/hyun">Hyun</a> -->
-                    <!-- <a href="#/chan">Chan</a> -->
                     <a href="#/chat">Chat</a>
                     <a href="#/gallery">Gallery</a>
-                    <!-- <a href="#/trpg">TRPG</a> -->
                     <?php if ($is_admin): ?>
                         <a href="logout.php">Logout</a>
                     <?php else: ?>
@@ -53,7 +52,7 @@ $main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png
                 <div class="index_panel1"></div>
                 <div class="index_panel2">
                     <audio id="music-player" loop>
-                        <source src="../assets/bgm/music.mp4" type="audio/mpeg">
+                        <source src="../assets/bgm/music.mp3" type="audio/mpeg">
                         오디오 오류. 문의주세요.
                     </audio>
                 </div>
@@ -104,14 +103,13 @@ $main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png
                 </svg>
             </div>
 
-            
+            <div class="mobile_sub_menu_overlay"></div>
             <div class="mobile_header">
                 <nav>
                     <a href="#/main_content">M</a>
                     <a href="#/chanlan">P</a>
                     <a href="#/chat">C</a>
                     <a href="#/gallery">G</a>
-                    <!-- <a href="#/trpg">TRPG</a> -->
                     <?php if ($is_admin): ?>
                         <a href="logout.php">L</a>
                     <?php else: ?>
@@ -133,7 +131,7 @@ $main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png
                 <div class="index_panel1"></div>
                 <div class="index_panel2">
                     <audio id="music-player" loop>
-                        <source src="../assets/bgm/music.mp4" type="audio/mpeg">
+                        <source src="../assets/bgm/music.mp3" type="audio/mpeg">
                         오디오 오류. 문의주세요.
                     </audio>
                 </div>

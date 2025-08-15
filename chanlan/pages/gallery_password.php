@@ -20,7 +20,6 @@ $('#password-form').on('submit', function(e) {
         dataType: 'json',
         success: function(response) {
             if (response.success) {
-                // 성공 시 현재 페이지(view)를 다시 로드
                 location.reload();
             } else {
                 $('#password-error').text(response.message);

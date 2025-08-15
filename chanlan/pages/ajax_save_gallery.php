@@ -23,19 +23,17 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
     $newFileName = 'thumb-' . uniqid() . '.' . $ext;
     $targetPath = $uploadDir . $newFileName;
     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        $thumbnail_path = '/chanlan/uploads/gallery/' . $newFileName; // 절대 경로로 저장
+        $thumbnail_path = '/chanlan/uploads/gallery/' . $newFileName;
     }
 }
 
 if (empty($thumbnail_path)) {
     preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
     if (isset($matches[1])) {
-        $thumbnail_path = $matches[1]; // Summernote에서 넘어온 경로는 이미 절대 경로
+        $thumbnail_path = $matches[1];
     }
 }
 
-// (이하 비밀번호 및 DB 저장 로직은 이전 답변과 동일)
-// ...
 $password_hash = null;
 if ($is_private && !empty($password)) {
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
@@ -52,7 +50,7 @@ if ($post_id > 0) {
     $types .= "i";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param($types, ...$params);
-} else {
+} else { // 신규
     $stmt = $mysqli->prepare("INSERT INTO chan_gallery (gallery_type, title, content, thumbnail, is_private, password_hash) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssssis", $gallery_type, $title, $content, $thumbnail_path, $is_private, $password_hash);
 }
