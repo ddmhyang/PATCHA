@@ -21,7 +21,7 @@ $(document).ready(function() {
         });
     }
 
-        function updateSideNav(currentPage) {
+    function updateSideNav(currentPage) {
         const navContainer = $('.chanlan_nav_container');
         const nav1 = $('.chanlan_nav1');
         const nav2 = $('.chanlan_nav2');
@@ -262,15 +262,33 @@ $(document).ready(function() {
     });
     // ▲▲▲ 음악 플레이어 로직 끝 ▲▲▲
 
-    // .index_panel1 클릭 시 설정 페이지로 이동
-    $(document).on('click', '.index_panel1', function() {
-        window.location.hash = '#/settings';
+// (기존 코드는 그대로 두고, 모바일 메뉴 클릭 이벤트 부분만 아래 코드로 교체)
+
+    // 모바일 메뉴 클릭 이벤트
+    $(document).on('click', '.mobile_menu', function() {
+        const subMenu = $('.mobile_sub_menu');
+        const panel1 = $('.index_panel1');
+        const panel2 = $('.index_panel2');
+        const chanlanNav = $('.chanlan_nav_container'); // chanlan_nav 선택
+        const galleryNav = $('.gallery_nav_container'); // gallery_nav 선택
+
+        // subMenu의 너비를 331px로 늘립니다.
+        subMenu.addClass('show');
+
+        // 0.5초(500ms) 후에 모든 패널과 컨테이너를 나타나게 합니다.
+        setTimeout(function() {
+            panel1.addClass('visible');
+            panel2.addClass('visible');
+            chanlanNav.addClass('visible'); // chanlan_nav 보이게
+            galleryNav.addClass('visible'); // gallery_nav 보이게
+        }, 500);
     });
 });
 
 function adjustScale() {
     // 대상을 .entry-container가 아닌 .container로 변경
     const container = document.querySelector('.container');
+    const desktopNav = document.querySelector('.desktop_nav');
     if (!container) 
         return;
     
@@ -282,6 +300,7 @@ function adjustScale() {
     if (windowWidth <= 784) {
         containerWidth = 720;
         containerHeight = 1280;
+        
     } else {
         containerWidth = 1440;
         containerHeight = 900;

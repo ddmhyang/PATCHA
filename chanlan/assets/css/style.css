@@ -47,7 +47,8 @@ html {
     height: 900px;
     flex-shrink: 0;
     aspect-ratio: 3/2;
-    background: linear-gradient(0deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.20) 100%), url("../img/back.jpg") lightgray 50% / cover no-repeat;
+    background: url("../img/back.jpg") no-repeat center center;
+    background-size: cover;
     background-color: #000000;
     transform-origin: top left;
     position: absolute;
@@ -73,6 +74,7 @@ html {
     background: url('../img/logo.png') center center / cover no-repeat;
     cursor: pointer;
 }
+
 
 
 header{
@@ -181,7 +183,6 @@ main::-webkit-scrollbar {
     margin-left: 10px;
     border: none;
     cursor: pointer;
-    font-family: inherit;
     font-family: 'Fre5';
     border-radius: 10px;
     text-decoration-line: none;
@@ -561,7 +562,7 @@ main::-webkit-scrollbar {
     text-decoration-line: none;
     margin-right: 10px;
 }
-.cancel_btn{
+.cancel_btn, .cancel-btn{
     background-color:#7078A7;
     color: white;
     font-family: 'Fre5';
@@ -701,7 +702,8 @@ main::-webkit-scrollbar {
     height: 666.752px;
     flex-shrink: 0;
     border-radius: 26px 26px 0 0;
-    background: linear-gradient(0deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.80) 100%), url('../img/phone_back.png') lightgray 50% / cover no-repeat;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.80) 100%), url('../img/phone_back.png') no-repeat center center;
+    background-size: cover;
     font-family: 'Fre3';
 }
 
@@ -843,6 +845,9 @@ main::-webkit-scrollbar {
 }  
 
 
+.mobile_header, .mobile_nav{
+    display: none;
+}
 
 
 
@@ -854,12 +859,21 @@ main::-webkit-scrollbar {
 
 
 
-@media (min-width: 784px) {
+@media (width< 784px) {
+    .mobile_header, .mobile_nav{
+        display: flex;
+    }
+
+    .desktop_nav{
+        display: none;
+    }
+
     .container{
         width: 720px;
         height: 1280px;
         flex-shrink: 0;
-        background: linear-gradient(0deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.20) 100%), url("../img/back.jpg") lightgray 50% / cover no-repeat;
+        background: url("../img/back.jpg") no-repeat center center;
+        background-size: cover;
         background-color: #000000;
         transform-origin: top left;
         position: absolute;
@@ -868,85 +882,91 @@ main::-webkit-scrollbar {
         color:#7078A7;
     }
 
-    .container,
-    body,
-    html {
-        transition: background-color 1s ease-in-out;
-    }
-
     .logo{
         position: absolute;
-        top: 58px;
-        left: 121px;
-        width: 230px;
-        height: 91px;
+        top: 46px;
+        left: 171px;
+        width: 371px;
+        height: 147px;
         flex-shrink: 0;
-        aspect-ratio: 230/91;
+        aspect-ratio: 53/21;
         background: url('../img/logo.png') center center / cover no-repeat;
         cursor: pointer;
     }
 
-
-    header{
+    .mobile_border{
         position: absolute;
-        top: 182px;
-        left: 99px;
-        width: 267px;
-        height: 667px;
+        top:222px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 990px;
         flex-shrink: 0;
         border-radius: 30px;
-        border: 5px solid #7078A7;
-        background: rgba(255, 255, 255, 0.70);
+        background: #111948;
+        box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
     }
 
 
-    header nav {
+    header{
+        display: none;
+    }
+
+    .mobile_header{
+        position: absolute;
+        top:923px;
+        left: 50%;
+        transform: translateX(-50%);
+
+    }
+
+
+    .mobile_header > nav {
         display: flex;
-        gap: 90px;
-        padding: 10px;
-        flex-direction: column;
-        margin-top: 81px;
+        gap: 80px;
     }
-    header nav a {
-        color: #7078A7;
+    .mobile_header >  nav a {
+        color: white;
         text-align: center;
         font-family: 'Fre9';
         font-size: 24px;
         font-style: normal;
         line-height: normal;
         text-decoration: none;
+        transition: transform 0.2s ease-in-out;
     }
 
-
-
+    .mobile_header >  nav a:hover{
+        transform: scale(1.1);
+    }
 
     .index_ling{
-        position: absolute;
-        top: 287px;
-        left: 336px;
-        gap:110px;
-        display: flex;
-        flex-direction: column;
+        display: none;
     }
 
 
     main {
-        position: absolute;
-        top: 182px;
-        left: 414px;
-        width: 926px;
-        height: 667px;
-        flex-shrink: 0;
         border-radius: 30px;
-        border: 5px solid #7078A7;
-        background: rgba(255, 255, 255, 0.70);
+        background: #111948;
+        box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+        border-radius: 5px;
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.80) 100%), url('../img/phone_back.png') no-repeat center center;
+        background-size: cover;
+
+        position: absolute;
+        top: 85px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 570px;
+        height: 800px;
+        border: 0px solid;
         overflow-y: auto;
     }
 
     .page-container, 
     .gallery-container, .form-page-container, .view-container, 
     .password-form-container, .settings-container{
-        margin: 80px;
+        margin: 40px;
         color: #7078A7;
         font-family: 'Fre3';
         font-size: 20px;
@@ -1043,53 +1063,81 @@ main::-webkit-scrollbar {
         transition: background-color 0.2s;
     }
 
+    .mobile_menu{
+        position: absolute;
+        top: 331px;
+        left:587px;
+        cursor: pointer;
+    }
+
+    .mobile_sub_menu{
+        position: absolute;
+        top: 307px;
+        right: 72px;
+        width: 0px;
+        height: 800px;
+        flex-shrink: 0;
+        background: rgba(112, 120, 167, 0.20);
+        overflow: hidden;
+        transition: width 0.2s ease-in-out;
+    }
+
+    .mobile_sub_menu.show{
+        width: 331px;
+    }
 
     .index_panel1{
+        opacity: 0;
         position: absolute;
-        top: 123px;
-        left: 548px;
-        width: 190px;
-        height: 60px;
+        top: 89px;
+        left: 48px;
+        width: 70px;
+        height: 70px;
         flex-shrink: 0;
-        border-radius: 30px 30px 0 0;
+        border-radius: 70px;
+        border: 3px solid #7078A7;
         background: #B1C8DA;
         cursor: pointer;
-        transition: transform 0.2s ease-in-out;
+        transition: transform 0s ease-in-out;
         transform-origin: bottom;
     }
     .index_panel2{
+        opacity: 0;
         position: absolute;
-        top: 123px;
-        left: 828px;
-        width: 190px;
-        height: 60px;
+        top: 219px;
+        left: 48px;
+        width: 70px;
+        height: 70px;
         flex-shrink: 0;
-        border-radius: 30px 30px 0 0;
-        background: #FFF;
+        border-radius: 70px;
+        border: 3px solid #7078A7;
+        background: #FFFFFF30;
         cursor: pointer;
-        transition: transform 0.2s ease-in-out;
+        transition: transform 0s ease-in-out;
         transform-origin: bottom;
     }
 
     .index_panel2.playing {
-        transform: scaleY(1.2);
+        transform: scaleY(1);
+        background: #FFFFFF;
     }
     .index_panel3{
         position: absolute;
-        top: 111px;
-        left: 1108px;
+        top: 249px;
+        left: 317px;
         width: 190px;
         height: 72px;
         flex-shrink: 0;
-        border-radius: 30px 30px 0 0;
-        background: #7078A7;
+        border-radius: 0;
+        color: white;
+        background: #7078A700;
     }
 
 
     .dday{
         position: absolute;
-        top: 20px;
-        left: 53px;
+        top: 0px;
+        left: 0px;
         color: #FFF;
         text-align: center;
         font-family: 'Fre9';
@@ -1098,61 +1146,87 @@ main::-webkit-scrollbar {
         line-height: normal;
     }
 
+    /* style.css 파일의 @media (max-width: 768px) { ... } 안에 추가 */
+
+    .chanlan_nav_container,
+    .gallery_nav_container {
+        /* 처음에는 투명하게 만들어 숨김 */
+        opacity: 0;
+        /* 0.3초 동안 부드럽게 나타나도록 설정 */
+        transition: opacity 0.3s ease-in-out;
+        /* 클릭 이벤트를 막기 위해 추가 */
+        pointer-events: none;
+    }
+
+    /* JS에서 .visible 클래스가 추가되면 보이도록 함 */
+    .chanlan_nav_container.visible,
+    .gallery_nav_container.visible {
+        opacity: 1;
+        pointer-events: auto; /* 다시 클릭 가능하도록 설정 */
+    }
+
 
     .chanlan_nav1{
         position: absolute;
-        top: 250px;
-        left: 1338px;
-        width: 65px;
-        height: 80px;
-        flex-shrink: 0; 
-        border-radius: 0 30px 30px 0;
-        background: #FFF;
+        top: 349px;
+        left: 48px;
+        width: 70px;
+        height: 70px;
+        flex-shrink: 0;
+        border-radius: 70px;
+        border: 3px solid #7078A7;
+        background: #7078A7;
         cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-        transform-origin: left;
+        transition: transform 0.3s ease-in-out;
+        transform-origin: bottom;
     }
 
     .chanlan_nav1:hover{
-        transform: scaleX(1.1);
+        transform: scaleX(1);
     }
 
     .chanlan_nav2{
         position: absolute;
-        top: 380px;
-        left: 1338px;
-        width: 65px;
-        height: 80px;
-        flex-shrink: 0; 
-        border-radius: 0 30px 30px 0;
-        background: #B1C8DA;
+        top: 479px;
+        left: 48px;
+        width: 70px;
+        height: 70px;
+        flex-shrink: 0;
+        border-radius: 70px;
+        border: 3px solid #7078A7;
+        background: #FFFFFF;
         cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-        transform-origin: left;
+        transition: transform 0.3s ease-in-out;
+        transform-origin: bottom;
     }
 
     .chanlan_nav2:hover{
-        transform: scaleX(1.1);
+        transform: scaleX(1);
     }
 
     .chanlan_nav3{
         position: absolute;
-        top: 510px;
-        left: 1338px;
-        width: 65px;
-        height: 80px;
-        flex-shrink: 0; 
-        border-radius: 0 30px 30px 0;
-        background: #7078A7;
+        top: 609px;
+        left: 48px;
+        width: 70px;
+        height: 70px;
+        flex-shrink: 0;
+        border-radius: 70px;
+        border: 3px solid #7078A7;
+        background: #B1C8DA;
         cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-        transform-origin: left;
+        transition: transform 0.3s ease-in-out;
+        transform-origin: bottom;
     }
 
     .chanlan_nav3:hover{
-        transform: scaleX(1.1);
+        transform: scaleX(1);
     }
 
+
+    .index_panel1.visible, .index_panel2.visible {
+        opacity: 1;
+    }
 
     .gallery_nav{
         position: absolute;
@@ -1373,7 +1447,8 @@ main::-webkit-scrollbar {
         text-decoration-line: none;
         margin-right: 10px;
     }
-    .cancel_btn{
+
+    .cancel_btn, .cancel-btn{
         background-color:#7078A7;
         color: white;
         font-family: 'Fre5';
@@ -1421,7 +1496,7 @@ main::-webkit-scrollbar {
         display: flex;
         gap: 26px;
         flex-direction: column;
-        margin-top: 162px;
+        margin-top: 222px;
         align-items: center;
     }
 
@@ -1489,12 +1564,12 @@ main::-webkit-scrollbar {
     /* 채팅 오버레이 스타일 */
     #chat-overlay {
         position: absolute;
-        top: 224px;
-        left: 632px;
-        width: 490px;
-        height: 676px;
+        top: 85px;
+        left: 15px;
+        width: 570px;
+        height: 800px;
         flex-shrink: 0;
-        border-radius: 30px 30px 0 0;
+        border-radius: 0;
         background: #111948;
         box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
         overflow: hidden;
@@ -1507,20 +1582,21 @@ main::-webkit-scrollbar {
 
     .chat-container {
         position: absolute;
-        top: 9.25px;
-        left: 10px;
-        width: 470px;
-        height: 666.752px;
+        top: 0px;
+        left: 0px;
+        width: 570px;
+        height: 800px;
         flex-shrink: 0;
-        border-radius: 26px 26px 0 0;
-        background: linear-gradient(0deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.80) 100%), url('../img/phone_back.png') lightgray 50% / cover no-repeat;
+        border-radius: 0;
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.80) 100%), url('../img/phone_back.png') no-repeat center center;
+        background-size: cover;
         font-family: 'Fre3';
     }
 
 
     .chat-window {
-        width: 470px;
-        height: 617px;
+        width: 570px;
+        height: 800px;
         flex-grow: 1;
         padding: 10px;
         overflow-y: auto;
@@ -1537,7 +1613,7 @@ main::-webkit-scrollbar {
 
     .message-row {
         display: flex;
-        margin-bottom: 15px;
+        margin-bottom: 30px;
         max-width: 70%;
         align-items: flex-start;
     }
@@ -1550,8 +1626,8 @@ main::-webkit-scrollbar {
     }
 
     .profile-pic {
-        width: 50px;
-        height: 50px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         background-color: #ccc;
         background-size: cover;
@@ -1579,7 +1655,7 @@ main::-webkit-scrollbar {
     }
 
     .character-name {
-        font-size: 12px;
+        font-size: 20px;
         font-family: 'Fre5';
         margin-bottom: 5px;
         color: #888;
