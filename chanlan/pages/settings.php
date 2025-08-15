@@ -13,6 +13,14 @@ while ($row = $settings_result->fetch_assoc()) {
 <div class="settings-container">
     <h2>사이트 설정</h2>
     <form class="ajax-form" action="ajax_save_settings.php" method="post" enctype="multipart/form-data">
+        <hr>
+        <div class="form-group">
+            <label for="index_button_image">입장 버튼 이미지</label>
+            <label for="index_button_image" class="file-upload-button">파일 선택</label>
+            <input type="file" id="index_button_image" name="index_button_image" style="display: none;">
+            <p>현재 이미지: <?php echo basename($settings['index_button_image']); ?></p>
+        </div>
+        <hr>
         <div class="form-group">
             <label for="main_background">메인 배경화면</label>
             <label for="main_background" class="file-upload-button">파일 선택</label>

@@ -9,29 +9,6 @@ $page_content = $stmt->get_result()->fetch_assoc()['content'] ?? '<p>콘텐츠�
 $stmt->close();
 ?>
 
-<?php
-if (in_array($page_slug, ['chanlan', 'chan', 'hyun'])) {
-    $width1 = '82px';
-    $width2 = '82px';
-    $width3 = '82px';
-
-    if ($page_slug === 'chanlan') {
-        $width1 = '90px';
-    } elseif ($page_slug === 'hyun') {
-        $width2 = '90px';
-    } elseif ($page_slug === 'chan') {
-        $width3 = '90px';
-    }
-
-    echo '
-        <div class="chanlan_nav_container">
-            <div class="chanlan_nav1" style="width: ' . $width1 . ';"></div>
-            <div class="chanlan_nav2" style="width: ' . $width2 . ';"></div>
-            <div class="chanlan_nav3" style="width: ' . $width3 . ';"></div>
-        </div>
-    ';
-}
-?>
 <div class="page-container">
     <div id="view-mode">
         <div class="content-display"><?php echo $page_content; ?></div>
@@ -42,7 +19,8 @@ if (in_array($page_slug, ['chanlan', 'chan', 'hyun'])) {
         <form class="ajax-form" action="ajax_save_page.php" method="post">
             <input type="hidden" name="slug" value="<?php echo $page_slug; ?>">
             <textarea class="summernote" name="content"><?php echo htmlspecialchars($page_content); ?></textarea>
-            <button type="submit">저장</button> <button type="button" class="cancel-btn">취소</button>
+            <button type="submit">저장하기</button> 
+            <button type="button" class="cancel-btn">취소</button>
         </form>
     </div>
     <script>

@@ -46,20 +46,28 @@ update_setting('character1_name', $new_char1_name, $mysqli);
 update_setting('character2_name', $new_char2_name, $mysqli);
 
 // 파일 업로드 처리 (이전과 동일)
-$uploadDir = '../assets/images/';
+$uploadDir = '../assets/img/';
 if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
+
+// 입장 버튼 이미지
+if (isset($_FILES['index_button_image']) && $_FILES['index_button_image']['error'] === UPLOAD_ERR_OK) {
+    $fileName = 'btn_index_' . uniqid() . '.png';
+    if (move_uploaded_file($_FILES['index_button_image']['tmp_name'], $uploadDir . $fileName)) {
+        update_setting('index_button_image', '../assets/img/' . $fileName, $mysqli);
+    }
+}
 
 if (isset($_FILES['main_background']) && $_FILES['main_background']['error'] === UPLOAD_ERR_OK) {
     $fileName = 'bg_main_' . uniqid() . '.png';
     if (move_uploaded_file($_FILES['main_background']['tmp_name'], $uploadDir . $fileName)) {
-        update_setting('main_background', '../assets/images/' . $fileName, $mysqli);
+        update_setting('main_background', '../assets/img/' . $fileName, $mysqli);
     }
 }
 
 if (isset($_FILES['chat_background']) && $_FILES['chat_background']['error'] === UPLOAD_ERR_OK) {
     $fileName = 'bg_chat_' . uniqid() . '.png';
     if (move_uploaded_file($_FILES['chat_background']['tmp_name'], $uploadDir . $fileName)) {
-        update_setting('chat_background', '../assets/images/' . $fileName, $mysqli);
+        update_setting('chat_background', '../assets/img/' . $fileName, $mysqli);
     }
 }
 
