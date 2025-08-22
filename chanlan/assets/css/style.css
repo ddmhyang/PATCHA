@@ -1,4 +1,3 @@
-/* 모든 요소의 크기 계산 방식을 통일하여 레이아웃 오류 방지 */
 * {
     box-sizing: border-box;
 }
@@ -149,14 +148,13 @@ main::-webkit-scrollbar {
     height: 0;
 }
 
-/* 게시물 보기 페이지 (gallery_view) 스타일 */
 .post-view-container {
     width: 100%;
-    max-width: 900px; /* 최대 너비 설정 */
-    margin: 20px auto; /* 중앙 정렬 */
+    max-width: 900px;
+    margin: 20px auto;
     padding: 20px;
     box-sizing: border-box;
-    color: #333; /* 기본 텍스트 색상 */
+    color: #333;
 }
 
 .post-view-container h1 {
@@ -188,7 +186,7 @@ main::-webkit-scrollbar {
     text-decoration-line: none;
 }
 
-.btn-action.btn-delete {
+.btn-action.btn-delete, .btn-action.delete-btn {
     background-color: #7078A7;
     color: white;
 }
@@ -404,11 +402,11 @@ main::-webkit-scrollbar {
 
 .item-thumbnail {
     width: 100%;
-    padding-top: 100%; /* 1:1 비율을 만드는 핵심 */
+    padding-top: 100%;
     background-color:#B1C8DA;
-    background-size: cover; /* 이미지가 div를 꽉 채우도록 설정 */
-    background-position: center; /* 이미지가 중앙에 오도록 */
-    background-repeat: no-repeat; /* 이미지가 반복되지 않도록 설정 */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 .gallery-item h3 {
     padding: 10px;
@@ -436,12 +434,11 @@ main::-webkit-scrollbar {
 }
 
 /*티알///////////////////////////////////*/
-/* TRPG 타임라인 스타일 (최종 수정본) */
 .timeline-container {
     width: 100%;
     height: 100%;
     position: relative;
-    overflow: hidden; /* 스크롤은 내부 wrapper에서만 */
+    overflow: hidden;
 }
 
 .timeline-wrapper {
@@ -450,31 +447,29 @@ main::-webkit-scrollbar {
     left: 0;
     right: 0;
     bottom: 0;
-    overflow-x: auto; /* 내용이 넘칠 때만 가로 스크롤바 표시 */
+    overflow-x: auto;
     overflow-y: hidden;
-    padding: 0 50px; /* 좌우 여백 */
+    padding: 0 50px;
 }
 
-/* 스크롤바 숨기기 (선택 사항) */
 .timeline-wrapper::-webkit-scrollbar {
     display: none;
 }
 
 .timeline-events {
     min-width: 750px;
-    display: inline-flex; /* 자식 요소만큼만 너비를 가지도록 flex 설정 */
+    display: inline-flex;
     align-items: center;
     height: 100%;
-    padding: 0 50px; /* 내부 좌우 여백 */
+    padding: 0 50px; 
     position: relative;
     z-index: 2;
-    gap: 100px; /* 아이템 사이의 가로 간격 */
+    gap: 100px;
 }
 
-/* 중앙 가로선 스타일 */
 .timeline-line {
     position: absolute;
-    width: 100%; /* 부모인 timeline-events 너비에 맞춤 */
+    width: 100%;
     height: 2px;
     background: #7078A7;
     top: 50%;
@@ -486,19 +481,17 @@ main::-webkit-scrollbar {
     display: flex;
     flex-direction: column;
     position: relative;
-    width: 150px; /* 아이템 전체 너비 */
+    width: 150px;
 }
 
-/* 위쪽에 배치될 아이템 */
 .timeline-item.top {
-    justify-content: flex-end; /* 아래쪽에 붙도록 */
-    padding-bottom: 230px; /* 중앙선과의 간격 */
+    justify-content: flex-end;
+    padding-bottom: 230px;
 }
 
-/* 아래쪽에 배치될 아이템 */
 .timeline-item.bottom {
-    justify-content: flex-start; /* 위쪽에 붙도록 */
-    padding-top: 320px; /* 중앙선과의 간격 */
+    justify-content: flex-start;
+    padding-top: 320px;
 }
 
 .timeline-item a {
@@ -510,15 +503,14 @@ main::-webkit-scrollbar {
     text-align: center;
 }
 
-/* 썸네일 정사각형으로 만들기 (핵심) */
 .timeline-item .item-thumbnail {
     width: 150px;
     height: 150px;
     flex-shrink: 0;
     border-radius: 15px;
-    background-color: #7078A750; /* 썸네일 없을 때 기본 회색 배경 */
-    background-size: cover; /* 이미지가 div를 꽉 채우도록 설정 */
-    background-position: center; /* 이미지가 중앙에 오도록 */
+    background-color: #7078A750;
+    background-size: cover;
+    background-position: center;
     margin-bottom: 15px;
 }
 
@@ -574,9 +566,8 @@ main::-webkit-scrollbar {
 }
 
 
-/* 파일 업로드 버튼 커스텀 스타일 */
 .file-upload-button {
-    display: inline-block; /* label을 버튼처럼 보이게 함 */
+    display: inline-block;
     background-color: #7078A7;
     color: white;
     font-family: 'Fre5';
@@ -585,7 +576,7 @@ main::-webkit-scrollbar {
     border: none;
     border-radius: 10px;
     text-decoration-line: none;
-    cursor: pointer; /* 마우스 커서를 손가락 모양으로 변경 */
+    cursor: pointer;
     width: 72px;
 }  
 
@@ -673,9 +664,6 @@ main::-webkit-scrollbar {
 
 
 /*메신저ㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓ*/
-/* 채팅창 스타일 */
-
-/* 채팅 오버레이 스타일 */
 #chat-overlay {
     position: absolute;
     top: 224px;
@@ -689,9 +677,8 @@ main::-webkit-scrollbar {
     overflow: hidden;
 }
 
-/* 채팅창 닫기 버튼을 위한 스타일 (선택사항) */
 #chat-overlay .chat-header {
-    cursor: pointer; /* 헤더를 클릭해서 닫을 수 있도록 커서 변경 */
+    cursor: pointer;
 }
 
 .chat-container {
@@ -748,7 +735,7 @@ main::-webkit-scrollbar {
     background-position: center;
     margin: 0 10px;
 }
-/* 각 캐릭터 프로필 이미지 (실제 이미지 경로로 변경하세요) */
+
 .profile-pic.hyun { background-image: url('../img/default_chat_bg.png'); }
 .profile-pic.chan { background-image: url('../img/default_hyun_bg.png'); }
 
@@ -831,7 +818,7 @@ main::-webkit-scrollbar {
 
 
 .settings-container > form > input#file-upload-button {
-    display: inline-block; /* label을 버튼처럼 보이게 함 */
+    display: inline-block;
     background-color: #7078A7;
     color: white;
     font-family: 'Fre5';
@@ -840,7 +827,7 @@ main::-webkit-scrollbar {
     border: none;
     border-radius: 10px;
     text-decoration-line: none;
-    cursor: pointer; /* 마우스 커서를 손가락 모양으로 변경 */
+    cursor: pointer;
     width: 72px;
 }  
 
@@ -859,7 +846,7 @@ main::-webkit-scrollbar {
 
 
 
-@media (width< 784px) {
+@media (max-width: 768px) {
     .mobile_header, .mobile_nav{
         display: flex;
     }
@@ -979,14 +966,13 @@ main::-webkit-scrollbar {
         height: 0;
     }
 
-    /* 게시물 보기 페이지 (gallery_view) 스타일 */
     .post-view-container {
         width: 100%;
-        max-width: 900px; /* 최대 너비 설정 */
-        margin: 20px auto; /* 중앙 정렬 */
+        max-width: 900px;
+        margin: 20px auto;
         padding: 20px;
         box-sizing: border-box;
-        color: #333; /* 기본 텍스트 색상 */
+        color: #333;
     }
 
     .post-view-container h1 {
@@ -1019,7 +1005,7 @@ main::-webkit-scrollbar {
         text-decoration-line: none;
     }
 
-    .btn-action.btn-delete {
+    .btn-action.btn-delete, .btn-action.delete-btn {
         background-color: #7078A7;
         color: white;
     }
@@ -1063,6 +1049,23 @@ main::-webkit-scrollbar {
         transition: background-color 0.2s;
     }
 
+
+    .mobile_sub_menu_overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .mobile_sub_menu_overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
     .mobile_menu{
         position: absolute;
         top: 331px;
@@ -1083,14 +1086,14 @@ main::-webkit-scrollbar {
     }
 
     .mobile_sub_menu.show{
-        width: 331px;
+        width: 200px;
     }
 
     .index_panel1{
         opacity: 0;
         position: absolute;
         top: 89px;
-        left: 48px;
+        left: 65px;
         width: 70px;
         height: 70px;
         flex-shrink: 0;
@@ -1098,14 +1101,14 @@ main::-webkit-scrollbar {
         border: 3px solid #7078A7;
         background: #B1C8DA;
         cursor: pointer;
-        transition: transform 0s ease-in-out;
-        transform-origin: bottom;
+        transition: transform 0.3s ease-in-out;
+        transform-origin: center;
     }
     .index_panel2{
         opacity: 0;
         position: absolute;
         top: 219px;
-        left: 48px;
+        left: 65px;
         width: 70px;
         height: 70px;
         flex-shrink: 0;
@@ -1113,8 +1116,8 @@ main::-webkit-scrollbar {
         border: 3px solid #7078A7;
         background: #FFFFFF30;
         cursor: pointer;
-        transition: transform 0s ease-in-out;
-        transform-origin: bottom;
+        transition: transform 0.3s ease-in-out;
+        transform-origin: center;
     }
 
     .index_panel2.playing {
@@ -1133,6 +1136,10 @@ main::-webkit-scrollbar {
         background: #7078A700;
     }
 
+    .index_panel1:hover, .index_panel2:hover{
+        transform: scale(1.1);
+    }
+
 
     .dday{
         position: absolute;
@@ -1146,30 +1153,24 @@ main::-webkit-scrollbar {
         line-height: normal;
     }
 
-    /* style.css 파일의 @media (max-width: 768px) { ... } 안에 추가 */
-
     .chanlan_nav_container,
     .gallery_nav_container {
-        /* 처음에는 투명하게 만들어 숨김 */
         opacity: 0;
-        /* 0.3초 동안 부드럽게 나타나도록 설정 */
         transition: opacity 0.3s ease-in-out;
-        /* 클릭 이벤트를 막기 위해 추가 */
         pointer-events: none;
     }
 
-    /* JS에서 .visible 클래스가 추가되면 보이도록 함 */
     .chanlan_nav_container.visible,
     .gallery_nav_container.visible {
         opacity: 1;
-        pointer-events: auto; /* 다시 클릭 가능하도록 설정 */
+        pointer-events: auto;
     }
 
 
     .chanlan_nav1{
         position: absolute;
         top: 349px;
-        left: 48px;
+        left: 65px;
         width: 70px;
         height: 70px;
         flex-shrink: 0;
@@ -1178,17 +1179,18 @@ main::-webkit-scrollbar {
         background: #7078A7;
         cursor: pointer;
         transition: transform 0.3s ease-in-out;
-        transform-origin: bottom;
+        transform-origin: center;
     }
 
     .chanlan_nav1:hover{
         transform: scaleX(1);
+        transform: scale(1.1);
     }
 
     .chanlan_nav2{
         position: absolute;
         top: 479px;
-        left: 48px;
+        left: 65px;
         width: 70px;
         height: 70px;
         flex-shrink: 0;
@@ -1197,17 +1199,18 @@ main::-webkit-scrollbar {
         background: #FFFFFF;
         cursor: pointer;
         transition: transform 0.3s ease-in-out;
-        transform-origin: bottom;
+        transform-origin: center;
     }
 
     .chanlan_nav2:hover{
         transform: scaleX(1);
+        transform: scale(1.1);
     }
 
     .chanlan_nav3{
         position: absolute;
         top: 609px;
-        left: 48px;
+        left: 65px;
         width: 70px;
         height: 70px;
         flex-shrink: 0;
@@ -1216,11 +1219,12 @@ main::-webkit-scrollbar {
         background: #B1C8DA;
         cursor: pointer;
         transition: transform 0.3s ease-in-out;
-        transform-origin: bottom;
+        transform-origin: center;
     }
 
     .chanlan_nav3:hover{
         transform: scaleX(1);
+        transform: scale(1.1);
     }
 
 
@@ -1230,38 +1234,42 @@ main::-webkit-scrollbar {
 
     .gallery_nav{
         position: absolute;
-        top: 250px;
-        left: 1338px;
-        width: 65px;
-        height: 80px;
-        flex-shrink: 0; 
-        border-radius: 0 30px 30px 0;
-        background: #FFF;
+        top: 349px;
+        left: 65px;
+        width: 70px;
+        height: 70px;
+        flex-shrink: 0;
+        border-radius: 70px;
+        border: 3px solid #7078A7;
+        background: #7078A7;
         cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-        transform-origin: left;
+        transition: transform 0.3s ease-in-out;
+        transform-origin: center;
     }
 
     .gallery_nav:hover{
-        transform: scaleX(1.1);
+        transform: scaleX(1);
+        transform: scale(1.1);
     }
 
     .trpg_nav{
         position: absolute;
-        top: 380px;
-        left: 1338px;
-        width: 65px;
-        height: 80px;
-        flex-shrink: 0; 
-        border-radius: 0 30px 30px 0;
-        background: #B1C8DA;
+        top: 479px;
+        left: 65px;
+        width: 70px;
+        height: 70px;
+        flex-shrink: 0;
+        border-radius: 70px;
+        border: 3px solid #7078A7;
+        background: #FFFFFF;
         cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-        transform-origin: left;
+        transition: transform 0.3s ease-in-out;
+        transform-origin: center;
     }
 
     .trpg_nav:hover{
-        transform: scaleX(1.1);
+        transform: scaleX(1);
+        transform: scale(1.1);
     }
 
 
@@ -1289,11 +1297,11 @@ main::-webkit-scrollbar {
 
     .item-thumbnail {
         width: 100%;
-        padding-top: 100%; /* 1:1 비율을 만드는 핵심 */
+        padding-top: 100%;
         background-color:#B1C8DA;
-        background-size: cover; /* 이미지가 div를 꽉 채우도록 설정 */
-        background-position: center; /* 이미지가 중앙에 오도록 */
-        background-repeat: no-repeat; /* 이미지가 반복되지 않도록 설정 */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }
     .gallery-item h3 {
         padding: 10px;
@@ -1321,12 +1329,11 @@ main::-webkit-scrollbar {
     }
 
     /*티알///////////////////////////////////*/
-    /* TRPG 타임라인 스타일 (최종 수정본) */
     .timeline-container {
         width: 100%;
         height: 100%;
         position: relative;
-        overflow: hidden; /* 스크롤은 내부 wrapper에서만 */
+        overflow: hidden;
     }
 
     .timeline-wrapper {
@@ -1335,31 +1342,29 @@ main::-webkit-scrollbar {
         left: 0;
         right: 0;
         bottom: 0;
-        overflow-x: auto; /* 내용이 넘칠 때만 가로 스크롤바 표시 */
+        overflow-x: auto;
         overflow-y: hidden;
-        padding: 0 50px; /* 좌우 여백 */
+        padding: 0 50px;
     }
 
-    /* 스크롤바 숨기기 (선택 사항) */
     .timeline-wrapper::-webkit-scrollbar {
         display: none;
     }
 
     .timeline-events {
         min-width: 750px;
-        display: inline-flex; /* 자식 요소만큼만 너비를 가지도록 flex 설정 */
+        display: inline-flex;
         align-items: center;
         height: 100%;
-        padding: 0 50px; /* 내부 좌우 여백 */
+        padding: 0 50px;
         position: relative;
         z-index: 2;
-        gap: 100px; /* 아이템 사이의 가로 간격 */
+        gap: 100px; 
     }
 
-    /* 중앙 가로선 스타일 */
     .timeline-line {
         position: absolute;
-        width: 100%; /* 부모인 timeline-events 너비에 맞춤 */
+        width: 100%;
         height: 2px;
         background: #7078A7;
         top: 50%;
@@ -1371,19 +1376,17 @@ main::-webkit-scrollbar {
         display: flex;
         flex-direction: column;
         position: relative;
-        width: 150px; /* 아이템 전체 너비 */
+        width: 150px;
     }
 
-    /* 위쪽에 배치될 아이템 */
     .timeline-item.top {
-        justify-content: flex-end; /* 아래쪽에 붙도록 */
-        padding-bottom: 230px; /* 중앙선과의 간격 */
+        justify-content: flex-end;
+        padding-bottom: 230px;
     }
 
-    /* 아래쪽에 배치될 아이템 */
     .timeline-item.bottom {
-        justify-content: flex-start; /* 위쪽에 붙도록 */
-        padding-top: 320px; /* 중앙선과의 간격 */
+        justify-content: flex-start;
+        padding-top: 320px;
     }
 
     .timeline-item a {
@@ -1395,15 +1398,14 @@ main::-webkit-scrollbar {
         text-align: center;
     }
 
-    /* 썸네일 정사각형으로 만들기 (핵심) */
     .timeline-item .item-thumbnail {
         width: 150px;
         height: 150px;
         flex-shrink: 0;
         border-radius: 15px;
-        background-color: #7078A750; /* 썸네일 없을 때 기본 회색 배경 */
-        background-size: cover; /* 이미지가 div를 꽉 채우도록 설정 */
-        background-position: center; /* 이미지가 중앙에 오도록 */
+        background-color: #7078A750;
+        background-size: cover;
+        background-position: center;
         margin-bottom: 15px;
     }
 
@@ -1417,7 +1419,7 @@ main::-webkit-scrollbar {
 
     .timeline-container > .add-btn{
         position: absolute;
-        left: 770px;
+        left: 40px;
         top: 50px;
         z-index: 50;
     }
@@ -1460,9 +1462,8 @@ main::-webkit-scrollbar {
     }
 
 
-    /* 파일 업로드 버튼 커스텀 스타일 */
     .file-upload-button {
-        display: inline-block; /* label을 버튼처럼 보이게 함 */
+        display: inline-block;
         background-color: #7078A7;
         color: white;
         font-family: 'Fre5';
@@ -1471,7 +1472,7 @@ main::-webkit-scrollbar {
         border: none;
         border-radius: 10px;
         text-decoration-line: none;
-        cursor: pointer; /* 마우스 커서를 손가락 모양으로 변경 */
+        cursor: pointer;
         width: 72px;
     }  
 
@@ -1559,9 +1560,6 @@ main::-webkit-scrollbar {
 
 
     /*메신저ㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓ*/
-    /* 채팅창 스타일 */
-
-    /* 채팅 오버레이 스타일 */
     #chat-overlay {
         position: absolute;
         top: 85px;
@@ -1575,9 +1573,8 @@ main::-webkit-scrollbar {
         overflow: hidden;
     }
 
-    /* 채팅창 닫기 버튼을 위한 스타일 (선택사항) */
     #chat-overlay .chat-header {
-        cursor: pointer; /* 헤더를 클릭해서 닫을 수 있도록 커서 변경 */
+        cursor: pointer;
     }
 
     .chat-container {
@@ -1596,7 +1593,7 @@ main::-webkit-scrollbar {
 
     .chat-window {
         width: 570px;
-        height: 800px;
+        height: 750px;
         flex-grow: 1;
         padding: 10px;
         overflow-y: auto;
@@ -1634,7 +1631,6 @@ main::-webkit-scrollbar {
         background-position: center;
         margin: 0 10px;
     }
-    /* 각 캐릭터 프로필 이미지 (실제 이미지 경로로 변경하세요) */
     .profile-pic.hyun { background-image: url('../img/default_chat_bg.png'); }
     .profile-pic.chan { background-image: url('../img/default_hyun_bg.png'); }
 
@@ -1717,7 +1713,7 @@ main::-webkit-scrollbar {
 
 
     .settings-container > form > input#file-upload-button {
-        display: inline-block; /* label을 버튼처럼 보이게 함 */
+        display: inline-block;
         background-color: #7078A7;
         color: white;
         font-family: 'Fre5';
@@ -1726,7 +1722,7 @@ main::-webkit-scrollbar {
         border: none;
         border-radius: 10px;
         text-decoration-line: none;
-        cursor: pointer; /* 마우스 커서를 손가락 모양으로 변경 */
+        cursor: pointer;
         width: 72px;
     }  
 }
