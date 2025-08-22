@@ -30,7 +30,7 @@ if (!$can_view) {
     <div class="post-meta">
         <?php if ($is_admin): ?>
             <a href="#/gallery_edit?id=<?php echo $post_id; ?>" class="btn-action">수정</a>
-            <button class="btn-action btn-delete" data-id="<?php echo $post_id; ?>" data-type="<?php echo $post['gallery_type']; ?>">삭제</button>
+            <button class="btn-action delete-btn" data-id="<?php echo $post_id; ?>" data-type="<?php echo $post['gallery_type']; ?>">삭제</button>
         <?php endif; ?>
     </div>
     

@@ -6,8 +6,10 @@ $settings = [];
 while ($row = $settings_result->fetch_assoc()) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
-$char1_name = $settings['character1_name'] ?? 'Chan';
-$char2_name = $settings['character2_name'] ?? 'Hyun';
+$char1_name = $settings['character1_name'] ?? 'Hyun';
+$char2_name = $settings['character2_name'] ?? 'Chan';
+$char1_img = $settings['character1_image'] ?? '/assets/img/default_hyun.png';
+$char2_img = $settings['character2_image'] ?? '/assets/img/default_chan.png';
 
 $messages = $mysqli->query("SELECT * FROM chan_chat ORDER BY created_at ASC")->fetch_all(MYSQLI_ASSOC);
 ?>
@@ -18,10 +20,16 @@ $messages = $mysqli->query("SELECT * FROM chan_chat ORDER BY created_at ASC")->f
 
         <?php foreach ($messages as $msg): ?>
         <?php
-            $message_side_class = (strtolower($msg['character_name']) === strtolower($char2_name)) ? 'sent' : 'received';
+            $is_char2 = (strtolower($msg['character_name']) === strtolower($char2_name));
+            $message_side_class = $is_char2 ? 'sent' : 'received';
+            $profile_image = $is_char2 ? $char2_img : $char1_img;
         ?>
-        <div class="message-row <?php echo $message_side_class; ?>" data-id="<?php echo $msg['id']; ?>">
-            <div class="profile-pic <?php echo (strtolower($msg['character_name']) === strtolower($char2_name)) ? 'hyun' : 'chan'; ?>"></div>
+        <div
+            class="message-row <?php echo $message_side_class; ?>"
+            data-id="<?php echo $msg['id']; ?>">
+            <div
+                class="profile-pic"
+                style="background-image: url('..<?php echo htmlspecialchars($profile_image); ?>');"></div>
             <div class="message-bubble">
                 <div class="character-name"><?php echo htmlspecialchars($msg['character_name']); ?></div>
                 <p class="message-text"><?php echo nl2br(htmlspecialchars($msg['message'])); ?></p>
@@ -37,7 +45,12 @@ $messages = $mysqli->query("SELECT * FROM chan_chat ORDER BY created_at ASC")->f
                 <option value="<?php echo htmlspecialchars($char1_name); ?>"><?php echo htmlspecialchars($char1_name); ?></option>
                 <option value="<?php echo htmlspecialchars($char2_name); ?>"><?php echo htmlspecialchars($char2_name); ?></option>
             </select>
-            <input type="text" name="message" placeholder="메시지 입력..." autocomplete="off" required>
+            <input
+                type="text"
+                name="message"
+                placeholder="메시지 입력..."
+                autocomplete="off"
+                required="required">
             <button type="submit">전송</button>
         </form>
     </div>
@@ -45,55 +58,69 @@ $messages = $mysqli->query("SELECT * FROM chan_chat ORDER BY created_at ASC")->f
 </div>
 
 <script>
-$(document).ready(function() {
-    var chatWindow = $('#message-list');
-    if (chatWindow.length > 0) {
-        chatWindow.scrollTop(chatWindow[0].scrollHeight);
-    }
+    $(document).ready(function () {
+        var chatWindow = $('#message-list');
+        if (chatWindow.length > 0) {
+            chatWindow.scrollTop(chatWindow[0].scrollHeight);
+        }
 
-    $('#chat-form').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        $.ajax({
-            type: 'POST',
-            url: form.attr('action'),
-            data: form.serialize(),
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    $('#chat-overlay').load('chat.php');
-                } else {
-                    alert('메시지 전송 실패: ' + response.message);
-                }
-            }
-        });
-    });
-
-    <?php if ($is_admin): ?>
-    let pressTimer;
-    $('#chat-overlay').on('mousedown', '.message-row', function() {
-        let messageRow = $(this);
-        pressTimer = window.setTimeout(function() {
-            if (confirm('이 메시지를 삭제하시겠습니까?')) {
-                const messageId = messageRow.data('id');
-                $.ajax({
-                    url: 'ajax_delete_chat.php',
-                    type: 'POST',
-                    data: { id: messageId },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            messageRow.fadeOut(300, function() { $(this).remove(); });
-                        } else {
-                            alert('삭제 실패: ' + response.message);
-                        }
+        $('#chat-form').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        $('#chat-overlay').load('chat.php');
+                    } else {
+                        alert('메시지 전송 실패: ' + response.message);
                     }
-                });
-            }
-        }, 800);
-    }).on('mouseup mouseleave', '.message-row', function() {
-        clearTimeout(pressTimer);
+                }
+            });
+        });
+
+        <?php if ($is_admin): ?>
+        let pressTimer;
+        $('#chat-overlay')
+            .on(
+                'mousedown touchstart',
+                '.message-row',
+                function (e) {
+                    let messageRow = $(this);
+                    pressTimer = window.setTimeout(function () {
+                        if (confirm('이 메시지를 삭제하시겠습니까?')) {
+                            const messageId = messageRow.data('id');
+                            $.ajax({
+                                url: 'ajax_delete_chat.php',
+                                type: 'POST',
+                                data: {
+                                    id: messageId
+                                },
+                                dataType: 'json',
+                                success: function (response) {
+                                    if (response.success) {
+                                        messageRow.fadeOut(300, function () {
+                                            $(this).remove();
+                                        });
+                                    } else {
+                                        alert('삭제 실패: ' + response.message);
+                                    }
+                                }
+                            });
+                        }
+                    }, 800);
+                }
+            )
+            .on(
+                'mouseup mouseleave touchend',
+                '.message-row',
+                function () { 
+                    clearTimeout(pressTimer);
+                }
+            );
+        <?php endif; ?>
     });
-    <?php endif; ?>
-});
 </script>

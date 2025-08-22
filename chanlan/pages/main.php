@@ -67,7 +67,7 @@ $main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png
                             $d_day = $interval->days;
 
                             if ($current_date > $target_date) {
-                                echo "D+" . $d_day;
+                                echo "D+" . $d_day+1;
                             } else {
                                 echo "D-" . $d_day;
                             }
@@ -159,7 +159,7 @@ $main_bg = $settings['main_background'] ?? '../assets/images/default_main_bg.png
                         $d_day = $interval->days;
 
                         if ($current_date > $target_date) {
-                            echo "D+" . $d_day;
+                            echo "D+" . $d_day+1;
                         } else {
                             echo "D-" . $d_day;
                         }

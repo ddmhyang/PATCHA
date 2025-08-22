@@ -65,5 +65,18 @@ if (isset($_FILES['chat_background']) && $_FILES['chat_background']['error'] ===
     }
 }
 
-echo json_encode(['success' => true, 'message' => '설정이 저장되었으며, 과거 채팅 기록도 모두 변경되었습니다.', 'redirect_url' => 'reload']);
+if (isset($_FILES['character1_image']) && $_FILES['character1_image']['error'] === UPLOAD_ERR_OK) {
+    $fileName = 'profile1_' . uniqid() . '.png';
+    if (move_uploaded_file($_FILES['character1_image']['tmp_name'], $uploadDir . $fileName)) {
+        update_setting('character1_image', '/assets/img/' . $fileName, $mysqli);
+    }
+}
+if (isset($_FILES['character2_image']) && $_FILES['character2_image']['error'] === UPLOAD_ERR_OK) {
+    $fileName = 'profile2_' . uniqid() . '.png';
+    if (move_uploaded_file($_FILES['character2_image']['tmp_name'], $uploadDir . $fileName)) {
+        update_setting('character2_image', '/assets/img/' . $fileName, $mysqli);
+    }
+}
+
+echo json_encode(['success' => true, 'message' => '설정이 저장되었습니다. 페이지를 새로고침합니다.', 'redirect_url' => 'reload']);
 ?>

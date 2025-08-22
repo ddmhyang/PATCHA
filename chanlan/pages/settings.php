@@ -43,6 +43,19 @@ while ($row = $settings_result->fetch_assoc()) {
             <input type="text" id="character2_name" name="character2_name" value="<?php echo htmlspecialchars($settings['character2_name']); ?>" required>
         </div>
         <hr>
+        <div class="form-group">
+            <label for="character1_image">캐릭터 1 프로필 사진</label>
+            <label for="character1_image" class="file-upload-button">파일 선택</label>
+            <input type="file" id="character1_image" name="character1_image" style="display: none;">
+            <p>현재 이미지: <img src="<?php echo htmlspecialchars($settings['character1_image']); ?>" height="50"></p>
+        </div>
+        <div class="form-group">
+            <label for="character2_image">캐릭터 2 프로필 사진</label>
+            <label for="character2_image" class="file-upload-button">파일 선택</label>
+            <input type="file" id="character2_image" name="character2_image" style="display: none;">
+            <p>현재 이미지: <img src="<?php echo htmlspecialchars($settings['character2_image']); ?>" height="50"></p>
+        </div>
+        <hr>
         <button class="submit_btn" type="submit">설정 저장</button>
     </form>
 </div>  

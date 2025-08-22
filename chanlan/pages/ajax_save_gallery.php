@@ -23,7 +23,7 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
     $newFileName = 'thumb-' . uniqid() . '.' . $ext;
     $targetPath = $uploadDir . $newFileName;
     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        $thumbnail_path = '/chanlan/uploads/gallery/' . $newFileName;
+        $thumbnail_path = '/uploads/gallery/' . $newFileName;
     }
 }
 
@@ -50,7 +50,7 @@ if ($post_id > 0) {
     $types .= "i";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param($types, ...$params);
-} else { // 신규
+} else {
     $stmt = $mysqli->prepare("INSERT INTO chan_gallery (gallery_type, title, content, thumbnail, is_private, password_hash) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssssis", $gallery_type, $title, $content, $thumbnail_path, $is_private, $password_hash);
 }

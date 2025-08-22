@@ -21,7 +21,7 @@ $newFileName = uniqid('img-') . '.' . $ext;
 $targetPath = $uploadDir . $newFileName;
 
 if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-    $url = '/chanlan/uploads/gallery/' . $newFileName;
+    $url = '/uploads/gallery/' . $newFileName;
     echo json_encode(['success' => true, 'url' => $url]);
 } else {
     echo json_encode(['success' => false, 'message' => '파일 저장에 실패했습니다.']);
