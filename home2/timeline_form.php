@@ -35,6 +35,14 @@ if (isset($_GET['id'])) {
                 <label><input type="radio" name="side" value="right" <?php echo ($post['side'] == 'right') ? 'checked' : ''; ?>> 오른쪽</label>
             </div>
         </div>
+
+        <div class="form-group">
+            <label>표시 형식</label>
+            <div>
+                <label><input type="radio" name="display_type" value="dot" <?php echo (!isset($post['display_type']) || $post['display_type'] == 'dot') ? 'checked' : ''; ?>> 점</label>
+                <label><input type="radio" name="display_type" value="interval" <?php echo (isset($post['display_type']) && $post['display_type'] == 'interval') ? 'checked' : ''; ?>> 간격</label>
+            </div>
+        </div>
         <div class="form-group">
             <label for="chapter">챕터명</label>
             <input type="text" id="chapter" name="chapter" value="<?php echo htmlspecialchars($post['chapter']); ?>">
@@ -51,7 +59,10 @@ if (isset($_GET['id'])) {
             <label for="content">내용</label>
             <textarea class="summernote" name="content"><?php echo htmlspecialchars($post['content']); ?></textarea>
         </div>
-        <button type="submit">저장하기</button>
-        <a href="#/timeline">취소</a>
+
+        <div class="form-buttons">
+            <a href="#/timeline" class="btn-cancel">취소</a>
+            <button type="submit" class="btn-submit">저장하기</button>
+        </div>
     </form>
 </div>

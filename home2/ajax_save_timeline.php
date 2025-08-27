@@ -7,15 +7,17 @@ if (!$is_admin) {
     exit;
 }
 
+// --- 변수 선언부에 display_type 추가 ---
 $post_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 $type = $_POST['type'];
 $chapter = $_POST['chapter'];
 $title = $_POST['title'];
 $content = $_POST['content'];
 $side = $_POST['side'] ?? 'left';
+$display_type = $_POST['display_type'] ?? 'dot'; // display_type 값을 받음
 $thumbnail_path = null;
 
-// 썸네일 처리 로직 (이전과 동일)
+// --- 썸네일 처리 로직 (기존과 동일) ---
 if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = 'uploads/';
     if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
@@ -32,11 +34,10 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
     }
 }
 
-// 트랜잭션 시작
-$mysqli->begin_transaction();
 
+$mysqli->begin_transaction();
 try {
-    if ($post_id > 0) { // 게시물 수정
+    if ($post_id > 0) { // --- 게시물 수정 ---
         if (!$thumbnail_path) {
             $stmt_thumb = $mysqli->prepare("SELECT thumbnail FROM home2_timeline WHERE id = ?");
             $stmt_thumb->bind_param("i", $post_id);
@@ -44,35 +45,43 @@ try {
             $thumbnail_path = $stmt_thumb->get_result()->fetch_assoc()['thumbnail'];
             $stmt_thumb->close();
         }
-        $stmt = $mysqli->prepare("UPDATE home2_timeline SET type = ?, chapter = ?, title = ?, content = ?, thumbnail = ? WHERE id = ?");
-        $stmt->bind_param("sssssi", $type, $chapter, $title, $content, $thumbnail_path, $post_id);
-        $stmt->execute();
+        
+        // --- UPDATE 쿼리에 display_type 추가 ---
+        $stmt = $mysqli->prepare("UPDATE home2_timeline SET type = ?, chapter = ?, title = ?, content = ?, thumbnail = ?, display_type = ? WHERE id = ?");
+        $stmt->bind_param("ssssssi", $type, $chapter, $title, $content, $thumbnail_path, $display_type, $post_id);
+        if (!$stmt->execute()) throw new Exception($stmt->error);
 
-    } else { // 새 게시물 작성
-        $stmt = $mysqli->prepare("INSERT INTO home2_timeline (type, chapter, title, content, thumbnail) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $type, $chapter, $title, $content, $thumbnail_path);
-        $stmt->execute();
-        $post_id = $mysqli->insert_id; // 새로 생성된 게시물 ID
+    } else { // --- 새 게시물 작성 ---
+        
+        // --- INSERT 쿼리에 display_type 추가 ---
+        $stmt = $mysqli->prepare("INSERT INTO home2_timeline (type, chapter, title, content, thumbnail, display_type) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssss", $type, $chapter, $title, $content, $thumbnail_path, $display_type);
+        if (!$stmt->execute()) throw new Exception($stmt->error);
+        
+        $post_id = $mysqli->insert_id;
 
-        // 4가지 뷰에 대한 기본 위치 정보 생성
+        // 초기 위치 계산 로직 (기존과 동일)
         $views = ['overall', 'novel', 'roleplay', 'trpg'];
         $pos_stmt = $mysqli->prepare("INSERT INTO home2_timeline_positions (timeline_item_id, timeline_view, position_y, side) VALUES (?, ?, ?, ?)");
-        $initial_y = 99999; // 맨 아래에 위치하도록 큰 값 부여
+
         foreach ($views as $view) {
+            $max_y_query = "SELECT MAX(position_y) as max_y FROM home2_timeline_positions WHERE timeline_view = '" . $mysqli->real_escape_string($view) . "'";
+            $max_y_result = $mysqli->query($max_y_query)->fetch_assoc();
+            $initial_y = ($max_y_result && $max_y_result['max_y'] !== null) ? intval($max_y_result['max_y']) + 180 : 0;
+            
             $pos_stmt->bind_param("isis", $post_id, $view, $initial_y, $side);
-            $pos_stmt->execute();
+            if (!$pos_stmt->execute()) throw new Exception($pos_stmt->error);
         }
+        $pos_stmt->close();
     }
     
-    // 모든 쿼리가 성공하면 커밋
     $mysqli->commit();
     echo json_encode(['success' => true]);
 
-} catch (mysqli_sql_exception $exception) {
-    // 오류 발생 시 롤백
+} catch (Exception $e) {
     $mysqli->rollback();
-    echo json_encode(['success' => false, 'message' => '데이터베이스 저장 실패: ' . $exception->getMessage()]);
+    echo json_encode(['success' => false, 'message' => '데이터베이스 저장 실패: ' . $e->getMessage()]);
 }
 
-$stmt->close();
+if(isset($stmt)) $stmt->close();
 ?>

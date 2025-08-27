@@ -3,7 +3,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Timeline Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.5">
+    <title>Timeline</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
@@ -21,18 +22,38 @@
 <body>
     <div class="container">
         <nav>
-            <a href="#/timeline">전체 타임라인</a>
-            <a href="#/novel_timeline">소설</a>
-            <a href="#/roleplay_timeline">역극 백업</a>
-            <a href="#/trpg_timeline">TRPG 로그</a>
-            <hr>
-            <?php if ($is_admin): ?>
-                <a href="logout.php">Logout</a>
-            <?php else: ?>
-                <a href="login.php">Admin Login</a>
-            <?php endif; ?>
+            <div class="main-links">
+                <a href="#/timeline">ALL</a>
+                <a href="#/novel_timeline">Novel</a>
+                <a href="#/roleplay_timeline">RP</a>
+                <a href="#/trpg_timeline">TRPG</a>
+                <?php if ($is_admin): ?>
+                    <a href="logout.php">Logout</a>
+                <?php else: ?>
+                    <a href="#/login">Login</a>
+                <?php endif; ?>
+            </div>
         </nav>
-        <main id="content"></main>
+        
+        <main id="content">
+            <div id="timeline-container" class="view">
+                </div>
+
+            <div id="login-view" class="view">
+                <div class="login-container">
+                    <h1>관리자 로그인</h1>
+                    <form id="login-form" method="post">
+                        <input type="text" name="username" placeholder="Username" required>
+                        <input type="password" name="password" placeholder="Password" required>
+                        <button type="submit">로그인</button>
+                        <p class="error" id="login-error"></p>
+                    </form>
+                </div>
+            </div>
+
+            <div id="ajax-content-view" class="view">
+            </div>
+        </main>
     </div>
     <script src="assets/js/main.js"></script>
 </body>
