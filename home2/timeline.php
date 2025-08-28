@@ -20,6 +20,8 @@ $item_height = 180;
 $min_gap = 30;
 
 foreach ($items as $item) {
+    $item_height = ($item['display_type'] == 'interval') ? intval($item['interval_height']) : 180;
+    
     $y = $item['position_y'];
     $x_offset = 0;
     $original_y = $y;
@@ -63,40 +65,49 @@ if (!empty($positions_to_update) && $is_admin) {
 }
 ?>
 
-<div id="timeline-container" data-view-type="<?php echo htmlspecialchars($view_type); ?>">
-    
+<div
+    id="timeline-container"
+    data-view-type="<?php echo htmlspecialchars($view_type); ?>">
+
     <?php 
     $total_items = count($processed_items);
     foreach ($processed_items as $index => $item): 
-        // 아이템의 순서(index)를 기반으로 z-index 값을 계산합니다.
-        // 위에 있는 아이템(index가 0에 가까움)이 더 높은 z-index 값을 갖게 됩니다.
         $z_index = $total_items - $index;
     ?>
-    <div 
-        class="timeline-item <?php echo htmlspecialchars($item['side']); ?>" 
-        data-id="<?php echo $item['id']; ?>" 
-        style="top: <?php echo $item['final_y']; ?>px; --x-offset: <?php echo $item['x_offset']; ?>px; z-index: <?php echo $z_index; ?>;"
-    >
+    <div
+        class="timeline-item <?php echo htmlspecialchars($item['side']); ?> item-type-<?php echo htmlspecialchars($item['display_type']); ?>"
+        data-id="<?php echo $item['id']; ?>"
+        style="top: <?php echo $item['final_y']; ?>px; --x-offset: <?php echo $item['x_offset']; ?>px; z-index: <?php echo $z_index; ?>;">
         <div class="connector-group">
-            <div class="connector"></div>
+
+            <?php 
+            $connector_style = '';
+            if ($item['display_type'] == 'interval') {
+                // 간격 높이의 절반에서 연결선 자체 높이(3px)의 절반을 빼서 정확한 중앙점을 계산합니다.
+                $connector_top = (($item['interval_height'] ?? 150) / 2) - 1.5;
+                $connector_style = 'style="top: ' . $connector_top . 'px;"';
+            }
+            ?>
+            <div class="connector" <?php echo $connector_style; ?>></div>
             <?php if ($item['display_type'] == 'interval'): ?>
-                <div class="interval-bar"></div>
-            <?php else: ?>
-                <div class="dot"></div>
+            <div
+                class="interval-bar"
+                style="height: <?php echo htmlspecialchars($item['interval_height'] ?? 150); ?>px;"></div>
+        <?php else: ?>
+            <div class="dot"></div>
             <?php endif; ?>
         </div>
-        
+
         <div class="content-group <?php if($is_admin) echo 'draggable'; ?>">
             <a href="#/timeline_view?id=<?php echo $item['id']; ?>" class="item-link">
                 <div class="chapter"><?php echo htmlspecialchars($item['chapter']); ?></div>
                 <div class="title"><?php echo htmlspecialchars($item['title']); ?></div>
-                
-                <div 
-                    class="thumbnail" 
+
+                <div
+                    class="thumbnail"
                     <?php if (!empty($item['thumbnail'])): ?>
-                        style="background-image: url('<?php echo htmlspecialchars($item['thumbnail']); ?>');"
-                    <?php endif; ?>
-                ></div>
+                    style="background-image: url('<?php echo htmlspecialchars($item['thumbnail']); ?>');"
+                    <?php endif; ?>></div>
 
             </a>
         </div>

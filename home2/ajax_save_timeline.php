@@ -14,8 +14,10 @@ $chapter = $_POST['chapter'];
 $title = $_POST['title'];
 $content = $_POST['content'];
 $side = $_POST['side'] ?? 'left';
-$display_type = $_POST['display_type'] ?? 'dot'; // display_type 값을 받음
+$display_type = $_POST['display_type'] ?? 'dot';
+$interval_height = isset($_POST['interval_height']) ? intval($_POST['interval_height']) : 150; // interval_height 값 받기
 $thumbnail_path = null;
+
 
 // --- 썸네일 처리 로직 (기존과 동일) ---
 if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
@@ -47,16 +49,18 @@ try {
         }
         
         // --- UPDATE 쿼리에 display_type 추가 ---
-        $stmt = $mysqli->prepare("UPDATE home2_timeline SET type = ?, chapter = ?, title = ?, content = ?, thumbnail = ?, display_type = ? WHERE id = ?");
-        $stmt->bind_param("ssssssi", $type, $chapter, $title, $content, $thumbnail_path, $display_type, $post_id);
+        $stmt = $mysqli->prepare("UPDATE home2_timeline SET type = ?, chapter = ?, title = ?, content = ?, thumbnail = ?, display_type = ?, interval_height = ? WHERE id = ?");
+        $stmt->bind_param("ssssssii", $type, $chapter, $title, $content, $thumbnail_path, $display_type, $interval_height, $post_id);
         if (!$stmt->execute()) throw new Exception($stmt->error);
 
     } else { // --- 새 게시물 작성 ---
         
         // --- INSERT 쿼리에 display_type 추가 ---
-        $stmt = $mysqli->prepare("INSERT INTO home2_timeline (type, chapter, title, content, thumbnail, display_type) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssss", $type, $chapter, $title, $content, $thumbnail_path, $display_type);
+        // --- INSERT 쿼리에 interval_height 추가 ---
+        $stmt = $mysqli->prepare("INSERT INTO home2_timeline (type, chapter, title, content, thumbnail, display_type, interval_height) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssssi", $type, $chapter, $title, $content, $thumbnail_path, $display_type, $interval_height);
         if (!$stmt->execute()) throw new Exception($stmt->error);
+        
         
         $post_id = $mysqli->insert_id;
 

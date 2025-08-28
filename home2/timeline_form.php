@@ -43,6 +43,10 @@ if (isset($_GET['id'])) {
                 <label><input type="radio" name="display_type" value="interval" <?php echo (isset($post['display_type']) && $post['display_type'] == 'interval') ? 'checked' : ''; ?>> 간격</label>
             </div>
         </div>
+        <div class="form-group" id="interval-height-group" style="<?php echo (!isset($post['display_type']) || $post['display_type'] == 'dot') ? 'display: none;' : ''; ?>">
+            <label for="interval_height">간격 높이 (px)</label>
+            <input type="number" id="interval_height" name="interval_height" value="<?php echo htmlspecialchars($post['interval_height'] ?? 150); ?>" min="30">
+        </div>
         <div class="form-group">
             <label for="chapter">챕터명</label>
             <input type="text" id="chapter" name="chapter" value="<?php echo htmlspecialchars($post['chapter']); ?>">
@@ -66,3 +70,12 @@ if (isset($_GET['id'])) {
         </div>
     </form>
 </div>
+<script>
+    $('input[name="display_type"]').on('change', function() {
+        if ($(this).val() === 'interval') {
+            $('#interval-height-group').show();
+        } else {
+            $('#interval-height-group').hide();
+        }
+    });
+</script>

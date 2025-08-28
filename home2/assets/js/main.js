@@ -151,7 +151,7 @@ $(document).ready(function () {
             // viewType = timelineContainer.data('view-type');  이 줄도 필요 없습니다.
 
             $(".timeline-item").draggable({
-                handle: ".dot, .interval-bar",
+                handle: ".interval-bar, .dot",
                 stop: function (event, ui) {
                     const item = $(this);
                     const id = item.data('id');
@@ -160,11 +160,13 @@ $(document).ready(function () {
                         newY = 0;
                     
                     const dropX = event.pageX / currentScale;
-                    const timelineContainer = $('#timeline-container'); // 이 변수는 여기서만 사용
+                    const timelineContainer = $('#timeline-container');
                     const containerX = (
                         window.innerWidth - timelineContainer.width() * currentScale
                     ) / 2 / currentScale;
-                    const newSide = (dropX - containerX < 360)
+
+                    // ▼▼▼▼▼ 이 부분을 수정하세요 ▼▼▼▼▼ 타임라인 컨테이너의 중앙(너비의 절반)을 기준으로 좌/우를 결정합니다.
+                    const newSide = (dropX - containerX < timelineContainer.width() / 2)
                         ? 'left'
                         : 'right';
 
