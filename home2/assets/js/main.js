@@ -1,9 +1,9 @@
 $(document).ready(function () {
     const isAdmin = $('nav a[href="logout.php"]').length > 0;
     let currentScale = 1;
-    let isDragging = false; // 드래그 상태를 추적하는 플래그
+    let isDragging = false; 
 
-    // 화면 크기에 맞게 전체 컨테이너의 스케일을 조정하는 함수
+    
     function adjustScale() {
         const container = $('.container');
         if (!container.length) 
@@ -11,8 +11,15 @@ $(document).ready(function () {
         
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
-        let containerWidth = 1440;
-        let containerHeight = 900;
+        let containerWidth, containerHeight;
+
+        if (windowWidth > 786) {
+            containerWidth = 1440;
+            containerHeight = 900;
+        } else {
+            containerWidth = 720;
+            containerHeight = 1280;
+        }
 
         const scale = Math.min(
             windowWidth / containerWidth,
@@ -28,7 +35,7 @@ $(document).ready(function () {
         container.show();
     }
 
-    // SPA 라우터
+    
     function router() {
         const hash = window.location.hash || '#/timeline';
         $('.view').removeClass('active');
@@ -54,7 +61,7 @@ $(document).ready(function () {
         }
     }
 
-    // AJAX 페이지 로드
+    
     function loadAjaxPage(url) {
         $('#ajax-content-view').load(url, function (response, status, xhr) {
             if (status == "error") {
@@ -66,7 +73,7 @@ $(document).ready(function () {
         });
     }
 
-    // 타임라인 로드
+    
     function loadTimeline(hash) {
         let timelineType = 'overall';
         if (hash.includes('_timeline')) {
@@ -82,7 +89,7 @@ $(document).ready(function () {
         );
     }
 
-    // *** 드래그 로직 최종 완성본 ***
+    
     function initializeTimelineInteraction(viewType) {
         if (!isAdmin) 
             return;
@@ -90,7 +97,7 @@ $(document).ready(function () {
         $(".draggable").draggable({
             grid: [
                 0, 30
-            ], // Y축으로 30px씩 스냅
+            ], 
             handle: ".item-handle",
             cursor: "move",
 
@@ -103,24 +110,28 @@ $(document).ready(function () {
                 const item = $(this);
                 const id = item.data('id');
 
-                // 최종 Y 위치 계산
+                
                 let newY = ui.position.top;
                 if (newY < 0) 
                     newY = 0;
                 
-                // **핵심: 마우스 X 좌표로 side(left/right) 결정**
+                
                 const timelineWrapper = $('#timeline-wrapper');
-                // 화면 배율(scale)을 고려하여 실제 클릭 위치 계산
-                const wrapperOffsetLeft = timelineWrapper
-                    .offset()
-                    .left;
-                const mouseX = (event.pageX - wrapperOffsetLeft) / currentScale;
+                const wrapperOffsetLeft = timelineWrapper.offset().left;
+                
+                // 모바일 터치와 데스크탑 클릭 모두의 좌표를 정확히 얻기 위한 코드
+                let finalPageX = event.pageX;
+                if (event.originalEvent.changedTouches && event.originalEvent.changedTouches.length > 0) {
+                    finalPageX = event.originalEvent.changedTouches[0].pageX;
+                }
+
+                const mouseX = (finalPageX - wrapperOffsetLeft) / currentScale;
                 const timelineCenter = timelineWrapper.width() / 2;
                 const newSide = mouseX < timelineCenter
                     ? 'left'
                     : 'right';
 
-                // 서버에 위치와 방향 전송
+                
                 $.ajax({
                     url: 'ajax_reorder_timeline.php',
                     type: 'POST',
@@ -133,7 +144,7 @@ $(document).ready(function () {
                     dataType: 'json',
                     success: (response) => {
                         if (response.success) {
-                            // 저장이 성공하면 타임라인을 새로고침하여 겹침 등을 재계산
+                            
                             router();
                         } else {
                             alert('위치 저장 실패: ' + response.message);
@@ -146,32 +157,30 @@ $(document).ready(function () {
                     }
                 });
 
-                // z-index 초기화
+                
                 item.css('z-index', '');
 
-                // 드래그 종료 플래그 설정 (클릭 이벤트 방지용)
+                
                 setTimeout(() => {
                     isDragging = false;
                 }, 100);
             }
         });
 
-        // 빈 공간 클릭 시 새 글 작성
-        $('#timeline-wrapper').on('click', function (e) {
+        
+        $('#timeline-line').on('click', function (e) {
             if (isDragging || $(e.target).closest('.timeline-item, a, button').length > 0) {
                 return;
             }
-            const timelineOffset = $(this)
-                .offset()
-                .top;
-            const scrollTop = $(this).scrollTop();
+            const timelineOffset = $(this).parent().offset().top;
+            const scrollTop = $(this).parent().scrollTop();
             const clickY = (e.pageY - timelineOffset) / currentScale + scrollTop;
             const snappedY = Math.round(clickY / 30) * 30;
             window.location.hash = `#/timeline_form?y=${snappedY}`;
         });
     }
 
-    // Summernote 에디터 초기화
+    
     function initializeSummernote() {
         $('.summernote').summernote({
             height: 300,
@@ -183,7 +192,7 @@ $(document).ready(function () {
         });
     }
 
-    // Summernote 이미지 업로드
+    
     function uploadSummernoteImage(file, editor) {
         let data = new FormData();
         data.append("file", file);
@@ -207,7 +216,7 @@ $(document).ready(function () {
         });
     }
 
-    // 로그인 폼 제출
+    
     $('#login-form').on('submit', function (event) {
         event.preventDefault();
         const formData = $(this).serialize();
@@ -219,9 +228,7 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    window
-                        .location
-                        .reload();
+                    window.location.href = 'index.php'; // 로그인 성공 시 페이지 새로고침
                 } else {
                     $('#login-error').text(response.error);
                 }
@@ -232,7 +239,7 @@ $(document).ready(function () {
         });
     });
 
-    // Ajax 폼 제출 (글쓰기/수정)
+    
     $(document).on('submit', 'form.ajax-form', function (e) {
         e.preventDefault();
         const form = $(this);
@@ -261,7 +268,7 @@ $(document).ready(function () {
         });
     });
 
-    // 삭제 버튼
+    
     $(document).on('click', '.delete-btn', function () {
         if (!confirm('정말로 삭제하시겠습니까?')) 
             return;
@@ -287,7 +294,7 @@ $(document).ready(function () {
         });
     });
 
-    // --- 초기 실행 ---
+    
     $(window)
         .on('resize', adjustScale)
         .trigger('resize');

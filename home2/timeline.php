@@ -25,7 +25,6 @@ $stmt->execute();
 $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// 겹침 방지 로직 (x-offset 계산)
 $processed_items = [];
 $occupied_space = [];
 $min_gap = 30;
@@ -66,12 +65,6 @@ foreach ($items as $item) {
 
 <div id="timeline-wrapper" data-view-type="<?php echo htmlspecialchars($view_type); ?>">
     <div id="timeline-line"></div>
-
-    <?php if ($is_admin): ?>
-        <div class="timeline-instructions">
-            타임라인의 빈 공간을 클릭하여 새 항목을 추가하거나, 점/간격을 드래그하여 위치를 변경하세요.
-        </div>
-    <?php endif; ?>
 
     <div class="timeline-items-container">
         <?php foreach ($processed_items as $item): ?>

@@ -23,7 +23,6 @@ if ($id > 0 && !empty($view_type)) {
     }
     $stmt->close();
 } else {
-    // 클라이언트에서 전송된 데이터를 로그로 남겨 디버깅에 활용할 수 있습니다.
     error_log("Invalid reorder request: ID=$id, ViewType=$view_type");
     echo json_encode(['success' => false, 'message' => '잘못된 ID 또는 view 타입입니다.']);
 }

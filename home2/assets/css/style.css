@@ -1,4 +1,4 @@
-/* General & Layout */
+
 body,
 html {
     margin: 0;
@@ -16,14 +16,12 @@ html {
     height: 900px;
 }
 
-/* Top Navigation (수정) */
+
 nav {
     position: absolute;
     display: flex;
     flex-direction: column;
-    /* 세로 나열 */
     align-items: flex-start;
-    /* 왼쪽 정렬 */
     background: #192F60;
     height: 900px;
     width: 263px;
@@ -37,8 +35,6 @@ nav {
     display: flex;
     gap: 100px;
     flex-direction: column;
-    /* 내부 링크들도 세로로 나열 */
-    /* 메뉴 아이템 간 간격 */
 }
 nav a {
     text-align: center;
@@ -55,34 +51,27 @@ nav a:hover {
     transform: scale(1.1);
 }
 
-/* Main Content Area (수정) */
+
 main {
     position: absolute;
-    top: 100px;
-    /* 상단 메뉴 아래로 위치 조정 */
-    left: 250px;
-    /* 왼쪽 네비게이션과 겹치지 않도록 조정 */
+    top: 0;
+    left: 263px;
     right: 0;
-    /* 오른쪽 여백 조정 */
     bottom: 0;
-    /* 하단 여백 추가 */
-    width: 1177px;
-    height: 900px;
-    overflow: auto;
+    overflow-y: auto;
+    padding: 40px;
+    box-sizing: border-box;
 }
 main::-webkit-scrollbar {
     display: none;
 }
-/*
-================================
-세로 타임라인 스타일 (최종 수정)
-================================
-*/
 
-/* 전체 타임라인 컨테이너 */
+
+
+
 #timeline-wrapper {
     position: relative;
-    width: 1177px;
+    width: 100%;
     height: 900px;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -117,15 +106,15 @@ main::-webkit-scrollbar {
     margin: 0 auto 20px;
 }
 
-/* 타임라인 아이템: 핸들과 콘텐츠의 부모. Y축 위치만 담당. */
+
 .timeline-item {
     position: absolute;
     left: 0;
     right: 0;
-    height: 0; /* 높이를 0으로 만들어 top 위치를 기준으로 삼음 */
+    height: 0;
 }
 
-/* 드래그 핸들 (점/막대): 항상 중앙선에 위치 */
+
 .item-handle {
     position: absolute;
     left: 50%;
@@ -146,43 +135,45 @@ main::-webkit-scrollbar {
     height: 20px;
     background-color: #5E7DC3;
     border-radius: 50%;
+    z-index: 20;
 }
 
 .interval-bar {
     width: 20px;
     background: #C7D9FF;
     border-radius: 20px;
+    z-index: 10;
 }
 
-/* 콘텐츠 Wrapper: 연결선과 콘텐츠를 묶음. 좌/우 위치 담당. */
+
 .item-content-wrapper {
     position: absolute;
     top: 0;
-    width: calc(50% - 40px); /* 중앙선에서 40px 간격 */
+    width: calc(50% - 40px);
     display: flex;
     align-items: flex-start;
 }
 
-/* 오른쪽 아이템: 점 - 선 - 콘텐츠 순서 */
+
 .timeline-item.right .item-content-wrapper {
     left: 50%;
-    margin-left: 40px; /* 핸들 너비(20px)의 절반 + 추가 간격 */
+    margin-left: 40px;
 }
 .timeline-item.right .connector { order: 1; }
 .timeline-item.right .content-group { order: 2; }
 
-/* 왼쪽 아이템: 콘텐츠 - 선 - 점 순서 */
+
 .timeline-item.left .item-content-wrapper {
     right: 50%;
-    margin-right: 40px; /* 핸들 너비(20px)의 절반 + 추가 간격 */
-    flex-direction: row-reverse; /* 내부 요소 순서 반전 */
+    margin-right: 40px;
+    flex-direction: row-reverse;
     text-align: right;
 }
 .timeline-item.left .connector { order: 1; }
 .timeline-item.left .content-group { order: 2; }
 
 
-/* 연결선 */
+
 .connector {
     height: 3px;
     background-color: #192F60;
@@ -190,7 +181,7 @@ main::-webkit-scrollbar {
     margin-top: 8.5px;
 }
 
-/* 콘텐츠 그룹 (썸네일, 텍스트 등) */
+
 .content-group {
     padding: 0 15px;
 }
@@ -220,25 +211,8 @@ main::-webkit-scrollbar {
     margin-left: auto;
 }
 
-/*
-================================
-Login Page Styles
-================================
-*/
 
-/* 로그인 페이지의 메인 영역을 중앙 정렬로 변경 */
-.container > main {
-    top: 0;
-    left: 263px;
-    /* 네비게이션 바 너비만큼 띄우기 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    /* 화면 전체 높이 사용 */
-}
 
-/* 로그인 폼 컨테이너 */
 .login-container {
     width: 400px;
     padding: 40px;
@@ -260,7 +234,6 @@ Login Page Styles
     display: flex;
     flex-direction: column;
     gap: 16px;
-    /* 입력 필드 사이의 간격 */
 }
 
 .login-container input {
@@ -277,7 +250,6 @@ Login Page Styles
     font-weight: 700;
     color: #fff;
     background-color: #192F60;
-    /* 네비게이션 바와 동일한 색상 */
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -286,7 +258,6 @@ Login Page Styles
 
 .login-container button:hover {
     background-color: #2c4e91;
-    /* 호버 시 약간 밝은 색상 */
 }
 
 .login-container .error {
@@ -296,17 +267,14 @@ Login Page Styles
     font-weight: 500;
 }
 
-/* SPA View Control */
+
 .view {
     display: none;
-    /* 평소에는 모든 view를 숨김 */
 }
 .view.active {
     display: block;
-    /* active 클래스가 붙은 view만 보여줌 */
 }
 
-/* 로그인 view가 flex 중앙 정렬되도록 */
 #login-view.active {
     display: flex;
     justify-content: center;
@@ -315,78 +283,47 @@ Login Page Styles
     height: 100%;
 }
 
-/* Media Query for Mobile */
-@media (max-width: 720px) {
-    .container {
-        width: 720px;
-        height: 1280px;
-    }
-    nav {
-        flex-direction: column;
-        align-items: flex-start;
-        left: 20px;
-        right: 20px;
-    }
-    .main-links {
-        flex-direction: column;
-        gap: 5px;
-        margin-bottom: 10px;
-    }
-    main {
-        top: 180px;
-        left: 20px;
-        right: 20px;
-        bottom: 20px;
-    }
-}
 
-/*
-================================
-Chanlan-style View Page (게시물 상세 보기)
-================================
-*/
 
-/* 전체 컨테이너 */
-.view-container {
-    height: 700px;
-    width: 800px;
-    margin: 40px auto;
-    /* 위아래 여백 및 자동 중앙 정렬 */
+
+.view-container, .form-page-container {
+    max-width: 800px;
+    width: 100%;     
+    margin: 0 auto;  
     padding: 40px;
     background-color: #ffffff;
-    /* 밝은 배경색 */
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    /* 부드러운 그림자 효과 */
     color: #333;
-    /* 기본 텍스트 색상 */
     font-family: "Pretendard", sans-serif;
-    /* Pretendard 폰트 적용 */
+    box-sizing: border-box;
 }
 
-/* 헤더 (제목, 수정/삭제 버튼) */
+
 .view-header {
     display: flex;
     justify-content: space-between;
-    /* 제목과 버튼 양쪽 정렬 */
     align-items: center;
     border-bottom: 1px solid #eee;
-    /* 하단 구분선 */
     padding-bottom: 20px;
     margin-bottom: 20px;
 }
 
-.view-header h1 {
+.view-header h1, .form-page-container h2 {
     font-size: 28px;
     font-weight: 700;
     margin: 0;
 }
+.form-page-container h2 {
+    margin-bottom: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
 
-/* 수정 / 삭제 버튼 그룹 */
+
 .admin-buttons {
     display: flex;
     gap: 10px;
-    /* 버튼 사이 간격 */
 }
 
 .admin-buttons a,
@@ -421,7 +358,7 @@ Chanlan-style View Page (게시물 상세 보기)
     box-shadow: 0 2px 8px #192F6003;
 }
 
-/* 메타 정보 (챕터, 작성일) */
+
 .view-meta {
     margin-bottom: 30px;
     display: flex;
@@ -433,32 +370,28 @@ Chanlan-style View Page (게시물 상세 보기)
 
 .view-meta .chapter-tag {
     background-color: #192F60;
-    /* 네이비 색상 */
     color: white;
     padding: 4px 10px;
     border-radius: 16px;
     font-weight: 500;
 }
 
-/* 썸네일 이미지 */
+
 .thumbnail-view {
     width: 100%;
     height: 0;
     padding-bottom: 56.25%;
-    /* 16:9 비율 */
     background-size: cover;
     background-position: center;
     border-radius: 8px;
     margin-bottom: 30px;
 }
 
-/* 본문 내용 */
+
 .view-content {
     line-height: 1.8;
-    /* 줄 간격 */
     font-size: 16px;
 }
-/* Summernote 에디터에서 생성된 이미지 스타일 */
 .view-content img {
     max-width: 100%;
     height: auto;
@@ -466,7 +399,7 @@ Chanlan-style View Page (게시물 상세 보기)
     margin: 20px 0;
 }
 
-/* 목록으로 돌아가기 버튼 */
+
 .btn-back {
     display: inline-block;
     margin-top: 40px;
@@ -483,45 +416,7 @@ Chanlan-style View Page (게시물 상세 보기)
     background-color: #2c4e91;
 }
 
-/*
-================================
-Chanlan-style Form Page (글쓰기/수정 폼)
-================================
-*/
 
-/* 폼 전체 컨테이너 */
-.form-page-container {
-    height: 700px;
-    width: 800px;
-    margin: 40px auto;
-    /* 위아래 여백 및 자동 중앙 정렬 */
-    padding: 40px;
-    background-color: #ffffff;
-    /* 밝은 배경색 */
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    /* 부드러운 그림자 효과 */
-    color: #333;
-    /* 기본 텍스트 색상 */
-    font-family: "Pretendard", sans-serif;
-    /* Pretendard 폰트 적용 */
-    overflow-y: auto;
-}
-
-.form-page-container::-webkit-scrollbar {
-    display: none;
-}
-
-/* 폼 제목 */
-.form-page-container h2 {
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0 0 10px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-/* 폼 그룹 (라벨 + 입력 필드) */
 .form-group {
     margin-bottom: 24px;
 }
@@ -533,7 +428,6 @@ Chanlan-style Form Page (글쓰기/수정 폼)
     font-size: 16px;
 }
 
-/* 텍스트 입력, 선택 박스 스타일 */
 .form-group input[type="text"],
 .form-group select {
     width: 100%;
@@ -542,16 +436,13 @@ Chanlan-style Form Page (글쓰기/수정 폼)
     border-radius: 6px;
     font-size: 16px;
     box-sizing: border-box;
-    /* 패딩이 너비에 포함되도록 설정 */
 }
 
-/* Summernote 에디터 프레임 스타일 */
 .note-editor.note-frame {
     border: 1px solid #ddd;
     border-radius: 6px;
 }
 
-/* 입력 필드 포커스 효과 */
 .form-group input[type="text"]:focus,
 .form-group select:focus {
     border-color: #192F60;
@@ -559,19 +450,16 @@ Chanlan-style Form Page (글쓰기/수정 폼)
     box-shadow: 0 0 0 2px rgba(25, 47, 96, 0.1);
 }
 
-/* 하단 버튼 그룹 */
+
 .form-buttons {
     display: flex;
     justify-content: flex-end;
-    /* 버튼들을 오른쪽으로 정렬 */
     gap: 12px;
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid #eee;
-    /* 상단 구분선 */
 }
 
-/* 저장, 취소 버튼 공통 스타일 */
 .form-buttons .btn-cancel,
 .form-buttons .btn-submit {
     text-decoration: none;
@@ -584,7 +472,6 @@ Chanlan-style Form Page (글쓰기/수정 폼)
     transition: all 0.2s ease-in-out;
 }
 
-/* 취소 버튼 */
 .form-buttons .btn-cancel {
     background-color: #f0f0f0;
     color: #555;
@@ -594,7 +481,6 @@ Chanlan-style Form Page (글쓰기/수정 폼)
     background-color: #e0e0e0;
 }
 
-/* 저장하기 버튼 */
 .form-buttons .btn-submit {
     background-color: #192F60;
     color: white;
@@ -604,20 +490,12 @@ Chanlan-style Form Page (글쓰기/수정 폼)
     background-color: #2c4e91;
 }
 
-/*
-================================
-새 글 작성 버튼 (고정 버튼)
-================================
-*/
+
 #add-item-btn {
-    /* 위치 고정 */
     position: fixed;
     top: 30px;
     right: 30px;
     z-index: 1000;
-    /* 다른 요소들보다 위에 표시되도록 설정 */
-
-    /* 다른 버튼들과 동일한 스타일 */
     background-color: #192F60;
     color: white;
     border: none;
@@ -633,11 +511,62 @@ Chanlan-style Form Page (글쓰기/수정 폼)
 #add-item-btn:hover {
     background-color: #2c4e91;
     transform: translateY(-2px);
-    /* 살짝 위로 떠오르는 효과 */
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .note-modal-backdrop {
     background-color: transparent !important;
     z-index: -1 !important;
+}
+
+
+@media (max-width: 786px) {
+    .container {
+        width: 720px;
+        height: 1280px;
+    }
+    nav {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100px;
+        top: 0;
+    }
+    .main-links {
+        position: static;
+        transform: none;
+        flex-direction: row;
+        gap: 70px;
+    }
+    nav a {
+        font-size: 20px;
+    }
+
+    main {
+        top: 100px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 1180px;
+        padding: 20px;
+    }
+
+    .view-container, .form-page-container {
+        padding: 20px;
+        margin: 0;
+        height: 1180px;
+    }
+
+    
+    #timeline-wrapper {
+        position: relative;
+        width: 100%;
+        height: 1180px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
 }

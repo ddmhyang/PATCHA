@@ -7,7 +7,6 @@ if (!$is_admin) {
     exit;
 }
 
-// --- 변수 선언부에 display_type 추가 ---
 $post_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 $type = $_POST['type'];
 $chapter = $_POST['chapter'];
@@ -15,11 +14,10 @@ $title = $_POST['title'];
 $content = $_POST['content'];
 $side = $_POST['side'] ?? 'left';
 $display_type = $_POST['display_type'] ?? 'dot';
-$interval_height = isset($_POST['interval_height']) ? intval($_POST['interval_height']) : 150; // interval_height 값 받기
+$interval_height = isset($_POST['interval_height']) ? intval($_POST['interval_height']) : 150;
 $thumbnail_path = null;
 
 
-// --- 썸네일 처리 로직 (기존과 동일) ---
 if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = 'uploads/';
     if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
@@ -39,7 +37,7 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
 
 $mysqli->begin_transaction();
 try {
-    if ($post_id > 0) { // --- 게시물 수정 ---
+    if ($post_id > 0) { 
         if (!$thumbnail_path) {
             $stmt_thumb = $mysqli->prepare("SELECT thumbnail FROM home2_timeline WHERE id = ?");
             $stmt_thumb->bind_param("i", $post_id);
@@ -48,15 +46,12 @@ try {
             $stmt_thumb->close();
         }
         
-        // --- UPDATE 쿼리에 display_type 추가 ---
         $stmt = $mysqli->prepare("UPDATE home2_timeline SET type = ?, chapter = ?, title = ?, content = ?, thumbnail = ?, display_type = ?, interval_height = ? WHERE id = ?");
         $stmt->bind_param("ssssssii", $type, $chapter, $title, $content, $thumbnail_path, $display_type, $interval_height, $post_id);
         if (!$stmt->execute()) throw new Exception($stmt->error);
 
-    } else { // --- 새 게시물 작성 ---
+    } else { 
         
-        // --- INSERT 쿼리에 display_type 추가 ---
-        // --- INSERT 쿼리에 interval_height 추가 ---
         $stmt = $mysqli->prepare("INSERT INTO home2_timeline (type, chapter, title, content, thumbnail, display_type, interval_height) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssssi", $type, $chapter, $title, $content, $thumbnail_path, $display_type, $interval_height);
         if (!$stmt->execute()) throw new Exception($stmt->error);
@@ -64,7 +59,6 @@ try {
         
         $post_id = $mysqli->insert_id;
 
-        // 초기 위치 계산 로직 (기존과 동일)
         $views = ['overall', 'novel', 'roleplay', 'trpg'];
         $pos_stmt = $mysqli->prepare("INSERT INTO home2_timeline_positions (timeline_item_id, timeline_view, position_y, side) VALUES (?, ?, ?, ?)");
 
