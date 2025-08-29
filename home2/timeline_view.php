@@ -32,10 +32,6 @@ if (!$post) {
         <span class="date-tag">작성일: <?php echo date("Y-m-d", strtotime($post['created_at'])); ?></span>
     </div>
 
-    <?php if (!empty($post['thumbnail'])): ?>
-        <div class="thumbnail-view" style="background-image: url('<?php echo htmlspecialchars($post['thumbnail']); ?>');"></div>
-    <?php endif; ?>
-
     <div class="view-content">
         <?php echo $post['content']; ?>
     </div>
