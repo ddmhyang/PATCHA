@@ -1,9 +1,8 @@
 $(document).ready(function () {
     const isAdmin = $('nav a[href="logout.php"]').length > 0;
     let currentScale = 1;
-    let isDragging = false; 
+    let isDragging = false;
 
-    
     function adjustScale() {
         const container = $('.container');
         if (!container.length) 
@@ -11,7 +10,8 @@ $(document).ready(function () {
         
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
-        let containerWidth, containerHeight;
+        let containerWidth,
+            containerHeight;
 
         if (windowWidth > 786) {
             containerWidth = 1440;
@@ -35,7 +35,6 @@ $(document).ready(function () {
         container.show();
     }
 
-    
     function router() {
         const hash = window.location.hash || '#/timeline';
         $('.view').removeClass('active');
@@ -61,7 +60,6 @@ $(document).ready(function () {
         }
     }
 
-    
     function loadAjaxPage(url) {
         $('#ajax-content-view').load(url, function (response, status, xhr) {
             if (status == "error") {
@@ -73,7 +71,6 @@ $(document).ready(function () {
         });
     }
 
-    
     function loadTimeline(hash) {
         let timelineType = 'overall';
         if (hash.includes('_timeline')) {
@@ -89,91 +86,143 @@ $(document).ready(function () {
         );
     }
 
-    
     function initializeTimelineInteraction(viewType) {
         if (!isAdmin) 
             return;
         
-        $(".draggable").draggable({
-            grid: [
-                0, 30
-            ], 
-            handle: ".item-handle",
-            cursor: "move",
+        $(".draggable").each(function () {
+            const item = $(this);
+            let startY,
+                startX,
+                offsetY,
+                offsetX;
+            let dragging = false;
 
-            start: function () {
-                isDragging = true;
-                $(this).css('z-index', 9999);
-            },
+            
+            function dragStart(pageX, pageY) {
+                dragging = true;
+                item.css("z-index", 9999);
 
-            stop: function (event, ui) {
-                const item = $(this);
-                const id = item.data('id');
+                const pos = item.position();
+                startX = pageX;
+                startY = pageY;
+                offsetX = pos.left;
+                offsetY = pos.top;
+            }
+
+            
+            function dragMove(pageX, pageY) {
+                if (!dragging) 
+                    return;
+                
+                let dx = pageX - startX;
+                let dy = pageY - startY;
+                item.css({
+                    left: offsetX + dx,
+                    top: Math.round((offsetY + dy) / 30) * 30 
+                });
+            }
+
+            
+            function dragEnd(pageX, pageY) {
+                if (!dragging) 
+                    return;
+                dragging = false;
+                item.css("z-index", "");
 
                 
-                let newY = ui.position.top;
+                let newY = item
+                    .position()
+                    .top;
                 if (newY < 0) 
                     newY = 0;
                 
-                
-                const timelineWrapper = $('#timeline-wrapper');
-                const wrapperOffsetLeft = timelineWrapper.offset().left;
-                
-                // 모바일 터치와 데스크탑 클릭 모두의 좌표를 정확히 얻기 위한 코드
-                let finalPageX = event.pageX;
-                if (event.originalEvent.changedTouches && event.originalEvent.changedTouches.length > 0) {
-                    finalPageX = event.originalEvent.changedTouches[0].pageX;
-                }
+                const timelineWrapper = $("#timeline-wrapper");
+                const wrapperOffsetLeft = timelineWrapper
+                    .offset()
+                    .left;
 
-                const mouseX = (finalPageX - wrapperOffsetLeft) / currentScale;
+                const mouseX = (pageX - wrapperOffsetLeft) / currentScale;
                 const timelineCenter = timelineWrapper.width() / 2;
                 const newSide = mouseX < timelineCenter
-                    ? 'left'
-                    : 'right';
+                    ? "left"
+                    : "right";
 
                 
                 $.ajax({
-                    url: 'ajax_reorder_timeline.php',
-                    type: 'POST',
+                    url: "ajax_reorder_timeline.php",
+                    type: "POST",
                     data: {
-                        id: id,
+                        id: item.data("id"),
                         position_y: newY,
                         side: newSide,
                         view_type: viewType
                     },
-                    dataType: 'json',
+                    dataType: "json",
                     success: (response) => {
-                        if (response.success) {
-                            
-                            router();
-                        } else {
-                            alert('위치 저장 실패: ' + response.message);
-                            router();
+                        if (!response.success) {
+                            alert("위치 저장 실패: " + response.message);
                         }
+                        router();
                     },
                     error: () => {
-                        alert('서버 통신 오류');
+                        alert("서버 통신 오류");
                         router();
                     }
                 });
-
-                
-                item.css('z-index', '');
-
-                
-                setTimeout(() => {
-                    isDragging = false;
-                }, 100);
             }
+
+            
+            item.on("mousedown", function (e) {
+                e.preventDefault();
+                dragStart(e.pageX, e.pageY);
+
+                $(document).on("mousemove.drag", function (e) {
+                    dragMove(e.pageX, e.pageY);
+                });
+
+                $(document).on("mouseup.drag", function (e) {
+                    $(document).off(".drag");
+                    dragEnd(e.pageX, e.pageY);
+                });
+            });
+
+            
+            item.on("touchstart", function (e) {
+                e.preventDefault();
+                const touch = e
+                    .originalEvent
+                    .touches[0];
+                dragStart(touch.pageX, touch.pageY);
+
+                $(document).on("touchmove.drag", function (e) {
+                    const touch = e
+                        .originalEvent
+                        .touches[0];
+                    dragMove(touch.pageX, touch.pageY);
+                });
+
+                $(document).on("touchend.drag touchcancel.drag", function (e) {
+                    $(document).off(".drag");
+                    const touch = e
+                        .originalEvent
+                        .changedTouches[0];
+                    dragEnd(touch.pageX, touch.pageY);
+                });
+            });
         });
 
         
-        $('#timeline-line').on('click', function (e) {
-            if (isDragging || $(e.target).closest('.timeline-item, a, button').length > 0) {
+        $("#timeline-line").on("click", function (e) {
+            if ($(e.target).closest(".timeline-item, a, button").length > 0) 
                 return;
-            }
-            const timelineOffset = $(this).parent().offset().top;
-            const scrollTop = $(this).parent().scrollTop();
+            const timelineOffset = $(this)
+                .parent()
+                .offset()
+                .top;
+            const scrollTop = $(this)
+                .parent()
+                .scrollTop();
             const clickY = (e.pageY - timelineOffset) / currentScale + scrollTop;
             const snappedY = Math.round(clickY / 30) * 30;
             window.location.hash = `#/timeline_form?y=${snappedY}`;
@@ -184,6 +233,39 @@ $(document).ready(function () {
     function initializeSummernote() {
         $('.summernote').summernote({
             height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'attachFile']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            buttons: {
+                attachFile: function(context) {
+                    var ui = $.summernote.ui;
+                    var button = ui.button({
+                        contents: '<i class="note-icon-paperclip"/> 파일',
+                        tooltip: '파일 첨부',
+                        click: function() {
+                            const fileInput = document.createElement('input');
+                            fileInput.setAttribute('type', 'file');
+                            fileInput.setAttribute('accept', '*/*');
+                            fileInput.addEventListener('change', function(e) {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    uploadSummernoteFile(file, $('.summernote'));
+                                }
+                                $(fileInput).remove();
+                            });
+                            document.body.appendChild(fileInput);
+                            fileInput.click();
+                        }
+                    });
+                    return button.render();
+                }
+            },
             callbacks: {
                 onImageUpload: function (files) {
                     uploadSummernoteImage(files[0], $(this));
@@ -192,6 +274,36 @@ $(document).ready(function () {
         });
     }
 
+    
+    function uploadSummernoteFile(file, editor) {
+        let data = new FormData();
+        data.append("file", file);
+
+        $.ajax({
+            url: 'ajax_upload_file.php',
+            type: "POST",
+            data: data,
+            contentType: false,
+            processData: false,
+            dataType: 'json',
+            success: function (response) {
+                if (response.success && response.url) {
+                    alert('파일 업로드 성공!');
+                    const link = document.createElement('a');
+                    link.href = response.url;
+                    link.textContent = response.fileName; 
+                    link.setAttribute('target', '_blank');
+                    link.setAttribute('download', response.fileName);
+                    
+                    editor.summernote('insertNode', link);
+                } else {
+                    alert('파일 업로드 실패: ' + (response.message || '알 수 없는 오류'));
+                }
+            },
+            error: () => alert('파일 업로드 중 서버 오류가 발생했습니다.')
+        });
+    }
+    
     
     function uploadSummernoteImage(file, editor) {
         let data = new FormData();
@@ -228,7 +340,7 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    window.location.href = 'index.php'; // 로그인 성공 시 페이지 새로고침
+                    window.location.href = 'index.php';
                 } else {
                     $('#login-error').text(response.error);
                 }
@@ -268,7 +380,6 @@ $(document).ready(function () {
         });
     });
 
-    
     $(document).on('click', '.delete-btn', function () {
         if (!confirm('정말로 삭제하시겠습니까?')) 
             return;
@@ -294,7 +405,6 @@ $(document).ready(function () {
         });
     });
 
-    
     $(window)
         .on('resize', adjustScale)
         .trigger('resize');
