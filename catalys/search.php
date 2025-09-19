@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/db.php'; // 경로가 actions/db.php 라면 그에 맞게 수정해주세요.
+require_once 'includes/db.php';
 
 $search_query = isset($_GET['query']) ? trim($_GET['query']) : '';
 $results = [];
@@ -7,7 +7,6 @@ $results = [];
 if (!empty($search_query)) {
     $search_term = "%" . $search_query . "%";
 
-    // 'posts_cp'를 제거하고 'posts_etc'를 추가한 수정된 쿼리
     $sql = "
         (SELECT id, title, created_at, 'for' as board_type FROM posts_for WHERE title LIKE ? OR content LIKE ?)
         UNION ALL
@@ -21,9 +20,7 @@ if (!empty($search_query)) {
 
     $stmt = $conn->prepare($sql);
 
-    // SQL 쿼리가 정상적으로 준비되었는지 확인
     if ($stmt) {
-        // s: string, 총 8개의 파라미터
         $stmt->bind_param('ssssssss', $search_term, $search_term, $search_term, $search_term, $search_term, $search_term, $search_term, $search_term);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -32,59 +29,31 @@ if (!empty($search_query)) {
         }
         $stmt->close();
     } else {
-        // 쿼리 준비에 실패했을 경우 오류 메시지를 표시 (개발 중에만 유용)
-        // echo "Error: " . $conn->error;
     }
 }
 $conn->close();
 ?>
 
-
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>CATALYS</title>
         <style>
-            body,
-            html {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                background-color: #0B2673;
-                overflow: hidden;
-                position: relative;
-                visibility: hidden;
-            }
-
-            .container {
+            .content {
                 width: 1440px;
                 height: 810px;
                 flex-shrink: 0;
                 background-size: cover;
-                background-color: #0B2673;
+                background-color: #ffffff;
                 transform-origin: top left;
                 position: absolute;
-                transform: scale(0);
+                transition: background-color 1s ease-in-out;
+                font-family: "Tinos", "Noto Sans KR";
             }
-
+                    
             a{
                 white-space: nowrap;
                 text-decoration: none;
             }
-            
             a:visited {
                 color: inherit;
             }
-
-            .container,
-            body,
-            html {
-                transition: background-color 1s ease-in-out;
-            }
-
             .search_bar_icon{
                 position: absolute;
                 left: 446px;
@@ -152,9 +121,7 @@ $conn->close();
                 list-style: none;
             }
         </style>
-    </head>
-    <body>
-        <div class="container">
+        <div class="content">
             <form class="search_bar" action="search.php" method="get">
                 <input class="search_bar_in" type="text" name="query" value="<?= htmlspecialchars($search_query) ?>">
                 <button type="submit" class="search_bar_icon">
@@ -185,30 +152,30 @@ $conn->close();
         </div>
         <script>
             function adjustScale() {
-                const container = document.querySelector('.container');
-                if (!container) 
+                const content = document.querySelector('.content');
+                if (!content) 
                     return;
                 
-                let containerWidth,
-                    containerHeight;
+                let contentWidth,
+                    contentHeight;
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
                 if (windowWidth <= 768) {
-                    containerWidth = 720;
-                    containerHeight = 1280;
+                    contentWidth = 720;
+                    contentHeight = 1280;
                 } else {
-                    containerWidth = 1440;
-                    containerHeight = 810;
+                    contentWidth = 1440;
+                    contentHeight = 810;
                 }
 
                 const scale = Math.min(
-                    windowWidth / containerWidth,
-                    windowHeight / containerHeight
+                    windowWidth / contentWidth,
+                    windowHeight / contentHeight
                 );
-                container.style.transform = `scale(${scale})`;
-                container.style.left = `${ (windowWidth - containerWidth * scale) / 2}px`;
-                container.style.top = `${ (windowHeight - containerHeight * scale) / 2}px`;
+                content.style.transform = `scale(${scale})`;
+                content.style.left = `${ (windowWidth - contentWidth * scale) / 2}px`;
+                content.style.top = `${ (windowHeight - contentHeight * scale) / 2}px`;
 
             }
 
@@ -219,5 +186,3 @@ $conn->close();
 
             window.addEventListener('resize', adjustScale);
         </script>
-    </body>
-</html>

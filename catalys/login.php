@@ -5,48 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CATALYS - LOGIN</title>
         <style>
-            /* index.php의 기본 스타일 */
-            body,
-            html {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                background-color: #0B2673;
-                overflow: hidden;
-                position: relative;
-                visibility: hidden;
-            }
-
-            .container {
-                width: 1440px;
-                height: 810px;
-                flex-shrink: 0;
-                background-size: cover;
-                background-color: transparent; 
-                transform-origin: top left;
-                position: absolute;
-                transform: scale(0);
-            }
-
-            a{
-                white-space: nowrap;
-                text-decoration: none;
-            }
-            
             a:visited {
                 color: inherit;
             }
-
-            .container,
-            body,
-            html {
-                transition: background-color 1s ease-in-out;
-                font-family: "Tinos";
-            }
             
-            /* 로그인 폼을 위한 스타일 */
-            .login-form-container {
+            .login-form-content {
                 position: absolute;
                 left: 50%;
                 top: 50%;
@@ -106,11 +69,9 @@
             }
 
         </style>
-    </head>
-    <body>
-        <div class="container">
+        <div class="content">
             
-            <div class="login-form-container">
+            <div class="login-form-content">
                 <form id="loginForm">
                     <div class="input-group">
                         <input type="text" id="admin_id" name="admin_id" class="login-input" placeholder="ID" required>
@@ -121,33 +82,31 @@
                     <button type="submit" class="login-button">LOGIN</button>
                 </form>
             </div>
-
         </div>
         <script>
-            // index.php의 반응형 레이아웃 스크립트
             function adjustScale() {
-                const container = document.querySelector('.container');
-                if (!container) return;
+                const content = document.querySelector('.content');
+                if (!content) return;
                 
-                let containerWidth, containerHeight;
+                let contentWidth, contentHeight;
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
                 if (windowWidth <= 768) {
-                    containerWidth = 720;
-                    containerHeight = 1280;
+                    contentWidth = 720;
+                    contentHeight = 1280;
                 } else {
-                    containerWidth = 1440;
-                    containerHeight = 810;
+                    contentWidth = 1440;
+                    contentHeight = 810;
                 }
 
                 const scale = Math.min(
-                    windowWidth / containerWidth,
-                    windowHeight / containerHeight
+                    windowWidth / contentWidth,
+                    windowHeight / contentHeight
                 );
-                container.style.transform = `scale(${scale})`;
-                container.style.left = `${ (windowWidth - containerWidth * scale) / 2}px`;
-                container.style.top = `${ (windowHeight - containerHeight * scale) / 2}px`;
+                content.style.transform = `scale(${scale})`;
+                content.style.left = `${ (windowWidth - contentWidth * scale) / 2}px`;
+                content.style.top = `${ (windowHeight - contentHeight * scale) / 2}px`;
             }
 
             window.addEventListener('load', () => {
@@ -177,5 +136,3 @@
                 .catch(error => console.error('Error:', error));
             });
         </script>
-    </body>
-</html>

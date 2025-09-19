@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/db.php';
 $post_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$board_type = 'etc'; // board_type 변경
+$board_type = 'etc';
 $table_name = 'posts_' . $board_type;
 if ($post_id <= 0) die('잘못된 접근입니다.');
 $sql = "SELECT * FROM {$table_name} WHERE id = ?";
@@ -14,26 +14,8 @@ if (!$post) die('게시글이 존재하지 않습니다.');
 ?>
 
 
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>CATALYS</title>
         <style>
-            body,
-            html {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                background-color: #0B2673;
-                overflow: hidden;
-                position: relative;
-                visibility: hidden;
-            }
-
-            .container {
+            .content {
                 width: 1440px;
                 height: 810px;
                 flex-shrink: 0;
@@ -41,20 +23,13 @@ if (!$post) die('게시글이 존재하지 않습니다.');
                 background-color: #ffffff;
                 transform-origin: top left;
                 position: absolute;
-                transform: scale(0);
-                display: flex;
-                flex-direction: column;
+                transition: background-color 1s ease-in-out;
+                font-family: "Tinos", "Noto Sans KR";
             }
-
+                    
             a{
                 white-space: nowrap;
                 text-decoration: none;
-            }
-
-            .container,
-            body,
-            html {
-                transition: background-color 1s ease-in-out;
             }
 
             header {
@@ -157,9 +132,7 @@ if (!$post) die('게시글이 존재하지 않습니다.');
             }
 
         </style>
-    </head>
-    <body>
-        <div class="container">
+        <div class="content">
             <header>
                 <?php include 'header.php'; ?>
 
@@ -196,30 +169,30 @@ if (!$post) die('게시글이 존재하지 않습니다.');
         </div>
         <script>
             function adjustScale() {
-                const container = document.querySelector('.container');
-                if (!container) 
+                const content = document.querySelector('.content');
+                if (!content) 
                     return;
                 
-                let containerWidth,
-                    containerHeight;
+                let contentWidth,
+                    contentHeight;
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
                 if (windowWidth <= 768) {
-                    containerWidth = 720;
-                    containerHeight = 1280;
+                    contentWidth = 720;
+                    contentHeight = 1280;
                 } else {
-                    containerWidth = 1440;
-                    containerHeight = 810;
+                    contentWidth = 1440;
+                    contentHeight = 810;
                 }
 
                 const scale = Math.min(
-                    windowWidth / containerWidth,
-                    windowHeight / containerHeight
+                    windowWidth / contentWidth,
+                    windowHeight / contentHeight
                 );
-                container.style.transform = `scale(${scale})`;
-                container.style.left = `${ (windowWidth - containerWidth * scale) / 2}px`;
-                container.style.top = `${ (windowHeight - containerHeight * scale) / 2}px`;
+                content.style.transform = `scale(${scale})`;
+                content.style.left = `${ (windowWidth - contentWidth * scale) / 2}px`;
+                content.style.top = `${ (windowHeight - contentHeight * scale) / 2}px`;
 
             }
 
@@ -230,5 +203,3 @@ if (!$post) die('게시글이 존재하지 않습니다.');
 
             window.addEventListener('resize', adjustScale);
         </script>
-    </body>
-</html>

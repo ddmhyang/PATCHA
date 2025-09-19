@@ -29,26 +29,22 @@ if ($is_edit) {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <title><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css"
-            rel="stylesheet">
         <style>
-            body {
-                font-family: sans-serif;
-                padding: 20px;
-                background-color: #0B2673;
+            .content {
+                width: 1440px;
+                height: 810px;
+                flex-shrink: 0;
+                background-size: cover;
+                background-color: #ffffff;
+                transform-origin: top left;
+                position: absolute;
+                transition: background-color 1s ease-in-out;
+                font-family: "Tinos", "Noto Sans KR";
             }
-            .container {
-                max-width: 960px;
-                margin: 0 auto;
-                background-color: #fff;
-                padding: 30px;
-                border-radius: 5px;
+                    
+            a{
+                white-space: nowrap;
+                text-decoration: none;
             }
             h1 {
                 border-bottom: 2px solid #1B4CDB;
@@ -99,9 +95,7 @@ if ($is_edit) {
                 box-sizing: border-box;
             }
         </style>
-    </head>
-    <body>
-        <div class="container">
+        <div class="content">
             <h1><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></h1>
             <form
                 id="postForm"
@@ -137,6 +131,13 @@ if ($is_edit) {
                         <img id="thumbnail_preview" src="" alt="썸네일 미리보기" style="display:none;">
                         <?php endif; ?>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_secret" value="1" <?= ($post['is_secret'] ?? 0) ? 'checked' : '' ?>>
+                        비밀글로 설정
+                    </label>
                 </div>
 
                 <div class="form-group">
@@ -199,5 +200,3 @@ if ($is_edit) {
                 });
             });
         </script>
-    </body>
-</html>

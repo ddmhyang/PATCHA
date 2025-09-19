@@ -62,9 +62,6 @@
                 background: #1B4CDB;
             }
         </style>
-    </head>
-
-    <body>
         <div class="home_icon"></div>
         <a class="home_icon_text" href="../">Return<br>Home</a>
         <div class="header_line"></div>

@@ -2,32 +2,13 @@
 require_once 'includes/db.php';
 $board_type = 'etc';
 $table_name = 'posts_' . $board_type;
-$sql = "SELECT * FROM {$table_name} ORDER BY id DESC";
+$sql = "SELECT id, title, content, thumbnail, created_at, is_secret FROM {$table_name} ORDER BY id DESC";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <meta charset="UTF--8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>CATALYS</title>
         <style>
-            body,
-            html {
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                background-color: #0B2673;
-                overflow: hidden;
-                position: relative;
-                visibility: hidden;
-            }
-
-            .container {
+            .content {
                 width: 1440px;
                 height: 810px;
                 flex-shrink: 0;
@@ -35,15 +16,14 @@ $result = $stmt->get_result();
                 background-color: #ffffff;
                 transform-origin: top left;
                 position: absolute;
-                transform: scale(0);
-            }
-
-            .container,
-            body,
-            html {
                 transition: background-color 1s ease-in-out;
+                font-family: "Tinos", "Noto Sans KR";
             }
-
+                    
+            a{
+                white-space: nowrap;
+                text-decoration: none;
+            }
             footer {
                 position: absolute;
                 bottom: 41px;
@@ -179,7 +159,6 @@ $result = $stmt->get_result();
                 background: url("assets/images/100-icon-search-w.png") center center / cover no-repeat;
             }
 
-            /* 1. 제공해주신 원래 코드 (수정할 필요 없음) */
             .login-menu {
                 position: absolute;
                 left: 50%;
@@ -189,17 +168,12 @@ $result = $stmt->get_result();
                 height: 24px;
                 background: url("assets/images/user.png") center center / cover no-repeat;
                 cursor: pointer;
-                /* flex-shrink와 aspect-ratio는 width, height가 고정되어 있으므로 필수는 아닙니다. */
             }
 
-            /* 2. 아래 코드를 style.css에 추가해주세요 */
             .login-menu a {
                 display: block;
-                /* a 태그를 블록 요소로 만들어 크기를 가질 수 있게 함 */
                 width: 100%;
-                /* 부모(div)의 너비를 꽉 채움 */
                 height: 100%;
-                /* 부모(div)의 높이를 꽉 채움 */
             }
 
             .write-button {
@@ -214,9 +188,7 @@ $result = $stmt->get_result();
                 font-size: 16px;
             }
         </style>
-    </head>
-    <body>
-        <div class="container">
+        <div class="content">
             <main>
                 <img class="lLimg1" src="assets/images/2-logpage-image1.png">
                 <img class="lLimg2" src="assets/images/2-etcpage-image2.png">
@@ -225,21 +197,25 @@ $result = $stmt->get_result();
 
                     <div class="gallery_wrapper">
                         <?php while ($post = $result->fetch_assoc()): ?>
+
+                        <?php
+                        $link_href = $post['is_secret']
+                            ? "#/page_secret.php?board={$board_type}&id={$post['id']}"
+                            : "#/list_page_{$board_type}.php?id={$post['id']}";
+                        ?>
+
                         <a
                             href="list_page_etc.php?id=<?php echo $post['id']; ?>"
                             class="list_etc_gallery">
                             <div class="list_etc_thum">
                             <?php
-                                    // 1. 직접 업로드한 썸네일이 있는지 확인
                                     if (!empty($post['thumbnail'])) {
                                         echo '<img src="' . htmlspecialchars($post['thumbnail']) . '" alt="' . htmlspecialchars($post['title']) . '" style="width:100%; height:100%; object-fit:cover;">';
                                     } else {
-                                        // 2. 썸네일이 없으면 본문에서 첫 번째 이미지를 찾음
                                         preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
                                         if (isset($matches[1]) && !empty($matches[1])) {
                                             echo '<img src="' . htmlspecialchars($matches[1]) . '" alt="' . htmlspecialchars($post['title']) . '" style="width:100%; height:100%; object-fit:cover;">';
                                         } else {
-                                            // 3. 본문에도 이미지가 없으면 #eee 배경 표시
                                             echo '<div style="width: 100%; height: 100%; background-color: #eee;"></div>';
                                         }
                                     }
@@ -285,45 +261,37 @@ $result = $stmt->get_result();
         </div>
         <script>
             function adjustScale() {
-                const container = document.querySelector('.container');
-                if (!container) 
+                const content = document.querySelector('.content');
+                if (!content) 
                     return;
                 
-                let containerWidth,
-                    containerHeight;
+                let contentWidth,
+                    contentHeight;
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
                 if (windowWidth <= 768) {
-                    containerWidth = 720;
-                    containerHeight = 1280;
+                    contentWidth = 720;
+                    contentHeight = 1280;
                 } else {
-                    containerWidth = 1440;
-                    containerHeight = 810;
+                    contentWidth = 1440;
+                    contentHeight = 810;
                 }
 
                 const scale = Math.min(
-                    windowWidth / containerWidth,
-                    windowHeight / containerHeight
+                    windowWidth / contentWidth,
+                    windowHeight / contentHeight
                 );
-                container.style.transform = `scale(${scale})`;
-                container.style.left = `${ (windowWidth - containerWidth * scale) / 2}px`;
-                container.style.top = `${ (windowHeight - containerHeight * scale) / 2}px`;
+                content.style.transform = `scale(${scale})`;
+                content.style.left = `${ (windowWidth - contentWidth * scale) / 2}px`;
+                content.style.top = `${ (windowHeight - contentHeight * scale) / 2}px`;
 
             }
 
             window.addEventListener('load', () => {
                 adjustScale();
                 document.body.style.visibility = 'visible';
-                const imageElement = document.querySelector('.list_etc_pagenation a');
-                if (imageElement) {
-                    imageElement
-                        .classList
-                        .add('on');
-                }
             });
 
             window.addEventListener('resize', adjustScale);
         </script>
-    </body>
-</html>
