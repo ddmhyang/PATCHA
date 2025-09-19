@@ -187,7 +187,6 @@ if (!$post) die('게시글이 존재하지 않습니다.');
                         <a href="actions/delete_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" onclick="return confirm('정말 삭제하시겠습니까?');" style="padding: 5px 10px; background-color: #d9534f; color:white; text-decoration:none;">삭제</a>
                     </div>
                     <?php endif; ?>
-                    <a href="list_for.php" class="list_page_etc_back">back</a>
                 </div>
             </main>
 

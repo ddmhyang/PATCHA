@@ -4,22 +4,10 @@ require_once 'includes/db.php';
 // --- 설정 ---
 $board_type = 'for';
 $table_name = 'posts_' . $board_type;
-$posts_per_page = 9; // 페이지 당 게시글 수
 
-// --- 페이지네이션 ---
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$offset = ($page - 1) * $posts_per_page;
-
-// 전체 게시글 수 계산
-$total_posts_sql = "SELECT COUNT(*) FROM {$table_name}";
-$total_result = $conn->query($total_posts_sql);
-$total_posts = $total_result->fetch_row()[0];
-$total_pages = ceil($total_posts / $posts_per_page);
-
-// 현재 페이지 게시글 가져오기
-$sql = "SELECT * FROM {$table_name} ORDER BY id DESC LIMIT ? OFFSET ?";
+// 모든 게시글을 가져오도록 SQL 수정 (LIMIT 제거)
+$sql = "SELECT * FROM {$table_name} ORDER BY id DESC";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param('ii', $posts_per_page, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
@@ -52,9 +40,10 @@ $result = $stmt->get_result();
                 transform-origin: top left;
                 position: absolute;
                 transform: scale(0);
+                overflow: hidden;
             }
 
-            a{
+            a {
                 white-space: nowrap;
                 text-decoration: none;
             }
@@ -66,12 +55,12 @@ $result = $stmt->get_result();
                 font-family: "Tinos", "Noto Sans KR";
             }
 
-            footer{
+            footer {
                 position: absolute;
                 bottom: 41px;
             }
 
-            .list_header_line{
+            .list_header_line {
                 position: absolute;
                 left: 923px;
                 top: 62px;
@@ -80,7 +69,7 @@ $result = $stmt->get_result();
                 background: #1B4CDB;
             }
 
-            header > a{
+            header > a {
                 position: absolute;
                 top: 55px;
                 left: 1270px;
@@ -94,72 +83,74 @@ $result = $stmt->get_result();
                 line-height: normal;
             }
 
-            .list_for_content{
+            .list_for_content {
                 position: absolute;
-                top: 111px;
+                top: 112.5px;
                 left: 391px;
                 width: 1053px;
-                height: 655px;
+                height: 656px;
                 overflow-y: auto;
             }
 
-            .list_for_content::-webkit-scrollbar{
-                width: 0px;
+            .list_for_content::-webkit-scrollbar {
+                width: 0;
             }
 
             .gallery_wrapper {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0px;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0;
                 justify-content: flex-start;
-                width: 100%;
-            }
-            
-            .list_for_gallery {
-                position: relative;
-                width: calc(100% / 4);
+                width: 1049px;
                 box-sizing: border-box;
             }
 
+            .list_for_gallery {
+                position: relative;
+                box-sizing: border-box;
+                border: #1B4CDB 2px solid;
+            }   
+
             .list_for_gallery:not(:nth-child(4n + 1)) {
-                margin-left: -2px; 
+                margin-left: -2px;
             }
             .list_for_gallery:nth-child(n + 5) {
-                margin-top: -2px;
+                margin-top: -1.81px;
             }
 
-            .list_for_thum{
-                width: 100%;
+            .list_for_thum {
                 aspect-ratio: 4/5;
+                width: 260.75px;
                 flex-shrink: 0;
                 background: #ffffffff;
-                border: #1B4CDB 2px solid;
+                box-sizing: border-box;
             }
 
-            .list_for_title{
+            .list_for_title {
                 position: absolute;
                 top: 20px;
                 left: 20px;
                 color: #1B4CDB;
                 leading-trim: both;
                 text-edge: cap;
-                font-family: "Tinos", "Noto Sans KR"; 
+                font-family: "Tinos", "Noto Sans KR";
                 font-size: 20px;
                 font-style: normal;
                 font-weight: 400;
                 line-height: normal;
             }
 
-            sideBar{
+            sideBar {
                 position: absolute;
-                top:113px;
+                top: 113px;
                 width: 391px;
                 height: 656px;
                 flex-shrink: 0;
                 background: url("assets/images/2-for-image1.png") lightgray 50% / cover no-repeat;
+                box-sizing: border-box;
             }
 
-            .index_search{
+            .index_search {
                 position: absolute;
                 left: 59px;
                 top: 160px;
@@ -171,7 +162,7 @@ $result = $stmt->get_result();
                 background: #EBEBEB;
             }
 
-            .iS_btn{
+            .iS_btn {
                 position: absolute;
                 top: 6px;
                 left: 15px;
@@ -182,7 +173,7 @@ $result = $stmt->get_result();
                 background: url("assets//images/100-icon-search-b.png") center center / cover no-repeat;
             }
 
-            .sB_title{
+            .sB_title {
                 position: absolute;
                 left: 83px;
                 top: 50px;
@@ -196,7 +187,7 @@ $result = $stmt->get_result();
                 line-height: normal;
             }
 
-            .sB_text{
+            .sB_text {
                 position: absolute;
                 left: 39px;
                 top: 84px;
@@ -211,24 +202,40 @@ $result = $stmt->get_result();
                 transform: rotate(-90deg);
             }
 
-            .write-button{
+            .write-button {
                 background-color: #1B4CDB;
                 color: white;
-                padding: 4px 12px; 
-                text-decoration: none; 
+                padding: 4px 12px;
+                text-decoration: none;
                 border-radius: 4px;
                 position: absolute;
                 top: 250px;
                 right: 60px;
                 font-size: 16px;
             }
-
+            .login-menu{
+                position: absolute;
+                right: 17px;
+                top: 20px;
+                color: #1B4CDB;
+                leading-trim: both;
+                text-edge: cap;
+                font-family: Tinos;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+            }
+            
+            .login-menu > a:visited {
+                color: inherit;
+            }
         </style>
     </head>
     <body>
         <div class="container">
             <main>
-                <sideBar>
+                <sidebar>
                     <a class="sB_title">For</a>
                     <a class="sB_text">Kategorie 1.</a>
                     <a href="search.php">
@@ -236,20 +243,32 @@ $result = $stmt->get_result();
                             <div class="iS_btn"></div>
                         </div>
                     </a>
+
+                    <div class="login-menu">
+                        <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                        <a href="/actions/logout.php" title="로그아웃">Logout</a>
+                    <?php else: ?>
+                        <a href="/login.php" title="로그인">Login</a>
+                        <?php endif; ?>
+                    </div>
+
                     <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
                     <div style="text-align: right; margin-top: 20px;">
-                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>" class="write-button">글쓰기</a>
+                        <a
+                            href="actions/upload_post.php?board=<?php echo $board_type; ?>"
+                            class="write-button">글쓰기</a>
                     </div>
                     <?php endif; ?>
-                </sideBar>
+                </sidebar>
 
                 <div class="list_for_content">
                     <div class="gallery_wrapper">
                         <?php while ($post = $result->fetch_assoc()): ?>
-                            <a href="list_page_for.php?id=<?php echo $post['id']; ?>" class="list_for_gallery">
-                                <div class="list_for_thum">
-                                <div class="list_for_thum">
-                                    <?php
+                        <a
+                            href="list_page_for.php?id=<?php echo $post['id']; ?>"
+                            class="list_for_gallery">
+                            <div class="list_for_thum">
+                            <?php
                                     // 1. 직접 업로드한 썸네일이 있는지 확인
                                     if (!empty($post['thumbnail'])) {
                                         echo '<img src="' . htmlspecialchars($post['thumbnail']) . '" alt="' . htmlspecialchars($post['title']) . '" style="width:100%; height:100%; object-fit:cover;">';
@@ -264,12 +283,11 @@ $result = $stmt->get_result();
                                         }
                                     }
                                     ?>
-                                </div>
-                                <div class="list_for_title">
-                                    <?php echo htmlspecialchars($post['title']); ?>
-                                    <span class="list_for_date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
-                                </div>
-                            </a>
+                            </div>
+                            <div class="list_for_title">
+                                <?php echo htmlspecialchars($post['title']); ?>
+                            </div>
+                        </a>
                         <?php endwhile; ?>
                     </div>
                 </div>

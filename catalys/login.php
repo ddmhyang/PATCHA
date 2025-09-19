@@ -33,6 +33,10 @@
                 white-space: nowrap;
                 text-decoration: none;
             }
+            
+            a:visited {
+                color: inherit;
+            }
 
             .container,
             body,
@@ -49,8 +53,10 @@
                 transform: translate(-50%, -50%);
                 width: 400px;
                 text-align: center;
-                color: #fff;
+                color: #0B2673;
                 font-family: "Tinos";
+                background-color: #ffffff;
+                padding: 100px 150px;
             }
             
             .input-group {
@@ -62,19 +68,19 @@
                 width: 100%;
                 background: transparent;
                 border: none;
-                border-bottom: 1px solid #fff;
+                border-bottom: 1px solid #0B2673;
                 padding: 10px 0;
-                color: #fff;
+                color: #0B2673;
                 font-size: 16px;
             }
 
             .login-input:focus {
                 outline: none;
-                border-bottom-color: #a9c4ff;
+                border-bottom-color: #0051ffff;
             }
 
             .login-input::placeholder {
-                color: rgba(255, 255, 255, 0.7);
+                color: #0B267377;
                 font-family: "Tinos";
             }
 
@@ -82,8 +88,8 @@
                 width: 100%;
                 padding: 12px;
                 background-color: rgba(255, 255, 255, 0.2);
-                border: 1px solid #fff;
-                color: #fff;
+                border: 1px solid #0B2673;
+                color: #0B2673;
                 font-size: 18px;
                 cursor: pointer;
                 border-radius: 5px;
@@ -92,7 +98,7 @@
             }
 
             .login-button:hover {
-                background-color: rgba(255, 255, 255, 0.4);
+                background-color: #0B267304;
             }
 
             #admin_id, #admin_pass {

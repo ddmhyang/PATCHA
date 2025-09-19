@@ -31,102 +31,173 @@ if ($is_edit) {
 ?>
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-    <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 960px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type=text] { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        #thumbnail_preview { max-width: 300px; max-height: 200px; margin-top: 10px; border: 1px solid #ddd; }
-        .btn-group { margin-top: 20px; text-align: right; }
-        .btn { padding: 10px 20px; background-color: #333; color: #fff; border: none; cursor: pointer; border-radius: 4px; font-size: 16px; }
-        .btn-cancel { background-color: #999; margin-left: 10px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></h1>
-        <form id="postForm" action="save_post.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="board_type" value="<?= htmlspecialchars($board_type) ?>">
-            <input type="hidden" name="post_id" value="<?= $post_id ?>">
+    <head>
+        <meta charset="UTF-8">
+        <title><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css"
+            rel="stylesheet">
+        <style>
+            body {
+                font-family: sans-serif;
+                padding: 20px;
+                background-color: #0B2673;
+            }
+            .container {
+                max-width: 960px;
+                margin: 0 auto;
+                background-color: #fff;
+                padding: 30px;
+                border-radius: 5px;
+            }
+            h1 {
+                border-bottom: 2px solid #1B4CDB;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+                color: #1B4CDB;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            input[type=file],
+            input[type=text] {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 10px;
+                border: 0 solid #1B4CDB;
+                border-radius: 4px;
+            }
+            #thumbnail_preview {
+                max-width: 300px;
+                margin-top: 10px;
+                border: 1px solid #ddd;
+            }
+            .btn-group {
+                margin-top: 20px;
+                text-align: right;
+            }
+            .btn {
+                padding: 10px 20px;
+                background-color: #1B4CDB;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+            .btn-cancel {
+                padding: 8px 18px;
+                border: #1B4CDB 2px solid;
+                background-color: #ffffff;
+                color: #1B4CDB;
+                margin-right: 10px;
+                box-sizing: border-box;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></h1>
+            <form
+                id="postForm"
+                action="save_post.php"
+                method="post"
+                enctype="multipart/form-data">
+                <input
+                    type="hidden"
+                    name="board_type"
+                    value="<?= htmlspecialchars($board_type) ?>">
+                <input type="hidden" name="post_id" value="<?= $post_id ?>">
 
-            <div class="form-group">
-                <label for="title">제목</label>
-                <input type="text" id="title" name="title" value="<?= htmlspecialchars($post['title']) ?>" required>
-            </div>
+                <div class="form-group">
+                    <label style="color:#1B4CDB" for="title">제목</label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value="<?= htmlspecialchars($post['title']) ?>"
+                        required="required">
+                </div>
 
-            <div class="form-group">
-                <label for="thumbnail">썸네일 이미지</label>
-                <input type="file" id="thumbnail" name="thumbnail" accept="image/*">
-                <div id="thumbnail_preview_container">
-                    <?php if (!empty($post['thumbnail'])): ?>
-                        <img id="thumbnail_preview" src="../<?= htmlspecialchars($post['thumbnail']) ?>" alt="썸네일 미리보기">
+                <div class="form-group">
+                    <label style="color:#1B4CDB" for="thumbnail">썸네일 이미지</label>
+                    <input type="file" id="thumbnail" name="thumbnail" accept="image/*">
+                    <div>
+                        <?php if (!empty($post['thumbnail'])): ?>
+                        <img
+                            id="thumbnail_preview"
+                            src="/<?= htmlspecialchars($post['thumbnail']) ?>"
+                            alt="썸네일 미리보기">
                     <?php else: ?>
                         <img id="thumbnail_preview" src="" alt="썸네일 미리보기" style="display:none;">
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="summernote">본문</label>
-                <textarea id="summernote" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
-            </div>
+                <div class="form-group">
+                    <label style="color:#1B4CDB" for="summernote">본문</label>
+                    <textarea id="summernote" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
+                </div>
 
-            <div class="btn-group">
-                <button type="button" class="btn btn-cancel" onclick="history.back()">취소</button>
-                <button type="submit" class="btn">저장</button>
-            </div>
-        </form>
-    </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-cancel" onclick="history.back()">취소</button>
+                    <button type="submit" class="btn">저장</button>
+                </div>
+            </form>
+        </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('#summernote').summernote({
-            height: 400,
-            callbacks: {
-                onImageUpload: function(files) {
-                    for (var i = 0; i < files.length; i++) {
-                        uploadImage(files[i], this);
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#summernote').summernote({
+                    height: 370,
+                    callbacks: {
+                        onImageUpload: function (files) {
+                            for (var i = 0; i < files.length; i++) {
+                                uploadImage(files[i], this);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
 
-        function uploadImage(file, editor) {
-            var data = new FormData();
-            data.append("file", file);
-            $.ajax({
-                url: 'upload_image.php',
-                cache: false,
-                contentType: false,
-                processData: false,
-                data: data,
-                type: 'POST',
-                success: function(url) {
-                    $(editor).summernote('insertImage', url);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert('이미지 업로드에 실패했습니다: ' + textStatus);
+                function uploadImage(file, editor) {
+                    var data = new FormData();
+                    data.append("file", file);
+                    $.ajax({
+                        url: 'upload_image.php',
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        data: data,
+                        type: 'POST',
+                        success: function (url) {
+                            $(editor).summernote('insertImage', url);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('이미지 업로드 실패: ' + jqXHR.responseText);
+                        }
+                    });
                 }
+
+                $('#thumbnail').on('change', function (event) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#thumbnail_preview')
+                            .attr('src', e.target.result)
+                            .show();
+                    }
+                    if (event.target.files.length > 0) {
+                        reader.readAsDataURL(event.target.files[0]);
+                    }
+                });
             });
-        }
-
-        // 썸네일 미리보기 기능
-        $('#thumbnail').on('change', function(event) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#thumbnail_preview').attr('src', e.target.result).show();
-            }
-            reader.readAsDataURL(event.target.files[0]);
-        });
-    });
-    </script>
-</body>
+        </script>
+    </body>
 </html>

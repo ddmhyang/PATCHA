@@ -74,6 +74,10 @@ $conn->close();
                 white-space: nowrap;
                 text-decoration: none;
             }
+            
+            a:visited {
+                color: inherit;
+            }
 
             .container,
             body,
@@ -131,6 +135,21 @@ $conn->close();
                 top: 450px;
                 color: #fff;
                 max-width: 500px;
+                overflow: auto;
+                height: 300px;
+            }
+
+            .search_result::-webkit-scrollbar {
+                width: 0;
+                height: 0;
+            }
+
+            .search_results_list ul li a{
+                color: #fff;
+            }
+
+            .search_results_list ul {
+                list-style: none;
             }
         </style>
     </head>
@@ -145,19 +164,20 @@ $conn->close();
 
             <div class="search_result">
                 <h3>'<?= htmlspecialchars($search_query) ?>'에 대한 검색 결과 (총 <?= count($results) ?>개)</h3>
-                
-                <?php if (count($results) > 0): ?>
-                    <ul>
-                        <?php foreach ($results as $item): ?>
-                            <li>
-                                <a href="list_page_<?= $item['board_type'] ?>.php?id=<?= $item['id'] ?>">
-                                    <strong>[게시판: <?= strtoupper($item['board_type']) ?>]</strong>
-                                    <?= htmlspecialchars($item['title']) ?>
-                                    <span style="font-size: 0.8em; color: #888;"><?= date('Y.m.d', strtotime($item['created_at'])) ?></span>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+                <div class="search_results_list">
+                    <?php if (count($results) > 0): ?>
+                        <ul>
+                            <?php foreach ($results as $item): ?>
+                                <li>
+                                    <a href="list_page_<?= $item['board_type'] ?>.php?id=<?= $item['id'] ?>">
+                                        <strong>[<?= strtoupper($item['board_type']) ?>]</strong>
+                                        <?= htmlspecialchars($item['title']) ?>
+                                        <span style="font-size: 0.8em; color: #888;"><?= date('Y.m.d', strtotime($item['created_at'])) ?></span>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
                 <?php else: ?>
                     <p>검색 결과가 없습니다.</p>
                 <?php endif; ?>

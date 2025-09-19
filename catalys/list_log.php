@@ -2,7 +2,7 @@
 require_once 'includes/db.php';
 $board_type = 'log'; // 이 부분만 다릅니다.
 $table_name = 'posts_' . $board_type;
-$posts_per_page = 9;
+$posts_per_page = 3;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $posts_per_page;
 $total_posts_sql = "SELECT COUNT(*) FROM {$table_name}";
@@ -65,8 +65,8 @@ $result = $stmt->get_result();
 
             .list_header_line{
                 position: absolute;
-                left: 768px;
-                top: 62px;
+                left: 923px;
+                top: 60px;
                 width: 335px;
                 height: 2px;
                 background: #1B4CDB;
@@ -74,8 +74,8 @@ $result = $stmt->get_result();
 
             header > a{
                 position: absolute;
-                top: 55px;
-                left: 1115px;
+                top: 48px;
+                left: 1270px;
                 color: #1B4CDB;
                 leading-trim: both;
                 text-edge: cap;
@@ -92,11 +92,7 @@ $result = $stmt->get_result();
                 left: 377px;
                 width: 775px;
                 height: 631px;
-                overflow-y: auto;
-            }
-
-            .list_log_content::-webkit-scrollbar{
-                width: 0px;
+                overflow-y: hidden;
             }
 
             .gallery_wrapper {
@@ -174,11 +170,20 @@ $result = $stmt->get_result();
                 top: 727px;
                 right: 287.5px;
                 display: flex;
-                flex-direction: row;
+                justify-content: center;
                 gap: 12.5px;
+                align-items: center;
             }
 
             .list_log_pagenation > a{
+                justify-content: center;
+                display: flex;
+                align-items: center;
+                width: 22px;
+                height: 22px;
+                border-radius: 22px;
+                text-decoration: none;
+                
                 color: #1B4CDB;
                 leading-trim: both;
                 text-edge: cap;
@@ -192,20 +197,17 @@ $result = $stmt->get_result();
 
             .list_log_pagenation > a.on{
                 background-color: #D9D9D9;
-                width: 22px;
-                height: 22px;
                 flex-shrink: 0;
                 aspect-ratio: 1/1;
-                border-radius: 22px;
                 text-align: center;
             }
 
             .nav{
                 position: absolute;
                 right: 118px;
-                top: 550px;
+                top: 491px;
                 width: 50px;
-                height: 145px;
+                height: 204px;
                 flex-shrink: 0;
                 border-radius: 30px;
                 background: #1B4CDB;
@@ -215,7 +217,7 @@ $result = $stmt->get_result();
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
-                top: 31px;
+                top: 90px;
                 width: 29px;
                 height: 24px;
                 flex-shrink: 0;
@@ -227,7 +229,7 @@ $result = $stmt->get_result();
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
-                top: 90px;
+                top: 149px;
                 width: 24px;
                 height: 24px;
                 flex-shrink: 0;
@@ -235,14 +237,34 @@ $result = $stmt->get_result();
                 background: url('assets/images/100-icon-search-w.png') center center / cover no-repeat;
             }
 
-            .write-button{
+            /* 1. 제공해주신 원래 코드 (수정할 필요 없음) */
+            .login-menu {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: 31px;
+                width: 24px;
+                height: 24px;
+                background: url('assets/images/user.png') center center / cover no-repeat;
+                cursor: pointer;
+                /* flex-shrink와 aspect-ratio는 width, height가 고정되어 있으므로 필수는 아닙니다. */
+            }
+
+            /* 2. 아래 코드를 style.css에 추가해주세요 */
+            .login-menu a {
+                display: block; /* a 태그를 블록 요소로 만들어 크기를 가질 수 있게 함 */
+                width: 100%;    /* 부모(div)의 너비를 꽉 채움 */
+                height: 100%;   /* 부모(div)의 높이를 꽉 채움 */
+            }
+
+            .write-button {
                 background-color: #1B4CDB;
                 color: white;
-                padding: 4px 12px; 
-                text-decoration: none; 
+                padding: 4px 12px;
+                text-decoration: none;
                 border-radius: 4px;
                 position: absolute;
-                bottom: 80px;
+                bottom: 96px;
                 left: 405px;
                 font-size: 16px;
             }
@@ -250,10 +272,6 @@ $result = $stmt->get_result();
     </head>
     <body>
         <div class="container">
-            <header>
-                <div class="list_header_line"></div>
-                <a>log</a>
-            </header>
             <main>
                 <img class="lLimg1" src="assets/images/2-logpage-image1.png">
                 <img class="lLimg2" src="assets/images/2-etcpage-image2.png">
@@ -284,16 +302,31 @@ $result = $stmt->get_result();
                     </div>
                 </div>
                 <div class="list_log_pagenation">
+                    <a><</a>
                     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                         <a href="?page=<?php echo $i; ?>" class="<?php echo ($page == $i) ? 'on' : ''; ?>"><?php echo $i; ?></a>
                     <?php endfor; ?>
+                    <a>></a>
                 </div>
 
                 <div class="nav">
-                    <a href="index.php" class="nav_index_btn"></a>
+
+                <div class="login-menu">
+                    <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                        <a href="/actions/logout.php" title="로그아웃"></a>
+                    <?php else: ?>
+                        <a href="/login.php" title="로그인"></a>
+                    <?php endif; ?>
+                </div>
+
+                    <a href="" class="nav_index_btn"></a>
                     <a href="search.php" class="nav_search_btn"></a>
                 </div>
             </main>
+            <header>
+                <div class="list_header_line"></div>
+                <a href="category.php">log</a>
+            </header>
             
             
             <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
@@ -336,10 +369,6 @@ $result = $stmt->get_result();
             window.addEventListener('load', () => {
                 adjustScale();
                 document.body.style.visibility = 'visible';
-                const imageElement = document.querySelector('.list_log_pagenation a');
-                if (imageElement) {
-                    imageElement.classList.add('on');
-                }
             });
 
             window.addEventListener('resize', adjustScale);

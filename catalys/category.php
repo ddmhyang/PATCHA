@@ -32,10 +32,6 @@
                 white-space: nowrap;
                 text-decoration: none;
             }
-            
-            a:visited {
-                color: inherit;
-            }
 
             .container,
             body,
@@ -43,31 +39,36 @@
                 transition: background-color 1s ease-in-out;
             }
 
-            .secret_icon{
-                position: absolute;
-                left: 705px;
-                top: 300px;
-                width: 30px;
-                height: 31px;
-                flex-shrink: 0;
-                aspect-ratio: 30/31;
-                background: url("assets/images/100-icon-password-w.png") center center / cover no-repeat;
+            .category_btn{
+                margin-top: 371px;
+                margin-left: 697px;
+                display: flex;
+                flex-direction: column;
+                gap:13px;
+                color: #FFF;
+                leading-trim: both;
+                text-edge: cap;
+                font-family: Tinos;
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
             }
 
-            .search_line{
-                position: absolute;
-                left: 653px;
-                top: 421px;
-                width: 135px;
-                height: 2px;
-                background: #FFF;
+            .category_btn a{
+                color: #FFF;
             }
+
+            
         </style>
     </head>
     <body>
         <div class="container">
-            <div class="secret_icon"></div>
-            <div class="search_line"></div>
+            <div class="category_btn">
+                <a style="margin-bottom: 4px;">Menu</a>
+                <a href="list_log.php">·log</a>
+                <a href="list_etc.php">·ETC</a>
+            </div>
         </div>
         <script>
             function adjustScale() {

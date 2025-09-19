@@ -95,7 +95,7 @@ if (!$post) die('게시글이 존재하지 않습니다.');
             }
 
             
-            .list_page_log_title{
+            .list_page_sp_title{
                 position: absolute;
                 top: 49px;
                 left: 384px;
@@ -109,7 +109,7 @@ if (!$post) die('게시글이 존재하지 않습니다.');
                 line-height: normal;
             }
 
-            .list_page_log_date{
+            .list_page_sp_date{
                 position: absolute;
                 left: 386px;
                 top: 78px;
@@ -126,30 +126,29 @@ if (!$post) die('게시글이 존재하지 않습니다.');
     </head>
     <body>
         <div class="container">
-            <header>
-                <?php include 'header.php'; ?>
-            </header>
 
             <main>
                 <div class="list_page_sp">
-                    <div class="list_page_sp_text">
-                        <div class="list_page_sp_title"><?php echo htmlspecialchars($post['title']); ?></div>
-                        <div class="list_page_sp_date"><?php echo date('Y.m.d H:i', strtotime($post['created_at'])); ?></div>
-                    </div>
                     <div class="sp_content">
                         <?php echo $post['content']; ?>
+                        <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                        <div class="admin-buttons" style="text-align: right; margin: 20px 0; display:flex; justify-content: flex-end; gap: 10px;">
+                            <a href="actions/upload_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" style="border:#1B4CDB 2px solid; font-size: 12px; padding: 5px 10px;color:#1B4CDB; text-decoration:none;">수정</a>
+                            <a href="actions/delete_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" onclick="return confirm('정말 삭제하시겠습니까?');" style="font-size: 12px; padding: 7px 12px; background-color: #1B4CDB; color:white; text-decoration:none;">삭제</a>
+                        </div>
+                        <?php endif; ?>
                     </div>
-
-                    <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
-                    <div class="admin-buttons" style="text-align: right; margin: 20px 0; display:flex; justify-content: flex-end; gap: 10px;">
-                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" style="padding: 5px 10px; background-color: #444; color:white; text-decoration:none;">수정</a>
-                        <a href="actions/delete_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" onclick="return confirm('정말 삭제하시겠습니까?');" style="padding: 5px 10px; background-color: #d9534f; color:white; text-decoration:none;">삭제</a>
-                    </div>
-                    <?php endif; ?>
-
-                    <a href="list_sp.php" class="list_page_sp_back">back</a>
                 </div>
             </main>
+            
+            <header>
+                <?php include 'header.php'; ?>
+                
+                <div class="list_page_sp_text">
+                    <div class="list_page_sp_title"><?php echo htmlspecialchars($post['title']); ?></div>
+                    <div class="list_page_sp_date"><?php echo date('Y.m.d H:i', strtotime($post['created_at'])); ?></div>
+                </div>
+            </header>
 
             <footer>
                 <?php include 'footer.php'; ?>

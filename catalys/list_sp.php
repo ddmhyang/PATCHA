@@ -2,7 +2,7 @@
 require_once 'includes/db.php';
 $board_type = 'sp'; // 이 부분만 다릅니다.
 $table_name = 'posts_' . $board_type;
-$posts_per_page = 9;
+$posts_per_page = 3;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $posts_per_page;
 $total_posts_sql = "SELECT COUNT(*) FROM {$table_name}";
@@ -134,19 +134,20 @@ $result = $stmt->get_result();
                 left: 50%;
                 transform: translateX(-50%);
                 display: flex;
-                flex-direction: row;
+                justify-content: center;
                 gap: 12.5px;
-            }
-
-            .list_sp_pagenation_bg{
-                width: 22px;
-                height: 22px;
-                flex-shrink: 0;
-                aspect-ratio: 1/1;
-                fill: #D9D9D9;
+                align-items: center;
             }
 
             .list_sp_pagenation > a{
+                justify-content: center;
+                display: flex;
+                align-items: center;
+                width: 22px;
+                height: 22px;
+                border-radius: 22px;
+                text-decoration: none;
+                
                 color: #1B4CDB;
                 leading-trim: both;
                 text-edge: cap;
@@ -160,11 +161,8 @@ $result = $stmt->get_result();
 
             .list_sp_pagenation > a.on{
                 background-color: #D9D9D9;
-                width: 22px;
-                height: 22px;
                 flex-shrink: 0;
                 aspect-ratio: 1/1;
-                border-radius: 22px;
                 text-align: center;
             }
 
@@ -175,9 +173,27 @@ $result = $stmt->get_result();
                 text-decoration: none; 
                 border-radius: 4px;
                 position: absolute;
-                top: 250px;
-                right: 60px;
+                top: 530px;
+                right: 0px;
                 font-size: 16px;
+            }
+            
+            .login-menu{
+                position: absolute;
+                right: 17px;
+                top: 80px;
+                color: #1B4CDB;
+                leading-trim: both;
+                text-edge: cap;
+                font-family: Tinos;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+            }
+            
+            .login-menu > a:visited {
+                color: inherit;
             }
         </style>
     </head>
@@ -217,9 +233,11 @@ $result = $stmt->get_result();
                     <?php endif; ?>
 
                     <div class="list_sp_pagenation">
+                        <a><</a>
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <a href="?page=<?php echo $i; ?>" class="<?php echo ($page == $i) ? 'on' : ''; ?>"><?php echo $i; ?></a>
                         <?php endfor; ?>
+                        <a>></a>
                     </div>
                 </div>
             </main>
@@ -228,6 +246,15 @@ $result = $stmt->get_result();
                 <?php include 'header.php'; ?>
                 <div class="list_header_line"></div>
                 <a>SP</a>
+
+
+                <div class="login-menu">
+                    <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                    <a href="/actions/logout.php" title="로그아웃">Logout</a>
+                <?php else: ?>
+                    <a href="/login.php" title="로그인">Login</a>
+                    <?php endif; ?>
+                </div>
             </header>
 
             <footer><?php include 'footer.php'; ?></footer>
@@ -264,10 +291,6 @@ $result = $stmt->get_result();
             window.addEventListener('load', () => {
                 adjustScale();
                 document.body.style.visibility = 'visible';
-                const imageElement = document.querySelector('.list_sp_pagenation a');
-                if (imageElement) {
-                    imageElement.classList.add('on');
-                }
             });
 
             window.addEventListener('resize', adjustScale);
