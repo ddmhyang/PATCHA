@@ -1,3 +1,29 @@
+<?php
+require_once 'includes/db.php';
+
+// --- 설정 ---
+$board_type = 'for';
+$table_name = 'posts_' . $board_type;
+$posts_per_page = 9; // 페이지 당 게시글 수
+
+// --- 페이지네이션 ---
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $posts_per_page;
+
+// 전체 게시글 수 계산
+$total_posts_sql = "SELECT COUNT(*) FROM {$table_name}";
+$total_result = $conn->query($total_posts_sql);
+$total_posts = $total_result->fetch_row()[0];
+$total_pages = ceil($total_posts / $posts_per_page);
+
+// 현재 페이지 게시글 가져오기
+$sql = "SELECT * FROM {$table_name} ORDER BY id DESC LIMIT ? OFFSET ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('ii', $posts_per_page, $offset);
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+
 <!DOCTYPE html>
 <html lang="ko">
     <head>
@@ -200,47 +226,31 @@
 
                 <div class="list_for_content">
                     <div class="gallery_wrapper">
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 1</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 2</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 3</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 4</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 5</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 6</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 7</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 8</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 9</a>
-                        </div>
-                        <div class="list_for_gallery">
-                            <div class="list_for_thum"></div>
-                            <a class="list_for_title">제목 Title 10</a>
-                        </div>
+                        <?php while ($post = $result->fetch_assoc()): ?>
+                            <a href="list_page_for.php?id=<?php echo $post['id']; ?>" class="list_for_gallery">
+                                <div class="list_for_thum">
+                                    <?php
+                                        // 본문(content)에서 첫 번째 이미지 태그를 찾아 썸네일로 사용
+                                        preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
+                                        $thumbnail = $matches[1] ?? 'assets/images/2-for-image1.png'; // 이미지가 없으면 기본 이미지
+                                    ?>
+                                    <img src="<?php echo $thumbnail; ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
+                                </div>
+                                <div class="list_for_title">
+                                    <?php echo htmlspecialchars($post['title']); ?>
+                                    <span class="list_for_date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
+                                </div>
+                            </a>
+                        <?php endwhile; ?>
+                        <?php if ($result->num_rows === 0): ?>
+                            <p style="text-align:center; width:100%; color: #888;">게시글이 없습니다.</p>
+                        <?php endif; ?>
                     </div>
+                    <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                    <div style="text-align: right; margin-top: 20px;">
+                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>" class="write-button" style="padding: 8px 15px; background-color: #333; color: white; text-decoration: none; border-radius: 4px;">글쓰기</a>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </main>
 

@@ -1,3 +1,27 @@
+<?php
+require_once 'includes/db.php';
+
+$post_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$board_type = 'for';
+$table_name = 'posts_' . $board_type;
+
+if ($post_id <= 0) {
+    die('잘못된 접근입니다.');
+}
+
+$sql = "SELECT * FROM {$table_name} WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $post_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$post = $result->fetch_assoc();
+
+if (!$post) {
+    die('게시글이 존재하지 않습니다.');
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="ko">
     <head>
@@ -106,25 +130,68 @@
                 line-height: 16px;
             }
             
+
+            .list_page_for_title{
+                position: absolute;
+                top: 49px;
+                left: 384px;
+                color: #1B4CDB;
+                leading-trim: both;
+                text-edge: cap;
+                font-family: Tinos;
+                font-size: 24px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+            }
+
+            .list_page_for_date{
+                position: absolute;
+                left: 386px;
+                top: 78px;
+                color: #777;
+                leading-trim: both;
+                text-edge: cap;
+                font-family: Tinos;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+            }
+            
         </style>
     </head>
     <body>
         <div class="container">
             <header>
                 <?php include 'header.php'; ?>
+                
+
+                <div class="list_page_for_title"><?php echo htmlspecialchars($post['title']); ?></div>
+                <div class="list_page_for_date"><?php echo date('Y.m.d H:i', strtotime($post['created_at'])); ?></div>
+
             </header>
 
             <main>
-                <a href="list_for.php" class="for_btn1">For</a>
-                <a href="list_for.php" class="for_btn2">
-                    Life is a journey of constant<br>
-                    learning, loving, and growing,<br>
-                    where every experience shapes us into stronger,<br>
-                    wiser versions.
-                </a>
-                <div class="for_content">
-                    <p>내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. <br> 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. 내용이 길어지면 이 영역 안에서만 스크롤됩니다. </p>
-                    <p>내용이 길어지면 이 영역 안에서만 스크롤됩니다.</p>
+                <div class="list_page_for">
+                    <a href="list_for.php" class="for_btn1">For</a>
+                    <a href="list_for.php" class="for_btn2">
+                        Life is a journey of constant<br>
+                        learning, loving, and growing,<br>
+                        where every experience shapes us into stronger,<br>
+                        wiser versions.
+                    </a>
+                    <div class="for_content">
+                        <?php echo $post['content']; ?>
+                    </div>
+
+                    <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                    <div class="admin-buttons" style="text-align: right; margin: 20px 0; display:flex; justify-content: flex-end; gap: 10px;">
+                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" style="padding: 5px 10px; background-color: #444; color:white; text-decoration:none;">수정</a>
+                        <a href="actions/delete_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" onclick="return confirm('정말 삭제하시겠습니까?');" style="padding: 5px 10px; background-color: #d9534f; color:white; text-decoration:none;">삭제</a>
+                    </div>
+                    <?php endif; ?>
+                    <a href="list_for.php" class="list_page_for_back">back</a>
                 </div>
             </main>
 

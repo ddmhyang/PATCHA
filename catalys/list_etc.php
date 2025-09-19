@@ -1,7 +1,19 @@
 <?php
-session_start();
-include_once 'db.php';
-include 'header.php';
+require_once 'includes/db.php';
+$board_type = 'etc'; // 이 부분만 다릅니다.
+$table_name = 'posts_' . $board_type;
+$posts_per_page = 9;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $posts_per_page;
+$total_posts_sql = "SELECT COUNT(*) FROM {$table_name}";
+$total_result = $conn->query($total_posts_sql);
+$total_posts = $total_result->fetch_row()[0];
+$total_pages = ceil($total_posts / $posts_per_page);
+$sql = "SELECT * FROM {$table_name} ORDER BY id DESC LIMIT ? OFFSET ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('ii', $posts_per_page, $offset);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -237,20 +249,37 @@ include 'header.php';
                 <div class="list_etc_content">
 
                     <div class="gallery_wrapper">
-                        <div class="list_etc_gallery">
-                            <div class="list_etc_thum"></div>
-                            <a class="list_etc_date">2025 . 08</a>
-                        </div>
+                        <?php while ($post = $result->fetch_assoc()): ?>
+                            <a href="list_page_etc.php?id=<?php echo $post['id']; ?>" class="list_etc_gallery">
+                                <div class="list_etc_thum">
+                                    <?php
+                                        preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
+                                        $thumbnail = $matches[1] ?? 'assets/images/2-etcpage-image1.png';
+                                    ?>
+                                    <img src="<?php echo $thumbnail; ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
+                                </div>
+                                <div class="list_etc_title">
+                                    <?php echo htmlspecialchars($post['title']); ?>
+                                    <span class="list_etc_date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
+                                </div>
+                            </a>
+                        <?php endwhile; ?>
+                        <?php if ($result->num_rows === 0): ?>
+                            <p style="text-align:center; width:100%; color: #888;">게시글이 없습니다.</p>
+                        <?php endif; ?>
                     </div>
+
+                    <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                    <div style="text-align: right; margin-top: 20px;">
+                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>" class="write-button" style="padding: 8px 15px; background-color: #333; color: white; text-decoration: none; border-radius: 4px;">글쓰기</a>
+                    </div>
+                    <?php endif; ?>
+
                 </div>
                 <div class="list_etc_pagenation">
-                    <a><</a>
-                    <a>1</a>
-                    <a>2</a>
-                    <a>3</a>
-                    <a>4</a>
-                    <a>5</a>
-                    <a>></a>
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <a href="?page=<?php echo $i; ?>" class="<?php echo ($page == $i) ? 'on' : ''; ?>"><?php echo $i; ?></a>
+                    <?php endfor; ?>
                 </div>
 
                 <div class="nav">

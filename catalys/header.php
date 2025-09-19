@@ -67,8 +67,6 @@
     <body>
         <div class="home_icon"></div>
         <a class="home_icon_text" href="index.php">Return<br>Home</a>
-        <a class="page_title">Title</a>
-        <a class="page_date">2025.08.08.MON</a>
         <div class="header_line"></div>
     </body>
 </html>
