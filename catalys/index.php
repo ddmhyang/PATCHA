@@ -38,6 +38,7 @@
             body,
             html {
                 transition: background-color 1s ease-in-out;
+                font-family: "Tinos", "Noto Sans KR";
             }
 
             .index_top_title{
@@ -298,7 +299,7 @@
 
             const indexTopTitle = document.querySelector('.index_top_title');
             indexTopTitle.addEventListener('click', () => {
-                window.location.href = 'index.php';
+                window.location.href = '';
             });
         </script>
     </body>

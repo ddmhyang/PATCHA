@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/db.php';
+require_once 'includes/db.php'; // 경로가 actions/db.php 라면 그에 맞게 수정해주세요.
 
 $search_query = isset($_GET['query']) ? trim($_GET['query']) : '';
 $results = [];
@@ -7,27 +7,36 @@ $results = [];
 if (!empty($search_query)) {
     $search_term = "%" . $search_query . "%";
 
-    // 4개 테이블을 UNION ALL로 묶어 한번에 검색
+    // 'posts_cp'를 제거하고 'posts_etc'를 추가한 수정된 쿼리
     $sql = "
-        (SELECT id, title, created_at, 'cp' as board_type FROM posts_cp WHERE title LIKE ? OR content LIKE ?)
-        UNION ALL
         (SELECT id, title, created_at, 'for' as board_type FROM posts_for WHERE title LIKE ? OR content LIKE ?)
         UNION ALL
         (SELECT id, title, created_at, 'log' as board_type FROM posts_log WHERE title LIKE ? OR content LIKE ?)
         UNION ALL
         (SELECT id, title, created_at, 'sp' as board_type FROM posts_sp WHERE title LIKE ? OR content LIKE ?)
+        UNION ALL
+        (SELECT id, title, created_at, 'etc' as board_type FROM posts_etc WHERE title LIKE ? OR content LIKE ?)
         ORDER BY created_at DESC
     ";
 
     $stmt = $conn->prepare($sql);
-    // s: string, 총 8개의 파라미터
-    $stmt->bind_param('ssssssss', $search_term, $search_term, $search_term, $search_term, $search_term, $search_term, $search_term, $search_term);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    while($row = $result->fetch_assoc()){
-        $results[] = $row;
+
+    // SQL 쿼리가 정상적으로 준비되었는지 확인
+    if ($stmt) {
+        // s: string, 총 8개의 파라미터
+        $stmt->bind_param('ssssssss', $search_term, $search_term, $search_term, $search_term, $search_term, $search_term, $search_term, $search_term);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while($row = $result->fetch_assoc()){
+            $results[] = $row;
+        }
+        $stmt->close();
+    } else {
+        // 쿼리 준비에 실패했을 경우 오류 메시지를 표시 (개발 중에만 유용)
+        // echo "Error: " . $conn->error;
     }
 }
+$conn->close();
 ?>
 
 
@@ -121,6 +130,7 @@ if (!empty($search_query)) {
                 transform: translateX(-50%);
                 top: 450px;
                 color: #fff;
+                max-width: 500px;
             }
         </style>
     </head>

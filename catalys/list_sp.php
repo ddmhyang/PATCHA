@@ -167,6 +167,18 @@ $result = $stmt->get_result();
                 border-radius: 22px;
                 text-align: center;
             }
+
+            .write-button{
+                background-color: #1B4CDB;
+                color: white;
+                padding: 4px 12px; 
+                text-decoration: none; 
+                border-radius: 4px;
+                position: absolute;
+                top: 250px;
+                right: 60px;
+                font-size: 16px;
+            }
         </style>
     </head>
     <body>
@@ -179,25 +191,28 @@ $result = $stmt->get_result();
                             <a href="list_page_sp.php?id=<?php echo $post['id']; ?>" class="list_sp_gallery">
                                 <div class="list_sp_thum">
                                     <?php
+                                    // 1. 직접 업로드한 썸네일이 있는지 확인
+                                    if (!empty($post['thumbnail'])) {
+                                        echo '<img src="' . htmlspecialchars($post['thumbnail']) . '" alt="' . htmlspecialchars($post['title']) . '" style="width:100%; height:100%; object-fit:cover;">';
+                                    } else {
+                                        // 2. 썸네일이 없으면 본문에서 첫 번째 이미지를 찾음
                                         preg_match('/<img[^>]+src="([^">]+)"/', $post['content'], $matches);
-                                        $thumbnail = $matches[1] ?? 'assets/images/2-sppage-image1.png';
+                                        if (isset($matches[1]) && !empty($matches[1])) {
+                                            echo '<img src="' . htmlspecialchars($matches[1]) . '" alt="' . htmlspecialchars($post['title']) . '" style="width:100%; height:100%; object-fit:cover;">';
+                                        } else {
+                                            // 3. 본문에도 이미지가 없으면 #eee 배경 표시
+                                            echo '<div style="width: 100%; height: 100%; background-color: #eee;"></div>';
+                                        }
+                                    }
                                     ?>
-                                    <img src="<?php echo $thumbnail; ?>" alt="<?php echo htmlspecialchars($post['title']); ?>">
-                                </div>
-                                <div class="list_sp_title">
-                                    <?php echo htmlspecialchars($post['title']); ?>
-                                    <span class="list_sp_date"><?php echo date('Y.m.d', strtotime($post['created_at'])); ?></span>
                                 </div>
                             </a>
                         <?php endwhile; ?>
-                        <?php if ($result->num_rows === 0): ?>
-                            <p style="text-align:center; width:100%; color: #888;">게시글이 없습니다.</p>
-                        <?php endif; ?>
                     </div>
 
                     <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
                     <div style="text-align: right; margin-top: 20px;">
-                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>" class="write-button" style="padding: 8px 15px; background-color: #333; color: white; text-decoration: none; border-radius: 4px;">글쓰기</a>
+                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>" class="write-button">글쓰기</a>
                     </div>
                     <?php endif; ?>
 
