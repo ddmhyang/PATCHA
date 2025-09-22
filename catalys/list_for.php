@@ -42,7 +42,7 @@ $result = $stmt->get_result();
 
             header > a {
                 position: absolute;
-                top: 55px;
+                top: 50px;
                 left: 1270px;
                 color: #1B4CDB;
                 leading-trim: both;
@@ -207,7 +207,7 @@ $result = $stmt->get_result();
                 <sidebar>
                     <a class="sB_title">For</a>
                     <a class="sB_text">Kategorie 1.</a>
-                    <a href="search.php">
+                    <a href="#!search.php">
                         <div class="index_search">
                             <div class="iS_btn"></div>
                         </div>
@@ -217,7 +217,7 @@ $result = $stmt->get_result();
                         <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
                         <a href="/actions/logout.php" title="로그아웃">Logout</a>
                     <?php else: ?>
-                        <a href="/login.php" title="로그인">Login</a>
+                        <a href="#!login.php" title="로그인">Login</a>
                         <?php endif; ?>
                     </div>
 
@@ -236,12 +236,12 @@ $result = $stmt->get_result();
 
                         <?php
                         $link_href = $post['is_secret']
-                            ? "#/page_secret.php?board={$board_type}&id={$post['id']}"
-                            : "#/list_page_{$board_type}.php?id={$post['id']}";
+                            ? "#!page_secret.php?board={$board_type}&id={$post['id']}"
+                            : "#!list_page_{$board_type}.php?id={$post['id']}";
                         ?>
 
                         <a
-                            href="list_page_for.php?id=<?php echo $post['id']; ?>"
+                            href="#!list_page_for.php?id=<?php echo $post['id']; ?>"
                             class="list_for_gallery">
                             <div class="list_for_thum">
                             <?php
@@ -285,13 +285,8 @@ $result = $stmt->get_result();
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,

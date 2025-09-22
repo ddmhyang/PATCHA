@@ -29,24 +29,40 @@ if ($is_edit) {
     }
 }
 ?>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
         <style>
+            
+            body {
+                font-family: sans-serif;
+                padding: 20px;
+                background-color: #0B2673;
+            }
             .content {
-                width: 1440px;
-                height: 810px;
-                flex-shrink: 0;
-                background-size: cover;
-                background-color: #ffffff;
-                transform-origin: top left;
-                position: absolute;
-                transition: background-color 1s ease-in-out;
+                width: 960px;
+                height: 771px;
+                margin: 0 auto;
+                background-color: #fff;
+                padding: 30px;
+                border-radius: 5px;
                 font-family: "Tinos", "Noto Sans KR";
+                overflow: auto;
+            }
+
+            .content::-webkit-scrollbar {
+                width: 0px;
+                height: 0px;
+            }
+            
+            .note-modal-backdrop {
+                background-color: transparent !important;
+                z-index: -1 !important
             }
                     
             a{
                 white-space: nowrap;
                 text-decoration: none;
             }
-            h1 {
+            h2 {
                 border-bottom: 2px solid #1B4CDB;
                 padding-bottom: 10px;
                 margin-bottom: 20px;
@@ -96,7 +112,7 @@ if ($is_edit) {
             }
         </style>
         <div class="content">
-            <h1><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></h1>
+            <h2><?= $is_edit ? '게시글 수정' : '게시글 작성' ?></h2>
             <form
                 id="postForm"
                 action="save_post.php"
@@ -135,13 +151,17 @@ if ($is_edit) {
 
                 <div class="form-group">
                     <label>
-                        <input type="checkbox" name="is_secret" value="1" <?= ($post['is_secret'] ?? 0) ? 'checked' : '' ?>>
+                        <input type="checkbox" id="is_secret" name="is_secret" value="1" <?= ($post['is_secret'] ?? 0) ? 'checked' : '' ?>>
                         비밀글로 설정
                     </label>
                 </div>
 
+                <div class="form-group" id="password-group" style="display: <?= ($post['is_secret'] ?? 0) ? 'block' : 'none' ?>;">
+                    <label style="color:#1B4CDB" for="post_password">비밀번호</label>
+                    <input type="password" id="post_password" name="post_password">
+                </div>
+
                 <div class="form-group">
-                    <label style="color:#1B4CDB" for="summernote">본문</label>
                     <textarea id="summernote" name="content"><?= htmlspecialchars($post['content']) ?></textarea>
                 </div>
 
@@ -156,9 +176,47 @@ if ($is_edit) {
         <script
             src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
         <script>
+            
+            function adjustScale() {
+                const content = document.querySelector('.content');
+                if (!content) 
+                    return;
+                
+                let contentWidth,
+                    contentHeight;
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+
+                contentWidth = 1440;
+                contentHeight = 810;
+
+                const scale = Math.min(
+                    windowWidth / contentWidth,
+                    windowHeight / contentHeight
+                );
+                content.style.transform = `scale(${scale})`;
+                content.style.left = `${ (windowWidth - contentWidth * scale) / 2}px`;
+                content.style.top = `${ (windowHeight - contentHeight * scale) / 2}px`;
+
+            }
+
+            window.addEventListener('load', () => {
+                adjustScale();
+                document.body.style.visibility = 'visible';
+            });
+
+            window.addEventListener('resize', adjustScale);
             $(document).ready(function () {
+                $('#is_secret').on('change', function() {
+                    if ($(this).is(':checked')) {
+                        $('#password-group').show();
+                    } else {
+                        $('#password-group').hide();
+                    }
+                });
+                
                 $('#summernote').summernote({
-                    height: 370,
+                    height: 400,
                     callbacks: {
                         onImageUpload: function (files) {
                             for (var i = 0; i < files.length; i++) {

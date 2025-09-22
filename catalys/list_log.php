@@ -253,11 +253,11 @@ $result = $stmt->get_result();
 
                         <?php
                         $link_href = $post['is_secret']
-                            ? "#/page_secret.php?board={$board_type}&id={$post['id']}"
-                            : "#/list_page_{$board_type}.php?id={$post['id']}";
+                            ? "#!page_secret.php?board={$board_type}&id={$post['id']}"
+                            : "#!list_page_{$board_type}.php?id={$post['id']}";
                         ?>
 
-                            <a href="list_page_log.php?id=<?php echo $post['id']; ?>" class="list_log_gallery">
+                            <a href="#!list_page_log.php?id=<?php echo $post['id']; ?>" class="list_log_gallery">
                                 <div class="list_log_thum">
                                     <?php
                                     if (!empty($post['thumbnail'])) {
@@ -279,7 +279,7 @@ $result = $stmt->get_result();
                 <div class="list_log_pagenation">
                     <a><</a>
                     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <a href="?page=<?php echo $i; ?>" class="<?php echo ($page == $i) ? 'on' : ''; ?>"><?php echo $i; ?></a>
+                        <a href="#!list_log.php?page=<?php echo $i; ?>" class="<?php echo ($page == $i) ? 'on' : ''; ?>"><?php echo $i; ?></a>
                     <?php endfor; ?>
                     <a>></a>
                 </div>
@@ -290,17 +290,17 @@ $result = $stmt->get_result();
                     <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
                         <a href="/actions/logout.php" title="로그아웃"></a>
                     <?php else: ?>
-                        <a href="/login.php" title="로그인"></a>
+                        <a href="#!login.php" title="로그인"></a>
                     <?php endif; ?>
                 </div>
 
-                    <a href="" class="nav_index_btn"></a>
-                    <a href="search.php" class="nav_search_btn"></a>
+                    <a href="#!main.php" class="nav_index_btn"></a>
+                    <a href="#!search.php" class="nav_search_btn"></a>
                 </div>
             </main>
             <header>
                 <div class="list_header_line"></div>
-                <a href="category.php">log</a>
+                <a href="#!category.php">log</a>
             </header>
             
             
@@ -323,13 +323,8 @@ $result = $stmt->get_result();
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,

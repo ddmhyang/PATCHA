@@ -1,5 +1,3 @@
-<html>
-    <head>
         <style>
             .home_icon {
                 position: absolute;
@@ -63,7 +61,5 @@
             }
         </style>
         <div class="home_icon"></div>
-        <a class="home_icon_text" href="../">Return<br>Home</a>
+        <a class="home_icon_text" href="..#!main.php">Return<br>Home</a>
         <div class="header_line"></div>
-    </body>
-</html>

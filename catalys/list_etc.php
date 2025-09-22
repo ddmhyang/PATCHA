@@ -106,12 +106,11 @@ $result = $stmt->get_result();
 
             .lLimg1 {
                 position: absolute;
-                top: 107px;
-                left: 0;
-                width: 508px;
-                height: 571px;
+                top: 0px;
+                left: 73px;
+                width: 370px;
+                height: 810px;
                 flex-shrink: 0;
-                aspect-ratio: 508/571;
             }
 
             .lLimg2 {
@@ -190,7 +189,7 @@ $result = $stmt->get_result();
         </style>
         <div class="content">
             <main>
-                <img class="lLimg1" src="assets/images/2-logpage-image1.png">
+                <img class="lLimg1" src="assets/images/2-etcpage-image1.png">
                 <img class="lLimg2" src="assets/images/2-etcpage-image2.png">
 
                 <div class="list_etc_content">
@@ -200,12 +199,12 @@ $result = $stmt->get_result();
 
                         <?php
                         $link_href = $post['is_secret']
-                            ? "#/page_secret.php?board={$board_type}&id={$post['id']}"
-                            : "#/list_page_{$board_type}.php?id={$post['id']}";
+                            ? "#!page_secret.php?board={$board_type}&id={$post['id']}"
+                            : "#!list_page_{$board_type}.php?id={$post['id']}";
                         ?>
 
                         <a
-                            href="list_page_etc.php?id=<?php echo $post['id']; ?>"
+                            href="#!list_page_etc.php?id=<?php echo $post['id']; ?>"
                             class="list_etc_gallery">
                             <div class="list_etc_thum">
                             <?php
@@ -235,18 +234,18 @@ $result = $stmt->get_result();
                         <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
                         <a href="/actions/logout.php" title="로그아웃"></a>
                     <?php else: ?>
-                        <a href="/login.php" title="로그인"></a>
+                        <a href="#!login.php" title="로그인"></a>
                         <?php endif; ?>
                     </div>
 
-                    <a href="" class="nav_index_btn"></a>
-                    <a href="search.php" class="nav_search_btn"></a>
+                    <a href="#!main.php" class="nav_index_btn"></a>
+                    <a href="#!search.php" class="nav_search_btn"></a>
                 </div>
             </main>
             
             <header>
                 <div class="list_header_line"></div>
-                <a href="category.php">etc</a>
+                <a href="#!category.php">etc</a>
             </header>
 
             <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
@@ -270,13 +269,8 @@ $result = $stmt->get_result();
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,

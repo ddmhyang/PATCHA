@@ -4,7 +4,7 @@
         height: 810px;
         flex-shrink: 0;
         background-size: cover;
-        background-color: #ffffff;
+        background-color: #0B2673;
         transform-origin: top left;
         position: absolute;
         transition: background-color 1s ease-in-out;
@@ -26,10 +26,13 @@
     }
 
     .secret_icon {
-        width: 60px;
-        height: 60px;
+        width: 30px;
+        height: 31px;
         background: url('/assets/images/100-icon-password-w.png') center center / contain no-repeat;
         margin: 0 auto 20px;
+        cursor: pointer;
+        border: none;
+        padding: 0px;
     }
 
     .secret-form-wrapper h3 {
@@ -82,13 +85,11 @@
 
 <div class="content">
     <div class="secret-form-wrapper">
-        <div class="secret_icon"></div>
-        <h3>SECRET POST</h3>
+        <button class="secret_icon" type="submit" class="secret-submit-btn"></button>
         <form id="secretForm">
             <div class="password-input-group">
-                <input type="password" id="secret_password" placeholder="비밀번호를 입력하세요" required>
+                <input type="password" id="secret_password" required>
             </div>
-            <button type="submit" class="secret-submit-btn">확인</button>
         </form>
     </div>
 </div>
@@ -104,13 +105,8 @@ function adjustScale() {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
-    if (windowWidth <= 768) {
-        contentWidth = 720;
-        contentHeight = 1280;
-    } else {
-        contentWidth = 1440;
-        contentHeight = 810;
-    }
+    contentWidth = 1440;
+    contentHeight = 810;
 
     const scale = Math.min(
         windowWidth / contentWidth,
@@ -149,7 +145,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    window.location.hash = '/list_page_' + board + '.php?id=' + id;
+                    window.location.hash = '#!list_page_' + board + '.php?id=' + id;
                 } else {
                     alert('암호가 틀렸습니다.');
                 }

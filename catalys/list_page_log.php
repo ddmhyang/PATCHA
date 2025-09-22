@@ -11,6 +11,24 @@ $stmt->execute();
 $result = $stmt->get_result();
 $post = $result->fetch_assoc();
 if (!$post) die('게시글이 존재하지 않습니다.');
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+if ($post['is_secret']) {
+    $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
+
+    $has_access = isset($_SESSION['secret_access'][$post_id]) && $_SESSION['secret_access'][$post_id] === true;
+    if (!$is_admin && !$has_access) {
+        echo "<script>
+                alert('접근 권한이 없습니다. 비밀번호를 입력해주세요.');
+                window.location.hash = '#!page_secret.php?board={$board_type}&id={$post_id}';
+              </script>";
+        exit;
+    }
+}
+
 ?>
 
 
@@ -141,8 +159,8 @@ if (!$post) die('게시글이 존재하지 않습니다.');
 
             <main>
                 <div class="list_page_log"></div>
-                    <a href="list_log.php" class="log_btn1">log</a>
-                    <a href="list_log.php" class="log_btn2">
+                    <a href="#!list_log.php" class="log_btn1">log</a>
+                    <a href="#!list_log.php" class="log_btn2">
                         <black>E</black>ach moment teaches us something new <br>
                         while <black>d</black>etermined spirits push through challenges. <br>
                         <black>O</black>ptimism guides us forward as resilience <br>
@@ -151,14 +169,13 @@ if (!$post) die('게시글이 존재하지 않습니다.');
                     </a>
                     <div class="log_content">
                         <?php echo $post['content']; ?>
+                        <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+                        <div class="admin-buttons" style="text-align: right; margin: 20px 0; display:flex; justify-content: flex-end; gap: 10px;">
+                            <a href="actions/upload_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" style="border:#1B4CDB 2px solid; font-size: 12px; padding: 5px 10px;color:#1B4CDB; text-decoration:none;">수정</a>
+                            <a href="actions/delete_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" onclick="return confirm('정말 삭제하시겠습니까?');" style="font-size: 12px; padding: 7px 12px; background-color: #1B4CDB; color:white; text-decoration:none;">삭제</a>
+                        </div>
+                        <?php endif; ?>
                     </div>
-
-                    <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
-                    <div class="admin-buttons" style="text-align: right; margin: 20px 0; display:flex; justify-content: flex-end; gap: 10px;">
-                        <a href="actions/upload_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" style="padding: 5px 10px; background-color: #444; color:white; text-decoration:none;">수정</a>
-                        <a href="actions/delete_post.php?board=<?php echo $board_type; ?>&id=<?php echo $post['id']; ?>" onclick="return confirm('정말 삭제하시겠습니까?');" style="padding: 5px 10px; background-color: #d9534f; color:white; text-decoration:none;">삭제</a>
-                    </div>
-                    <?php endif; ?>
                 </div>
             </main>
 
@@ -177,13 +194,8 @@ if (!$post) die('게시글이 존재하지 않습니다.');
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,

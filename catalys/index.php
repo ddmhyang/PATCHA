@@ -94,6 +94,16 @@
                     let page = $(this).attr('href');
                     window.location.hash = page.substring(1); 
                 });
+
+                $(document).on('click', '.index_search', function(e) {
+                    e.preventDefault(); 
+                    const searchQuery = $(this).siblings('input[type="text"]').val(); 
+                    if (searchQuery) {
+                        window.location.hash = '#!search.php?query=' + encodeURIComponent(searchQuery);
+                    } else {
+                        window.location.hash = '#!search.php';
+                    }
+                });
             });
         </script>
     </body>

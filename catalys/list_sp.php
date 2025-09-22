@@ -51,7 +51,7 @@ $result = $stmt->get_result();
 
             header > a{
                 position: absolute;
-                top: 55px;
+                top: 50px;
                 left: 1270px;
                 color: #1B4CDB;
                 leading-trim: both;
@@ -182,11 +182,11 @@ $result = $stmt->get_result();
 
                             <?php
                             $link_href = $post['is_secret']
-                                ? "#/page_secret.php?board={$board_type}&id={$post['id']}"
-                                : "#/list_page_{$board_type}.php?id={$post['id']}";
+                                ? "#!page_secret.php?board={$board_type}&id={$post['id']}"
+                                : "#!list_page_{$board_type}.php?id={$post['id']}";
                             ?>
 
-                            <a href="list_page_sp.php?id=<?php echo $post['id']; ?>" class="list_sp_gallery">
+                            <a href="#!list_page_sp.php?id=<?php echo $post['id']; ?>" class="list_sp_gallery">
                                 <div class="list_sp_thum">
                                     <?php
                                     if (!empty($post['thumbnail'])) {
@@ -214,7 +214,7 @@ $result = $stmt->get_result();
                     <div class="list_sp_pagenation">
                         <a><</a>
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                            <a href="?page=<?php echo $i; ?>" class="<?php echo ($page == $i) ? 'on' : ''; ?>"><?php echo $i; ?></a>
+                            <a href="#!list_sp.php?page=<?php echo $i; ?>" class="<?php echo ($page == $i) ? 'on' : ''; ?>"><?php echo $i; ?></a>
                         <?php endfor; ?>
                         <a>></a>
                     </div>
@@ -231,7 +231,7 @@ $result = $stmt->get_result();
                     <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
                     <a href="/actions/logout.php" title="로그아웃">Logout</a>
                 <?php else: ?>
-                    <a href="/login.php" title="로그인">Login</a>
+                    <a href="#!login.php" title="로그인">Login</a>
                     <?php endif; ?>
                 </div>
             </header>
@@ -249,13 +249,8 @@ $result = $stmt->get_result();
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,

@@ -1,4 +1,23 @@
         <style>
+            .content {
+                width: 1440px;
+                height: 810px;
+                flex-shrink: 0;
+                background-size: cover;
+                background-color: #0B2673;
+                transform-origin: top left;
+                position: absolute;
+                transition: background-color 1s ease-in-out;
+                font-family: "Tinos", "Noto Sans KR";
+            }
+                    
+            a{
+                white-space: nowrap;
+                text-decoration: none;
+            }
+            a:visited {
+                color: inherit;
+            }
 
             .category_btn{
                 margin-top: 371px;
@@ -25,8 +44,8 @@
         <div class="content">
             <div class="category_btn">
                 <a style="margin-bottom: 4px;">Menu</a>
-                <a href="#list_log.php">·log</a>
-                <a href="#list_etc.php">·ETC</a>
+                <a href="#!list_log.php">·log</a>
+                <a href="#!list_etc.php">·ETC</a>
             </div>
         </div>
         <script>
@@ -40,13 +59,8 @@
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,

@@ -40,7 +40,7 @@ $conn->close();
                 height: 810px;
                 flex-shrink: 0;
                 background-size: cover;
-                background-color: #ffffff;
+                background-color: #0B2673;
                 transform-origin: top left;
                 position: absolute;
                 transition: background-color 1s ease-in-out;
@@ -122,8 +122,8 @@ $conn->close();
             }
         </style>
         <div class="content">
-            <form class="search_bar" action="search.php" method="get">
-                <input class="search_bar_in" type="text" name="query" value="<?= htmlspecialchars($search_query) ?>">
+            <form class="search_bar" id="searchForm" action="search.php" method="get">
+                <input class="search_bar_in" type="text" id="searchInput" name="query" value="<?= htmlspecialchars($search_query) ?>">
                 <button type="submit" class="search_bar_icon">
                 </button>
                 <div class="search_bar_line"></div>
@@ -136,7 +136,7 @@ $conn->close();
                         <ul>
                             <?php foreach ($results as $item): ?>
                                 <li>
-                                    <a href="list_page_<?= $item['board_type'] ?>.php?id=<?= $item['id'] ?>">
+                                    <a href="#!list_page_<?= $item['board_type'] ?>.php?id=<?= $item['id'] ?>">
                                         <strong>[<?= strtoupper($item['board_type']) ?>]</strong>
                                         <?= htmlspecialchars($item['title']) ?>
                                         <span style="font-size: 0.8em; color: #888;"><?= date('Y.m.d', strtotime($item['created_at'])) ?></span>
@@ -161,13 +161,8 @@ $conn->close();
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,
@@ -185,4 +180,16 @@ $conn->close();
             });
 
             window.addEventListener('resize', adjustScale);
+
+            const searchForm = document.getElementById('searchForm');
+
+            searchForm.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+                const searchInput = document.getElementById('searchInput');
+                const query = searchInput.value;
+                if (query) {
+                    const newUrl = `#!search.php/search?query=${encodeURIComponent(query)}`;
+                    window.location.href = newUrl;
+                }
+            });
         </script>

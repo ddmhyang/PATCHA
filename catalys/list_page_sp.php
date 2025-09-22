@@ -11,8 +11,25 @@ $stmt->execute();
 $result = $stmt->get_result();
 $post = $result->fetch_assoc();
 if (!$post) die('게시글이 존재하지 않습니다.');
-?>
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+if ($post['is_secret']) {
+    $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
+
+    $has_access = isset($_SESSION['secret_access'][$post_id]) && $_SESSION['secret_access'][$post_id] === true;
+    if (!$is_admin && !$has_access) {
+        echo "<script>
+                alert('접근 권한이 없습니다. 비밀번호를 입력해주세요.');
+                window.location.hash = '#!page_secret.php?board={$board_type}&id={$post_id}';
+              </script>";
+        exit;
+    }
+}
+
+?>
 
         <style>
             .content {
@@ -138,13 +155,8 @@ if (!$post) die('게시글이 존재하지 않습니다.');
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,

@@ -191,16 +191,23 @@
         position: absolute;
         bottom: 41px;
     }
+
+    .login-menu{
+        top: 0px;
+        position: absolute;
+        width: 217px;
+        height: 47px;
+        background-color: #0B267300;
+    }
+
+    .login-menu a {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
     
 </style>
 <div class="content">
-    <div class="index_top_title">
-        <svg xmlns="http://www.w3.org/2000/svg" width="217" height="47" viewBox="0 0 217 47" fill="none">
-            <path d="M108.5 1C138.412 1 165.463 3.62678 185.01 7.86035C194.791 9.97889 202.639 12.4889 208.018 15.2432C210.708 16.6209 212.731 18.0344 214.068 19.4502C215.402 20.8615 216 22.2125 216 23.5C216 24.7875 215.402 26.1385 214.068 27.5498C212.731 28.9656 210.708 30.3791 208.018 31.7568C202.639 34.5111 194.791 37.0211 185.01 39.1396C165.463 43.3732 138.412 46 108.5 46C78.5877 46 51.5367 43.3732 31.9902 39.1396C22.209 37.0211 14.361 34.5111 8.98242 31.7568C6.29201 30.3791 4.26944 28.9656 2.93164 27.5498C1.59823 26.1385 1 24.7875 1 23.5C1 22.2125 1.59823 20.8615 2.93164 19.4502C4.26944 18.0344 6.29201 16.6209 8.98242 15.2432C14.361 12.4889 22.209 9.97889 31.9902 7.86035C51.5367 3.62678 78.5877 1 108.5 1Z" fill="white" stroke="#1B4CDB" stroke-width="2"/>
-        </svg>
-        <a>PERSONAL WEB PAGE</a>
-    </div>
-
     <div class="index_top_text">
         <a class="iTT_X" href="https://x.com/sannoru12345"  style="text-decoration: none;">X</a>
         <a class="iTT_id" href="https://x.com/sannoru12345"  style="text-decoration: none;">@sannoru12345</a>
@@ -211,7 +218,7 @@
         </a>
         <div class="iTT_line"></div>
     </div>
-    <a class="index_search" href="search.php" style="text-decoration: none;">
+    <a class="index_search" href="#!search.php" style="text-decoration: none;">
         <div class="iS_btn"></div>
     </a>
 
@@ -219,14 +226,28 @@
 
     <div class="index_category">
         <div class="iC_line"></div>
-        <a href="list_for.php" style="text-decoration: none;" class="iC_for">Kategorie 1. For</a>
-        <a href="list_log.php" style="text-decoration: none;" class="iC_cp">Kategorie 2. CP</a>
-        <a href="list_sp.php" style="text-decoration: none;" class="iC_sp">Kategorie 3. SP</a>
+        <a href="#!list_for.php" style="text-decoration: none;" class="iC_for">Kategorie 1. For</a>
+        <a href="#!list_log.php" style="text-decoration: none;" class="iC_cp">Kategorie 2. CP</a>
+        <a href="#!list_sp.php" style="text-decoration: none;" class="iC_sp">Kategorie 3. SP</a>
     </div>
 
     <footer><?php include 'footer.php'; ?></footer>
     
     <div class="index_background_img"></div>
+    <div class="index_top_title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="217" height="47" viewBox="0 0 217 47" fill="none">
+            <path d="M108.5 1C138.412 1 165.463 3.62678 185.01 7.86035C194.791 9.97889 202.639 12.4889 208.018 15.2432C210.708 16.6209 212.731 18.0344 214.068 19.4502C215.402 20.8615 216 22.2125 216 23.5C216 24.7875 215.402 26.1385 214.068 27.5498C212.731 28.9656 210.708 30.3791 208.018 31.7568C202.639 34.5111 194.791 37.0211 185.01 39.1396C165.463 43.3732 138.412 46 108.5 46C78.5877 46 51.5367 43.3732 31.9902 39.1396C22.209 37.0211 14.361 34.5111 8.98242 31.7568C6.29201 30.3791 4.26944 28.9656 2.93164 27.5498C1.59823 26.1385 1 24.7875 1 23.5C1 22.2125 1.59823 20.8615 2.93164 19.4502C4.26944 18.0344 6.29201 16.6209 8.98242 15.2432C14.361 12.4889 22.209 9.97889 31.9902 7.86035C51.5367 3.62678 78.5877 1 108.5 1Z" fill="white" stroke="#1B4CDB" stroke-width="2"/>
+        </svg>
+        <a>PERSONAL WEB PAGE</a>
+        
+        <div class="login-menu">
+            <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+            <a href="/actions/logout.php" title="로그아웃"></a>
+        <?php else: ?>
+            <a href="#!login.php" title="로그인"></a>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
         <script>
             function adjustScale() {
@@ -239,13 +260,8 @@
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,
@@ -255,6 +271,12 @@
                 content.style.left = `${ (windowWidth - contentWidth * scale) / 2}px`;
                 content.style.top = `${ (windowHeight - contentHeight * scale) / 2}px`;
 
+            }
+            const imageElement = document.querySelector('.index_background_img');
+            if (imageElement) {
+                setTimeout(() => {
+                    imageElement.classList.add('loaded');
+                }, 100);
             }
 
             window.addEventListener('load', () => {

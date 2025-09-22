@@ -92,13 +92,8 @@
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
 
-                if (windowWidth <= 768) {
-                    contentWidth = 720;
-                    contentHeight = 1280;
-                } else {
-                    contentWidth = 1440;
-                    contentHeight = 810;
-                }
+                contentWidth = 1440;
+                contentHeight = 810;
 
                 const scale = Math.min(
                     windowWidth / contentWidth,
@@ -116,7 +111,6 @@
 
             window.addEventListener('resize', adjustScale);
 
-            // 기존 login.php의 로그인 처리 스크립트
             document.getElementById('loginForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 var formData = new FormData(this);
@@ -128,7 +122,7 @@
                 .then(data => {
                     if (data.success) {
                         alert('로그인 되었습니다.');
-                        window.location.href = 'index.php'; // 로그인 성공 시 index.php로 이동
+                        window.location.href = '';
                     } else {
                         alert('아이디 또는 비밀번호가 일치하지 않습니다.');
                     }
