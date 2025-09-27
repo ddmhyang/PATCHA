@@ -11,7 +11,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 $id = $_POST['id'] ?? null;
 
 if ($id) {
-    $stmt = $conn->prepare("DELETE FROM gallery WHERE id = ?");
+    $stmt = $mysqli->prepare("DELETE FROM gallery WHERE id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success']);
@@ -23,5 +23,5 @@ if ($id) {
     echo json_encode(['status' => 'error', 'message' => 'ID가 없습니다.']);
 }
 
-$conn->close();
+$mysqli->close();
 ?>

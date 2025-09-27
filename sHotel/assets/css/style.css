@@ -10,6 +10,13 @@ a, span {
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'Gravitas One';
+    src: url("../fonts/GravitasOne-Regular.ttf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body,
 html {
     margin: 0;
@@ -20,7 +27,7 @@ html {
     overflow: hidden;
     position: relative;
     visibility: hidden;
-    font-family: 'Pre5';
+    font-family: 'Gravitas One', 'HBIOS-SYS';
     display: flex;
     justify-content: center;
     align-items: center;
@@ -92,7 +99,6 @@ html {
     transform: translateX(-50%);
     color: #FC0;
     text-align: center;
-    font-family: 'HBIOS-SYS';
     font-size: 24px;
     font-style: normal;
     font-weight: 400;
@@ -138,7 +144,6 @@ html {
 .nav_box > a{
     color: #DEB200;
     text-align: center;
-    font-family: "Gravitas One";
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -209,4 +214,119 @@ html {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+
+
+
+
+
+/* login_username 컨테이너를 기준으로 설정 */
+#login_username {
+    position: absolute;
+    top: 191px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 452px;  /* SVG의 너비와 동일하게 설정 */
+    height: 102px; /* SVG의 높이와 동일하게 설정 */
+}
+
+/* input 태그를 SVG 위에 배치 */
+#login_username input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  
+    /* 기본 스타일 제거 */
+    background-color: transparent;
+    border: none;
+    outline: none; /* 클릭 시 생기는 외곽선 제거 */
+    
+    /* 텍스트 스타일 */
+    color: #FFFFFF; /* 글자 색상 (흰색) */
+    font-size: 22px;
+    text-align: center; /* 텍스트 가운데 정렬 */
+    
+    /* 내부 여백 추가 및 크기 계산 방식 변경 */
+    padding: 0 30px;
+    box-sizing: border-box;
+}
+
+/* input placeholder 스타일 (흐릿한 안내 문구) */
+#login_username input::placeholder {
+    color: #cccccc;
+}
+
+/* login_password 컨테이너를 기준으로 설정 */
+#login_password {
+    position: absolute;
+    top: 326px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 452px;  /* SVG 너비 */
+    height: 102px; /* SVG 높이 */
+    margin-top: 10px; /* 위 요소와의 간격 */
+}
+
+/* password input 태그를 SVG 위에 배치 */
+#login_password input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* 기본 스타일 제거 */
+    background-color: transparent;
+    border: none;
+    outline: none;
+    
+    /* 텍스트 스타일 */
+    color: #FFFFFF;
+    font-size: 22px;
+    text-align: center;
+    
+    /* 내부 여백 추가 */
+    padding: 0 30px;
+    box-sizing: border-box;
+}
+
+/* password placeholder 스타일 */
+#login_password input::placeholder {
+    color: #cccccc;
+}
+
+/* login_submit 컨테이너를 기준으로 설정 */
+#login_submit {
+    position: absolute;
+    top: 465px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;  /* SVG 너비 */
+    height: 69px; /* SVG 높이 */
+    margin-top: 20px; /* 위 요소와의 간격 */
+}
+
+/* submit button 태그를 SVG 위에 배치 */
+#login_submit button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* 기본 스타일 제거 */
+    background-color: transparent;
+    border: none;
+    outline: none;
+    
+    /* 텍스트 스타일 */
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+    
+    /* 클릭 가능하도록 커서 모양 변경 */
+    cursor: pointer;
 }

@@ -5,7 +5,7 @@ if (!isset($_GET['id'])) {
 }
 
 $post_id = intval($_GET['id']);
-$stmt = $conn->prepare("SELECT * FROM gallery WHERE id = ?");
+$stmt = $mysqli->prepare("SELECT * FROM gallery WHERE id = ?");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $result = $stmt->get_result();

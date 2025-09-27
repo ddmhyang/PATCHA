@@ -5,7 +5,7 @@
 
 // sHotel의 'gallery' 테이블에서 데이터를 가져옵니다.
 $posts_query = "SELECT id, title, thumbnail FROM gallery ORDER BY created_at DESC";
-$posts_result = $conn->query($posts_query);
+$posts_result = $mysqli->query($posts_query);
 $posts = [];
 if ($posts_result->num_rows > 0) {
     while($row = $posts_result->fetch_assoc()) {

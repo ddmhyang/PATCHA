@@ -1,7 +1,7 @@
 <?php
 // DB에서 main 페이지 콘텐츠 가져오기
 $sql = "SELECT * FROM pages WHERE page_name = 'main'";
-$result = $conn->query($sql);
+$result = $mysqli->query($sql);
 $page_content = "";
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();

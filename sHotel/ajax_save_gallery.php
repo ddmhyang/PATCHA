@@ -19,10 +19,10 @@ if (empty($title) || empty($content)) {
 }
 
 if ($id) { // 수정
-    $stmt = $conn->prepare("UPDATE gallery SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
+    $stmt = $mysqli->prepare("UPDATE gallery SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
     $stmt->bind_param("sssi", $title, $content, $thumbnail, $id);
 } else { // 신규 작성
-    $stmt = $conn->prepare("INSERT INTO gallery (title, content, thumbnail) VALUES (?, ?, ?)");
+    $stmt = $mysqli->prepare("INSERT INTO gallery (title, content, thumbnail) VALUES (?, ?, ?)");
     $stmt->bind_param("sss", $title, $content, $thumbnail);
 }
 
@@ -33,5 +33,5 @@ if ($stmt->execute()) {
 }
 
 $stmt->close();
-$conn->close();
+$mysqli->close();
 ?>
