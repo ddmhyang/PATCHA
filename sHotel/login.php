@@ -35,7 +35,6 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 </div>
 
 <script>
-$(document).ready(function() {
     $('#login-form').on('submit', function(e) {
         e.preventDefault();
 
@@ -46,16 +45,16 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    window.location.href = 'index.php?page=main';
+                    // 로그인 성공 시 페이지를 새로고침합니다.
+                    window.location.reload();
                 } else {
                     alert(response.message);
                 }
             },
             error: function(xhr) {
-                alert('로그인 요청 중 서버에서 오류가 발생했습니다.');
-                console.log(xhr.responseText); // F12 콘솔에서 자세한 오류 확인
+                alert('로그인 요청 중 서버 오류가 발생했습니다.');
+                console.error(xhr.responseText);
             }
         });
     });
-});
 </script>
