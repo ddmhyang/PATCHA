@@ -331,6 +331,28 @@ html {
     cursor: pointer;
 }
 
+/* login.php에서 옮겨온 스타일 */
+#login_username input,
+#login_password input,
+#login_submit button {
+    font-family: 'Gravitas One', sans-serif;
+    font-size: 12px; /* 12px는 너무 작아서 조금 키웠습니다. 원하시면 12px로 수정하세요. */
+}
+
+/* 스크린 리더는 읽을 수 있지만 화면에는 보이지 않게 만드는 클래스 */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+
+
 
 
 .etc-content{
