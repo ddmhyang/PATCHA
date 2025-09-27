@@ -1,0 +1,212 @@
+a, span {
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+@font-face {
+    font-family: 'HBIOS-SYS';
+    src: url("assets/fonts/HBIOS-SYS.ttf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0);
+    overflow: hidden;
+    position: relative;
+    visibility: hidden;
+    font-family: 'Pre5';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 1440px;
+    height: 900px;
+    flex-shrink: 0;
+    aspect-ratio: 45/32;
+    background: url("assets/images/bg1.png") center center / cover no-repeat;
+    background-color: #77000E;
+    transform-origin: center center;
+    transform: scale(0);
+}
+
+.container,
+body,
+html {
+    transition: background-color 1s ease-in-out;
+}
+
+.pages_box{
+    width: 915px;
+    height: 643px;
+    position: absolute;
+    left: 416px;
+    top: 50%;
+    transform: translateY(-50%);
+    flex-shrink: 0;
+    fill: rgba(42, 0, 5, 0.50);
+}
+
+.box_top{
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 912px;
+    height: 83px;
+    flex-shrink: 0;
+    border-radius: 30px 30px 0 0;
+    background: #000;
+}
+
+.tB1{
+    position: absolute;
+    top: 47px;
+    left: 643px;
+    stroke: #DEB200;
+}
+
+.tB2{
+    position: absolute;
+    top: 25px;
+    left: 743px;
+}
+
+.tBOff{
+    position: absolute;
+    top: 29px;
+    left: 833px;
+}
+
+.pages_box > a{
+    position: absolute;
+    top: 224px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FC0;
+    text-align: center;
+    font-family: 'HBIOS-SYS';
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+}
+
+.profile{
+    position: absolute;
+    top: 130px;
+    left: 112px;
+}
+
+.nickname{
+    position: absolute;
+    top: 357.5px;
+    left: 112px;
+    fill: rgba(0, 0, 0, 0.50);
+}
+
+.nav_box{
+    position: absolute;
+    top: 443px;
+    left: 112px;
+    fill: rgba(0, 0, 0, 0.50);
+    width: 203px;
+    height: 330px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+
+.nav_box svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.nav_box > a{
+    color: #DEB200;
+    text-align: center;
+    font-family: "Gravitas One";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+
+
+
+
+
+
+
+
+/* Gallery Styles from chanlan */
+.gallery-container {
+    padding: 20px;
+}
+
+.gallery-container h2 {
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.gallery-container .add-btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.gallery-item {
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.3s ease;
+}
+
+.gallery-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.gallery-item .item-thumbnail {
+    width: 100%;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    background-size: cover;
+    background-position: center;
+    background-color: #f0f0f0;
+}
+
+.gallery-item h3 {
+    padding: 15px;
+    margin: 0;
+    font-size: 1.1em;
+    background-color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
