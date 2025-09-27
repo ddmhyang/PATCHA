@@ -1,4 +1,7 @@
 <?php
+
+require_once __DIR__ . '/includes/db.php'; // 이 코드를 맨 위에 추가하세요.
+
 // DB에서 main 페이지 콘텐츠 가져오기
 $sql = "SELECT * FROM pages WHERE page_name = 'main'";
 $result = $mysqli->query($sql);

@@ -1,7 +1,5 @@
 <?php
-// 이 파일 상단에 db.php가 이미 include 되어 있다고 가정합니다.
-// 만약 pages.php에서 include되지 않았다면 다음 줄의 주석을 해제하세요.
-// require_once 'includes/db.php';
+require_once 'includes/db.php';
 
 // sHotel의 'gallery' 테이블에서 데이터를 가져옵니다.
 $posts_query = "SELECT id, title, thumbnail FROM gallery ORDER BY created_at DESC";

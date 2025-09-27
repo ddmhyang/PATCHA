@@ -330,3 +330,25 @@ html {
     /* 클릭 가능하도록 커서 모양 변경 */
     cursor: pointer;
 }
+
+
+
+.etc-content{
+    position: absolute;
+    width: 912px;
+    height: 557px;
+    top: 83px;
+    left: 0px;
+}
+.etc-content > a{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    color: #FC0;
+    font-family: "Gravitas One";
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}

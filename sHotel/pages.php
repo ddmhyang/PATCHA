@@ -4,12 +4,14 @@ include_once "includes/db.php";
 ?>
 <!DOCTYPE html>
 <html lang="ko">
-    <head>
+<head>
     <meta charset="UTF-8">
     <title>sHotel</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
-    <script src="assets/js/main.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
     </head>
     <body>
         <div class="container">
@@ -71,7 +73,6 @@ include_once "includes/db.php";
                 </div>
             </div>
         </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="assets/js/main.js"></script>
     </body>
 </html>

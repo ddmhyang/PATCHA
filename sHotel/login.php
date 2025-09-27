@@ -1,4 +1,8 @@
-<form id="login-form">
+<?php
+require_once __DIR__ . '/includes/db.php'; // 이 코드를 맨 위에 추가하세요.
+?>
+
+<form id="login-form" method="post">
     <div id="login_username">
         <svg xmlns="http://www.w3.org/2000/svg" width="452" height="102" viewBox="0 0 452 102" fill="none">
             <path d="M1 11C1 5.47716 5.47715 1 11 1H441C446.523 1 451 5.47715 451 11V91C451 96.5228 446.523 101 441 101H11C5.47715 101 1 96.5229 1 91V11Z" fill="black" fill-opacity="0.5"/>
@@ -23,20 +27,38 @@
 </form>
 
 <script>
-$('#login-form').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-        url: 'ajax_login.php',
-        method: 'POST',
-        data: $(this).serialize(),
-        success: function(response) {
-            let res = JSON.parse(response);
-            if(res.status === 'success') {
-                window.location.href = 'index.php?page=main';
-            } else {
-                alert(res.message);
+$(document).ready(function() {
+    // 페이지가 로드되자마자 이 알림창이 뜨는지 확인합니다.
+    alert("자바스크립트가 로드되었습니다.");
+
+    $('#login-form').on('submit', function(e) {
+        e.preventDefault();
+        console.log("로그인 버튼 클릭됨. AJAX 요청을 시작합니다.");
+
+        let formData = $(this).serialize();
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_login.php',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                console.log("서버로부터 성공 응답 받음:", response);
+                if (response.status === 'success') {
+                    alert('로그인 성공!');
+                    window.location.href = 'index.php?page=main';
+                } else {
+                    alert('로그인 실패: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX 통신 오류 발생!");
+                console.error("상태:", status);
+                console.error("에러:", error);
+                console.error("서버 응답 내용:", xhr.responseText);
+                alert('로그인 처리 중 심각한 오류가 발생했습니다. 개발자 콘솔(F12)을 확인해주세요.');
             }
-        }
+        });
     });
 });
 </script>
