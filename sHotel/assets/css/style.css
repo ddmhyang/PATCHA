@@ -5,7 +5,7 @@ a, span {
 
 @font-face {
     font-family: 'HBIOS-SYS';
-    src: url("assets/fonts/HBIOS-SYS.ttf") format('truetype');
+    src: url("../fonts/HBIOS-SYS.ttf") format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -31,7 +31,7 @@ html {
     height: 900px;
     flex-shrink: 0;
     aspect-ratio: 45/32;
-    background: url("assets/images/bg1.png") center center / cover no-repeat;
+    background: url("../images/bg1.png") center center / cover no-repeat;
     background-color: #77000E;
     transform-origin: center center;
     transform: scale(0);
