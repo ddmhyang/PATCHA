@@ -35,26 +35,27 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 </div>
 
 <script>
-    $('#login-form').on('submit', function(e) {
-        e.preventDefault();
+$('#login-form').on('submit', function(e) {
+    e.preventDefault();
 
-        $.ajax({
-            type: 'POST',
-            url: 'ajax_login.php',
-            data: $(this).serialize(),
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    // 로그인 성공 시 페이지를 새로고침합니다.
-                    window.location.reload();
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function(xhr) {
-                alert('로그인 요청 중 서버 오류가 발생했습니다.');
-                console.error(xhr.responseText);
+    $.ajax({
+        type: 'POST',
+        url: 'ajax_login.php',
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(response) {
+            if (response.status === 'success') {
+                // ▼▼▼ 이 부분을 수정했습니다 ▼▼▼
+                // 로그인 성공 시, main 페이지로 이동합니다.
+                window.location.href = 'pages.php#main';
+            } else {
+                alert(response.message);
             }
-        });
+        },
+        error: function(xhr) {
+            alert('로그인 요청 중 서버 오류가 발생했습니다.');
+            console.error(xhr.responseText);
+        }
     });
+});
 </script>

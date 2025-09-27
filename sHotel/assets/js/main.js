@@ -1,91 +1,135 @@
 function adjustScale() {
     const container = document.querySelector('.container');
     if (!container) return;
-    
-    let containerWidth, containerHeight;
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-
-    // if (windowWidth <= 768) {
-    //     containerWidth = 720;
-    //     containerHeight = 1280;
-    // } else {
-        containerWidth = 1440;
-        containerHeight = 900;
-    // }
-
+    const containerWidth = 1440, containerHeight = 900;
+    const windowWidth = window.innerWidth, windowHeight = window.innerHeight;
     const scale = Math.min(windowWidth / containerWidth, windowHeight / containerHeight);
     container.style.transform = `scale(${scale})`;
     container.style.left = `${(windowWidth - containerWidth * scale) / 2}px`;
     container.style.top = `${(windowHeight - containerHeight * scale) / 2}px`;
 }
 
-// 페이지를 불러오고, 그 안의 스크립트까지 실행하는 새로운 함수
-async function loadPage(url) {
-    // #! 같은 불필요한 부분을 제거합니다.
-    
+async function loadPage(pageName, params = '') {
+    const contentArea = document.querySelector('.content');
+    if (!contentArea) return;
+    const pageFile = pageName + '.php' + params;
     try {
-        const response = await fetch(cleanUrl);
-        if (!response.ok) throw new Error('페이지 로드 실패');
-        
+        const response = await fetch(pageFile);
+        if (!response.ok) throw new Error(`'${pageFile}' 파일을 찾을 수 없습니다.`);
         const pageHtml = await response.text();
-        const contentArea = document.querySelector('.content');
-        
-        if (contentArea) {
-            // 1. 가져온 HTML을 화면에 끼워 넣습니다.
-            contentArea.innerHTML = pageHtml;
-
-            // 2. 끼워 넣은 HTML 안에서 script 태그를 모두 찾습니다.
-            const scripts = contentArea.querySelectorAll('script');
-
-            // 3. 찾은 script들을 하나씩 실행시켜 줍니다.
-            scripts.forEach(script => {
-                const newScript = document.createElement('script');
-                // src 속성이 있으면 그대로 복사하고, 없으면 내부 코드를 복사합니다.
-                if (script.src) {
-                    newScript.src = script.src;
-                } else {
-                    newScript.innerHTML = script.innerHTML;
-                }
-                document.body.appendChild(newScript).remove();
-            });
-        }
+        contentArea.innerHTML = pageHtml;
+        const scripts = contentArea.querySelectorAll('script');
+        scripts.forEach(script => {
+            const newScript = document.createElement('script');
+            newScript.textContent = script.textContent;
+            document.body.appendChild(newScript).remove();
+        });
     } catch (error) {
-        console.error('페이지 로딩 중 오류 발생: ', error);
+        console.error('페이지 로딩 중 오류:', error);
+        contentArea.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
     }
 }
 
-// SPA 내비게이션 기능 (수정 없음)
-function navigateTo(url) {
-    history.pushState({ path: url }, '', `#${url}`);
-    loadPage(url);
+// "방송 수신기" 코드
+$(document).on('navigate', function(e, data) {
+    if (data && data.url) {
+        handleNavigation(data.url);
+    }
+});
+
+function handleNavigation(url) {
+    if (url.includes('logout.php')) {
+        window.location.href = url;
+        return;
+    }
+    const urlObject = new URL(url, window.location.origin);
+    const pageName = urlObject.searchParams.get('page') || 'main';
+    const params = urlObject.search.substring(1).replace(`page=${pageName}`, '');
+    const newPath = pageName + (params ? '&' + params : '');
+    history.pushState({ path: newPath }, '', `#${newPath}`);
+    route(newPath);
 }
 
-// SPA 링크 클릭 처리 (수정 없음)
+function route(path) {
+    const [pageName, ...paramParts] = path.split('&');
+    const params = paramParts.length > 0 ? '?' + paramParts.join('&') : '';
+    const allowedPages = ['main', 'login', 'gallery', 'etc', 'gallery_upload', 'gallery_view', 'gallery_edit'];
+    if (allowedPages.includes(pageName)) {
+        loadPage(pageName, params);
+    } else {
+        loadPage('main');
+    }
+}
+
 document.addEventListener('click', (e) => {
-    // nav 링크 클릭 시에만 작동하도록 수정
-    const targetLink = e.target.closest('header nav a');
-    if (targetLink) {
+    const targetLink = e.target.closest('a');
+    if (targetLink && targetLink.href.includes('index.php?page=')) {
         e.preventDefault();
-        const url = targetLink.getAttribute('href');
-        navigateTo(url);
+        handleNavigation(targetLink.href);
+    } else if (targetLink && targetLink.href.includes('logout.php')) {
+        window.location.href = targetLink.href;
     }
 });
 
-// 뒤로가기/앞으로가기 버튼 처리 (수정 없음)
 window.addEventListener('popstate', (e) => {
-    const path = e.state ? e.state.path : 'index.php?page=main';
-    loadPage(path);
+    const path = e.state ? e.state.path : 'main';
+    route(path);
 });
 
-// 페이지 첫 로드 시 처리
 window.addEventListener('load', () => {
-    const path = window.location.hash ? window.location.hash.substring(1) : 'main.php';
-    loadPage(path);
-    history.replaceState({ path: path }, '', `#${path}`);
     adjustScale();
     document.body.style.visibility = 'visible';
+    const initialPath = window.location.hash ? window.location.hash.substring(1) : 'main';
+    history.replaceState({ path: initialPath }, '', `#${initialPath}`);
+    route(initialPath);
 });
 
-
 window.addEventListener('resize', adjustScale);
+
+
+// 1. YouTube API 스크립트를 비동기적으로 로드합니다.
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+// 2. API가 준비되면 이 함수(onYouTubeIframeAPIReady)를 자동으로 호출합니다.
+var player; // player 변수를 전역에서 접근할 수 있도록 선언
+function onYouTubeIframeAPIReady() {
+    // 'song'이라는 id를 가진 iframe을 YouTube 플레이어로 만듭니다.
+    player = new YT.Player('song', {
+        events: {
+            // 플레이어가 준비되면 onPlayerReady 함수를 실행합니다.
+            'onReady': onPlayerReady 
+        }
+    });
+}
+
+// 3. 플레이어가 준비되었을 때 실행할 동작 (필요 시 사용)
+function onPlayerReady(event) {
+    // autoplay=1 파라미터가 있어서 자동으로 재생되므로 여기서는 특별한 동작이 필요 없습니다.
+    // event.target.playVideo(); // 만약 자동 재생이 안되면 이 코드를 사용하세요.
+}
+
+// 4. .tBOff 버튼 클릭 이벤트를 설정합니다.
+$(document).ready(function() {
+    $('.tBOff').on('click', function() {
+        // player 객체가 실제로 로드되었는지 확인합니다.
+        if (player && typeof player.getPlayerState === 'function') {
+            
+            // 현재 플레이어의 상태를 가져옵니다 (재생중, 정지됨 등).
+            var playerState = player.getPlayerState();
+            
+            // 만약 영상이 재생 중(YT.PlayerState.PLAYING)이라면,
+            if (playerState == YT.PlayerState.PLAYING) {
+                player.pauseVideo(); // 영상을 정지합니다.
+            } 
+            // 그렇지 않으면 (정지, 종료, 버퍼링 등 상태)
+            else {
+                player.playVideo(); // 영상을 재생합니다.
+            }
+        } else {
+            console.error("YouTube 플레이어가 아직 준비되지 않았습니다.");
+        }
+    });
+});

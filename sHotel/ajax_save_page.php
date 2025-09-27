@@ -1,5 +1,6 @@
 <?php
-require_once 'includes/db.php';
+session_start(); // 이 줄을 추가하세요!
+require_once __DIR__ . '/includes/db.php';
 header('Content-Type: application/json');
 
 if (!$is_admin) {

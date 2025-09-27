@@ -1,6 +1,8 @@
 a, span {
     text-decoration: none;
     white-space: nowrap;
+    list-style: none;
+    color: #FC0;
 }
 
 @font-face {
@@ -90,6 +92,7 @@ html {
     position: absolute;
     top: 29px;
     left: 833px;
+    cursor: pointer;
 }
 
 .pages_box > a{
@@ -118,6 +121,19 @@ html {
     fill: rgba(0, 0, 0, 0.50);
 }
 
+.nickname_a{
+    position: absolute;
+    top: 379px;
+    left: 184px;
+    color: #77000E;
+    text-align: center;
+    font-family: HBIOS-SYS;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 100%;
+}
+
 .nav_box{
     position: absolute;
     top: 443px;
@@ -125,11 +141,6 @@ html {
     fill: rgba(0, 0, 0, 0.50);
     width: 203px;
     height: 330px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 50px;
 }
 
 .nav_box svg {
@@ -141,7 +152,20 @@ html {
     z-index: -1;
 }
 
-.nav_box > a{
+header{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 203px;
+    height: 330px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+
+}
+header > a{
     color: #DEB200;
     text-align: center;
     font-size: 12px;
@@ -156,61 +180,54 @@ html {
 
 
 
-
-
-/* Gallery Styles from chanlan */
-.gallery-container {
-    padding: 20px;
-}
-
 .gallery-container h2 {
     margin-bottom: 20px;
     font-size: 2em;
 }
 
-.gallery-container .add-btn {
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: #333;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
 
 .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
+    gap: 60px;
+    fill: rgba(0, 0, 0, 0.50);
 }
 
 .gallery-item {
+    width: 224px;
+    height: 252px;
     display: block;
-    border: 1px solid #ddd;
     border-radius: 5px;
     overflow: hidden;
     text-decoration: none;
     color: inherit;
     transition: box-shadow 0.3s ease;
+    background: rgba(0, 0, 0, 0.50);
+    border-radius: 15px;
 }
 
-.gallery-item:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.gallery-item >svg{
+    position: absolute;
+    z-index: -1;
 }
-
-.gallery-item .item-thumbnail {
-    width: 100%;
-    padding-top: 100%; /* 1:1 Aspect Ratio */
+.gallery-item .item-thumbnail{
+    width: 168px;
+    height: 168px;
     background-size: cover;
     background-position: center;
-    background-color: #f0f0f0;
+    margin-top: 28px;
+    margin-left: 28px;
 }
 
-.gallery-item h3 {
-    padding: 15px;
-    margin: 0;
-    font-size: 1.1em;
-    background-color: #fff;
+.item-title {
+    margin-top: 22px;
+    color: #FC0;
+    text-align: center;
+    font-family: "Gravitas One";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -224,7 +241,7 @@ html {
 /* login_username 컨테이너를 기준으로 설정 */
 #login_username {
     position: absolute;
-    top: 191px;
+    top: 88px;
     left: 50%;
     transform: translateX(-50%);
     width: 452px;  /* SVG의 너비와 동일하게 설정 */
@@ -245,7 +262,7 @@ html {
     outline: none; /* 클릭 시 생기는 외곽선 제거 */
     
     /* 텍스트 스타일 */
-    color: #FFFFFF; /* 글자 색상 (흰색) */
+    color: #FC0;
     font-size: 22px;
     text-align: center; /* 텍스트 가운데 정렬 */
     
@@ -256,13 +273,13 @@ html {
 
 /* input placeholder 스타일 (흐릿한 안내 문구) */
 #login_username input::placeholder {
-    color: #cccccc;
+    color: #FC0;
 }
 
 /* login_password 컨테이너를 기준으로 설정 */
 #login_password {
     position: absolute;
-    top: 326px;
+    top: 223px;
     left: 50%;
     transform: translateX(-50%);
     width: 452px;  /* SVG 너비 */
@@ -284,7 +301,7 @@ html {
     outline: none;
     
     /* 텍스트 스타일 */
-    color: #FFFFFF;
+    color: #FC0;
     font-size: 22px;
     text-align: center;
     
@@ -295,13 +312,13 @@ html {
 
 /* password placeholder 스타일 */
 #login_password input::placeholder {
-    color: #cccccc;
+    color: #FC0;
 }
 
 /* login_submit 컨테이너를 기준으로 설정 */
 #login_submit {
     position: absolute;
-    top: 465px;
+    top: 362px;
     left: 50%;
     transform: translateX(-50%);
     width: 260px;  /* SVG 너비 */
@@ -323,7 +340,7 @@ html {
     outline: none;
     
     /* 텍스트 스타일 */
-    color: #FFFFFF;
+    color: #FC0;
     font-size: 24px;
     font-weight: bold;
     
@@ -355,22 +372,87 @@ html {
 
 
 
-.etc-content{
+.login-container, .etc-content, .gallery-container, .page-container, .form-container, .view-container{
     position: absolute;
-    width: 912px;
-    height: 557px;
-    top: 0px;
-    left: 0px;
+    width: 835px;
+    height: 517px;
+    top: 233px;
+    left: 456px;
+    font-size: 16px;
+    color: #FC0;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    font-family: 'Gravitas One', 'HBIOS-SYS';
+    overflow: auto;
 }
+
+.gallery-container::-webkit-scrollbar, .page-container::-webkit-scrollbar, .form-container::-webkit-scrollbar, .view-container::-webkit-scrollbar{
+    width: 0px;
+    height: 0px;
+}
+
+.note-editable {
+    color: #DEB200; /* 기존에 사용하시던 금색으로 지정했습니다. */
+}
+
+#main-content, .gallery-content, .gallery-content2{
+    position: relative;
+}
+
 .etc-content > a{
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -100%);
-    color: #FC0;
-    font-family: "Gravitas One";
     font-size: 36px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
+    text-align: center;
+    transform: translate(-50%, -100%);
+}
+
+#edit-btn, #save-btn, .add-btn, #delete-btn, .btn-edit{
+    font-size: 16px;
+    margin-top: 30px;
+    text-align: center;
+    padding: 10px 20px;
+    background-color: #000;
+    color: #DEB200;
+    border: #77000E 1px solid;
+    border-radius: 10px;
+    font-family: 'Gravitas One', 'HBIOS-SYS';
+    cursor: pointer;
+}
+
+.gallery-content2 > .btn-edit{
+    position: absolute;
+    top: 0px;
+    left: 650px;
+}
+
+.gallery-content2 > #delete-btn{
+    position: absolute;
+    top: 0px;
+    left: 740px;
+}
+
+.add-btn{
+    position: absolute;
+    left: 740px;
+    top: 5px;
+}
+.gallery_line{
+    position: relative;
+    width: 100%;
+    height: 2px;
+    background-color: #DEB200;
+}
+
+.gallery-grid{
+    margin-top: 20px;
+}
+
+
+
+.note-modal-backdrop {
+    background-color: transparent !important;
+    z-index: -1 !important
 }
