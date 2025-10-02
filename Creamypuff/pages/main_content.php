@@ -33,31 +33,7 @@ $stmt->close();
             fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana', 'Nanum SonPyeonJiCe', 'Kolker Brush'],
             fontNamesIgnoreCheck: ['Nanum SonPyeonJiCe', 'Kolker Brush'],
             focus: true,
-            callbacks: {
-                // ▼▼▼ 여기에 이미지 업로드 로직을 추가했습니다 ▼▼▼
-                onImageUpload: function(files) {
-                    let data = new FormData();
-                    data.append("file", files[0]);
-                    $.ajax({
-                        url: 'ajax_upload_image.php',
-                        type: "POST",
-                        data: data,
-                        contentType: false,
-                        processData: false,
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.url) {
-                                $('#main-content').summernote('insertImage', response.url);
-                            } else {
-                                alert('이미지 업로드 실패: ' + response.error);
-                            }
-                        },
-                        error: function() {
-                            alert('이미지 업로드 중 서버 통신 오류가 발생했습니다.');
-                        }
-                    });
-                }
-            }
+            callbacks: { onImageUpload: function(files) { uploadSummernoteImage(files[0], $(this)); } }
         });
     });
     $('.cancel-btn').click(function() {
