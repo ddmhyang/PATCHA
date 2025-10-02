@@ -1,0 +1,330 @@
+a{
+    text-decoration: none;
+    /* white-space: nowrap; */
+}
+
+@font-face {
+    font-family: 'Nanum SonPyeonJiCe';
+    src: url("../fonts/NanumPen.ttf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kolker Brush';
+    src: url("../fonts/KolkerBrush-Regular.ttf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.note-modal-backdrop {
+    background-color: transparent !important;
+    z-index: -1 !important
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0);
+    overflow: hidden;
+    position: relative;
+    visibility: hidden;
+    font-family: 'Kolker Brush', 'Nanum SonPyeonJiCe';
+    font-size: 24px;
+    color: #8ABBF7;
+}
+
+.container {
+    width: 1440px;
+    height: 900px;
+    flex-shrink: 0;
+    aspect-ratio: 3/2;
+    background: url("../images/background.png") no-repeat center center;
+    background-size: cover;
+    background-color: #000000;
+    transform-origin: top left;
+    position: absolute;
+    transform: scale(0);
+}
+
+.container,
+body,
+html {
+    transition: background-color 1s ease-in-out;
+}
+
+.index_layout{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 500px;
+    flex-shrink: 0;
+    border-radius: 15px 15px 0 0;
+    box-sizing: border-box; 
+    border: 2px solid #BED8F8;
+    background: rgba(255, 255, 255, 0.40);
+    cursor: pointer;
+}
+
+.index_layout_top{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 798px;
+    height: 62px;
+    flex-shrink: 0;
+    border-radius: 15px 15px 0 0;
+    background: #BED8F8;
+}
+
+.iT_btn{
+    position: absolute;
+    top: 15px;
+    left: 622px;
+}
+
+.index_layout > a{
+    position: absolute;
+    top: 179px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FFF;
+    font-family: "Kolker Brush";
+    font-size: 128px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-shadow: 0 4px 4px #8ABBF7;
+}
+
+
+
+.pages_layout{
+    position: absolute;
+    top: 50%;
+    left: 335px;
+    transform: translateY(-50%);
+    width: 1000px;
+    height: 650px;
+    flex-shrink: 0;
+    border-radius: 15px 15px 0 0;
+    box-sizing: border-box; 
+    border: 2px solid #BED8F8;
+    background: rgba(255, 255, 255, 0.40);
+}
+
+.pages_layout_top{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 1000px;
+    height: 70px;
+    flex-shrink: 0;
+    border-radius: 15px 15px 0 0;
+    background: #BED8F8;
+}
+
+.pT_btn{
+    position: absolute;
+    top: 22px;
+    left: 815px;
+}
+
+nav{
+    position: absolute;
+    top: 149px;
+    left: 85px;
+    display: flex;
+    flex-direction: column;
+    gap: 52px;
+}
+
+nav > a{
+    color: #FFF;
+    text-shadow: 0 4px 4px #8ABBF7;
+    font-family: "Kolker Brush";
+    font-size: 52px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-align: center;
+}
+
+.login-container, .form-page-container, .password-form-container, .view-container, .gallery-container, .page-container, .settings-container{
+    margin-top: 90px;
+    margin-left: 40px;
+    width: 920px;
+    height: 500px;
+    background: #8ABBF700;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#login-form{
+    position: absolute;
+    top: 172px;
+    left: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 45px;
+    align-items: center;
+}
+#login-form input{
+    width: 480px;
+    height: 110px;
+    border-radius: 15px;
+    border: 1px solid #8ABBF7;
+    background: rgba(255, 255, 255, 0.50);
+    flex-shrink: 0;
+    font-family: 'Kolker Brush';
+    font-size: 52px;
+}
+
+#login-form button {
+    width: 280px;
+    height: 75px;
+    flex-shrink: 0;
+    border-radius: 15px;
+    border: 1px solid #8ABBF7;
+    background: rgba(255, 255, 255, 0.50);
+    font-family: 'Kolker Brush';
+    font-size: 52px;
+}
+
+.edit-btn{
+    padding: 10px 12px;
+    font-family: 'Nanum SonPyeonJiCe';
+    border-radius: 5px;
+    border: 2px solid #8ABBF7;
+    cursor: pointer;
+    box-sizing: border-box; 
+    background: rgba(255, 255, 255, 0.5);
+    color: #8ABBF7;
+    font-size: 16px;
+}
+
+.ajax-form > button{
+    margin-top: 15px;
+    padding: 10px 12px;
+    font-family: 'Nanum SonPyeonJiCe';
+    border-radius: 5px;
+    border: 2px solid #8ABBF7;
+    cursor: pointer;
+    box-sizing: border-box; 
+    background: rgba(255, 255, 255, 0.5);
+    color: #8ABBF7;
+    font-size: 16px;
+}
+
+.cancel-btn, .cancel_btn{
+    margin-top: 15px;
+    margin-left: 10px;
+    padding: 10px 12px;
+    font-family: 'Nanum SonPyeonJiCe';
+    border-radius: 5px;
+    cursor: pointer;
+    box-sizing: border-box; 
+    background: #8ABBF7;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.add-btn{
+    padding: 10px 12px;
+    font-family: 'Nanum SonPyeonJiCe';
+    border-radius: 5px;
+    border: 2px solid #8ABBF7;
+    cursor: pointer;
+    box-sizing: border-box; 
+    background: rgba(255, 255, 255, 0.5);
+    color: #8ABBF7;
+    font-size: 16px;
+}
+
+.file-upload-button{
+    margin-left: 10px;
+    padding: 10px 12px;
+    font-family: 'Nanum SonPyeonJiCe';
+    border-radius: 5px;
+    cursor: pointer;
+    box-sizing: border-box; 
+    background: #8ABBF7;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.form-page-container::-webkit-scrollbar{
+    width: 0px;
+    height: 0px;
+}
+
+#title, #password {
+    margin-left: 10px;
+    display: inline-block;
+    border-radius: 5px;
+    border: 1px solid #8ABBF7;
+    background: rgba(255, 255, 255, 0.50);
+    flex-shrink: 0;
+    padding: 8px 15px;
+}
+
+.gallery-grid {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 3fr));
+    gap: 63px;
+}
+
+.gallery-item {
+    height: 300px;
+    width: 250px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 15px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.50);
+}
+
+
+.item-thumbnail {
+    margin-top: 25px;
+    margin-left: 25px;
+    width: 200px;
+    padding-top: 200px;
+    background-color:#B1C8DA;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.gallery-item h3 {
+    padding: 10px;
+    font-size: 16px;
+    margin: 0;
+    color: #7078A7;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 720px;
+        height: 1280px;
+        flex-shrink: 0;
+        background: url("/../images/background.png") no-repeat center center;
+        background-size: cover;
+        background-color: #000000;
+        transform-origin: top left;
+        position: absolute;
+        transform: scale(0);
+    }
+
+    .container,
+    body,
+    html {
+        transition: background-color 1s ease-in-out;
+    }
+}
