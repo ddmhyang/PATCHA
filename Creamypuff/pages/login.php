@@ -1,6 +1,5 @@
 <?php
 require_once '../includes/db.php';
-// 만약 이미 관리자로 로그인된 상태라면, 메인 페이지로 이동시킵니다.
 if ($is_admin) {
     echo "<script>window.location.hash = '#/main';</script>";
     exit;

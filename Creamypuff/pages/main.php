@@ -6,13 +6,24 @@ while ($row = $settings_result->fetch_assoc()) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
 $main_bg = $settings['main_background'] ?? '/assets/images/background.png';
+$bgm_link = 'dQw4w9WgXcQ';
+$bgm_si = 'some_share_id';
+$mp3 = ''; 
+
+if (!empty($bgm_link)) {
+    $mp3 = '';
+}
+else if (!empty($mp3)) {
+    $bgm_link = '';
+    $bgm_si = '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChanLan</title>
+    <title>Creamypuff</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
