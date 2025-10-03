@@ -6,17 +6,6 @@ while ($row = $settings_result->fetch_assoc()) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
 $main_bg = $settings['main_background'] ?? '/assets/images/background.png';
-$bgm_link = 'dQw4w9WgXcQ';
-$bgm_si = 'some_share_id';
-$mp3 = ''; 
-
-if (!empty($bgm_link)) {
-    $mp3 = '';
-}
-else if (!empty($mp3)) {
-    $bgm_link = '';
-    $bgm_si = '';
-}
 ?>
 <!DOCTYPE html>
 <html lang="ko">

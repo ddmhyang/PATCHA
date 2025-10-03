@@ -20,8 +20,9 @@ $stmt->bind_param("ss", $content, $slug);
 
 if ($stmt->execute()) {
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => '성공적으로 저장되었습니다.',
+        'redirect_url' => '#/main_content' 
     ]);
 } else {
     echo json_encode(['success' => false, 'message' => '데이터베이스 저장에 실패했습니다.']);

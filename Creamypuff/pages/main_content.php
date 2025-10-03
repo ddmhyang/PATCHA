@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/db.php';
 $page_slug = 'creamypuff';
-//
 
 $stmt = $mysqli->prepare("SELECT content FROM pages WHERE slug = ?");
 $stmt->bind_param("s", $page_slug);
