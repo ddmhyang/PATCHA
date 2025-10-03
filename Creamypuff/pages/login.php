@@ -17,19 +17,18 @@ if ($is_admin) {
     </div>
 </div>
 <script>
-// 로그인 폼의 submit 이벤트가 발생하면 실행됩니다.
 $('#login-form').on('submit', function(e) {
-    e.preventDefault(); // 페이지 새로고침을 막습니다.
+    e.preventDefault();
     $.ajax({
-        url: $(this).attr('action'), // 폼의 action 속성에 지정된 'ajax_login.php'로 요청
+        url: $(this).attr('action'),
         type: 'POST',
-        data: $(this).serialize(), // 폼 안의 모든 입력 데이터를(username, password) 전송
+        data: $(this).serialize(),
         dataType: 'json',
         success: function(response) {
-            if (response.success) { // 서버로부터 'success: true' 응답을 받으면
-                window.location.href = 'main.php'; // main.php로 페이지를 완전히 새로고침하여 이동합니다.
-            } else { // 실패 응답을 받으면
-                $('#login-error').text(response.message); // 오류 메시지를 화면에 표시합니다.
+            if (response.success) {
+                window.location.href = 'main.php';
+            } else {
+                $('#login-error').text(response.message);
             }
         },
         error: () => $('#login-error').text('로그인 중 서버 오류가 발생했습니다.')

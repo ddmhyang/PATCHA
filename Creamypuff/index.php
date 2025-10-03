@@ -1,14 +1,11 @@
 <?php
 require_once 'includes/db.php';
 
-// 'settings' 테이블에서 모든 설정 값을 가져옵니다.
 $settings_result = $mysqli->query("SELECT * FROM settings");
 $settings = [];
-// while 반복문으로 가져온 설정들을 'setting_key' => 'setting_value' 형태로 $settings 배열에 저장합니다.
 while ($row = $settings_result->fetch_assoc()) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
-// 만약 값이 없으면(?? 연산자), 오른쪽의 기본 이미지 경로를 $main_bg 변수에 할당합니다.
 $main_bg = $settings['main_background'] ?? '/assets/images/background.png';
 ?><!DOCTYPE html>
 <html lang="ko">

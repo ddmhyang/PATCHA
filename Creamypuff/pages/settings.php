@@ -1,12 +1,9 @@
 <?php
 require_once '../includes/db.php';
-// 관리자가 아니면 'die()' 함수로 스크립트를 중단시키고 메시지를 출력합니다.
 if (!$is_admin) { die("관리자만 접근 가능합니다."); }
 
-// 'settings' 테이블에서 모든 설정 값을 가져옵니다.
 $settings_result = $mysqli->query("SELECT * FROM settings");
 $settings = [];
-// while 반복문으로 가져온 설정들을 'setting_key' => 'setting_value' 형태로 $settings 배열에 저장합니다.
 while ($row = $settings_result->fetch_assoc()) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }

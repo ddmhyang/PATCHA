@@ -15,7 +15,7 @@ $stmt->close();
         <div class="content-display"><?php echo $page_content; ?></div>
         <?php if ($is_admin): ?><button class="edit-btn">수정하기</button><?php endif; ?>
     </div>
-    <?php if ($is_admin): // 아래는 관리자에게만 보이는 숨겨진 수정 영역입니다. ?>
+    <?php if ($is_admin):?>
     <div id="edit-mode" style="display:none;">
         <form class="ajax-form" action="ajax_save_page.php" method="post">
             <input type="hidden" name="slug" value="<?php echo $page_slug; ?>">
@@ -42,5 +42,5 @@ $stmt->close();
         $('#view-mode').show();
     });
     </script>
-    <?php endif; // 관리자 전용 영역 끝 ?>
+    <?php endif;?>
 </div>

@@ -11,19 +11,18 @@
     </div>
 </div>
 <script>
-// 비밀번호 폼의 submit 이벤트가 발생하면 실행됩니다.
 $('#password-form').on('submit', function(e) {
-    e.preventDefault(); // 페이지 새로고침을 막습니다.
+    e.preventDefault();
     $.ajax({
         url: $(this).attr('action'),
         type: 'POST',
-        data: $(this).serialize(), // post_id와 password를 전송합니다.
+        data: $(this).serialize(),
         dataType: 'json',
         success: function(response) {
-            if (response.success) { // 서버로부터 'success: true' 응답을 받으면
-                location.reload();    // 페이지를 새로고침합니다. (gallery_view.php가 다시 로드되면서 접근 권한이 생김)
-            } else { // 실패하면
-                $('#password-error').text(response.message); // 오류 메시지를 표시합니다.
+            if (response.success) {
+                location.reload();
+            } else {
+                $('#password-error').text(response.message);
             }
         },
         error: () => $('#password-error').text('오류가 발생했습니다.')

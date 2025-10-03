@@ -1,19 +1,10 @@
 <?php 
-// 데이터베이스 연결 및 세션 시작, 관리자 여부 확인을 위해 db.php 파일을 포함합니다.
 require_once '../includes/db.php'; 
-
-// 'settings' 테이블에서 모든 설정 값을 가져옵니다.
 $settings_result = $mysqli->query("SELECT * FROM settings");
-// 설정 값을 담을 빈 배열을 선언합니다.
 $settings = [];
-// while 반복문을 사용해 가져온 설정 값들을 한 줄씩 처리합니다.
 while ($row = $settings_result->fetch_assoc()) {
-    // 'setting_key'를 키로, 'setting_value'를 값으로 하여 $settings 배열에 저장합니다.
-    // 예: $settings['main_background'] = '../assets/img/bg.png';
     $settings[$row['setting_key']] = $row['setting_value'];
 }
-// $settings 배열에서 'main_background' 값을 찾습니다.
-// 만약 값이 없으면(?? 연산자), 오른쪽의 기본 이미지 경로를 $main_bg 변수에 할당합니다.
 $main_bg = $settings['main_background'] ?? '/assets/images/background.png';
 ?>
 <!DOCTYPE html>
@@ -30,7 +21,7 @@ $main_bg = $settings['main_background'] ?? '/assets/images/background.png';
 <body>
     <div class="container" style="background-image: url('<?php echo htmlspecialchars($main_bg); ?>');">
 
-        <nav>
+        <nav class="desktop">
             <a href="#/main_content">Creamypuff</a>
             <a href="#/profile">Profile</a>
             <a href="#/gallery">Gallery</a>
@@ -41,6 +32,19 @@ $main_bg = $settings['main_background'] ?? '/assets/images/background.png';
                 <a href="#/login">Login</a>
             <?php endif; ?>
             <a href="#/settings">Settings</a>
+        </nav>
+
+        <nav class="mobile">
+            <a href="#/main_content">C</a>
+            <a href="#/profile">P</a>
+            <a href="#/gallery">F</a>
+            <a href="#/panel">N</a>
+            <?php if ($is_admin === true): ?>
+                <a href="logout.php">L</a>
+            <?php else: ?>
+                <a href="#/login">L</a>
+            <?php endif; ?>
+            <a href="#/settings">S</a>
         </nav>
 
         <div class="pages_layout">

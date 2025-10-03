@@ -1,6 +1,5 @@
 a{
     text-decoration: none;
-    /* white-space: nowrap; */
 }
 
 @font-face {
@@ -54,6 +53,14 @@ html {
 body,
 html {
     transition: background-color 1s ease-in-out;
+}
+
+.desktop {
+    display: block;
+}
+
+.mobile {
+    display: none;
 }
 
 .index_layout{
@@ -135,7 +142,7 @@ html {
     left: 815px;
 }
 
-nav{
+.desktop{
     position: absolute;
     top: 149px;
     left: 85px;
@@ -144,7 +151,7 @@ nav{
     gap: 52px;
 }
 
-nav > a{
+.desktop > a{
     color: #FFF;
     text-shadow: 0 4px 4px #8ABBF7;
     font-family: "Kolker Brush";
@@ -155,7 +162,7 @@ nav > a{
     text-align: center;
 }
 
-.login-container, .form-page-container, .password-form-container, .view-container, .gallery-container, .page-container, .settings-container{
+.login-container, .form-page-container, .password-form-container, .view-container, .gallery-container, .page-container, .settings-container, .gallery-container_panel{
     margin-top: 90px;
     margin-left: 40px;
     width: 920px;
@@ -234,7 +241,7 @@ nav > a{
     font-size: 16px;
 }
 
-.add-btn{
+.add-btn, .btn-action{
     padding: 10px 12px;
     font-family: 'Nanum SonPyeonJiCe';
     border-radius: 5px;
@@ -246,7 +253,8 @@ nav > a{
     font-size: 16px;
 }
 
-.file-upload-button{
+
+.file-upload-button, .delete-btn{
     margin-left: 10px;
     padding: 10px 12px;
     font-family: 'Nanum SonPyeonJiCe';
@@ -258,7 +266,7 @@ nav > a{
     font-size: 16px;
 }
 
-.form-page-container::-webkit-scrollbar{
+.login-container::-webkit-scrollbar, .form-page-container::-webkit-scrollbar, .password-form-container::-webkit-scrollbar, .view-container::-webkit-scrollbar, .gallery-container::-webkit-scrollbar, .page-container::-webkit-scrollbar, .settings-container::-webkit-scrollbar, .gallery-container_panel::-webkit-scrollbar{
     width: 0px;
     height: 0px;
 }
@@ -309,6 +317,46 @@ nav > a{
     color: #7078A7;
 }
 
+.view-container > h1{
+    font-family: 'Nanum SonPyeonJiCe';
+    margin: 0 0;
+}
+
+
+.gallery-grid_panel {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(920px, 2fr));
+    gap: 70px;
+}
+
+.gallery-item_panel {
+    height: 300px;
+    width: 425px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 15px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.50);
+    align-items: center;
+}
+
+.item-thumbnail_panel {
+    margin-top: 38px;
+    margin-left: 63px;
+    width: 300px;
+    height: 225px;
+    background-color:#B1C8DA;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+.btn-back-to-list{
+    color: #8ABBF7;
+}
+
 @media (max-width: 768px) {
     .container {
         width: 720px;
@@ -326,5 +374,304 @@ nav > a{
     body,
     html {
         transition: background-color 1s ease-in-out;
+    }
+
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: block;
+        display: flex;
+        flex-direction: row;
+        gap: 70px;
+        position: absolute;
+        top: 171px;
+        left: 84px;
+    }
+
+    .mobile > a{
+        color: #FFF;
+        text-shadow: 0 4px 4px #8ABBF7;
+        font-family: "Kolker Brush";
+        font-size: 64px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+
+
+    .index_layout{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 550px;
+        height: 800px;
+        flex-shrink: 0;
+        border-radius: 15px 15px 0 0;
+        box-sizing: border-box; 
+        border: 2px solid #BED8F8;
+        background: rgba(255, 255, 255, 0.40);
+        cursor: pointer;
+    }
+
+    .index_layout_top{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 550px;
+        height: 62px;
+        flex-shrink: 0;
+        border-radius: 15px 15px 0 0;
+        background: #BED8F8;
+    }
+
+    .iT_btn{
+        position: absolute;
+        top: 16px;
+        left: 374px;
+    }
+
+    .index_layout > a{
+        position: absolute;
+        top: 347px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #FFF;
+        font-family: "Kolker Brush";
+        font-size: 100px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-shadow: 0 4px 4px #8ABBF7;
+    }
+
+
+    .pages_layout{
+        position: absolute;
+        top: 309px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 550px;
+        height: 800px;
+        flex-shrink: 0;
+        border-radius: 15px 15px 0 0;
+        box-sizing: border-box; 
+        border: 2px solid #BED8F8;
+        background: rgba(255, 255, 255, 0.40);
+    }
+
+    .pages_layout_top{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 550px;
+        height: 62px;
+        flex-shrink: 0;
+        border-radius: 15px 15px 0 0;
+        background: #BED8F8;
+    }
+
+    .pT_btn{
+        position: absolute;
+        top: 16px;
+        left: 374px;
+    }
+
+    .login-container, .form-page-container, .password-form-container, .view-container, .gallery-container, .page-container, .settings-container, .gallery-container_panel{
+        margin-top: 77px;
+        margin-left: 40px;
+        width: 470px;
+        height: 720px;
+        background: #8ABBF700;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    #login-form{
+        position: absolute;
+        top: 247px;
+        left: 71px;
+        display: flex;
+        flex-direction: column;
+        gap: 39px;
+        align-items: center;
+    }
+    #login-form input{
+        width: 408px;
+        height: 93px;
+        border-radius: 15px;
+        border: 1px solid #8ABBF7;
+        background: rgba(255, 255, 255, 0.50);
+        flex-shrink: 0;
+        font-family: 'Kolker Brush';
+        font-size: 52px;
+    }
+
+    #login-form button {
+        width: 238px;
+        height: 64px;
+        flex-shrink: 0;
+        border-radius: 15px;
+        border: 1px solid #8ABBF7;
+        background: rgba(255, 255, 255, 0.50);
+        font-family: 'Kolker Brush';
+        font-size: 52px;
+    }
+
+    .edit-btn{
+        padding: 10px 12px;
+        font-family: 'Nanum SonPyeonJiCe';
+        border-radius: 5px;
+        border: 2px solid #8ABBF7;
+        cursor: pointer;
+        box-sizing: border-box; 
+        background: rgba(255, 255, 255, 0.5);
+        color: #8ABBF7;
+        font-size: 16px;
+    }
+
+    .ajax-form > button{
+        margin-top: 15px;
+        padding: 10px 12px;
+        font-family: 'Nanum SonPyeonJiCe';
+        border-radius: 5px;
+        border: 2px solid #8ABBF7;
+        cursor: pointer;
+        box-sizing: border-box; 
+        background: rgba(255, 255, 255, 0.5);
+        color: #8ABBF7;
+        font-size: 16px;
+    }
+
+    .cancel-btn, .cancel_btn{
+        margin-top: 15px;
+        margin-left: 10px;
+        padding: 10px 12px;
+        font-family: 'Nanum SonPyeonJiCe';
+        border-radius: 5px;
+        cursor: pointer;
+        box-sizing: border-box; 
+        background: #8ABBF7;
+        color: #ffffff;
+        font-size: 16px;
+    }
+
+    .add-btn, .btn-action{
+        padding: 10px 12px;
+        font-family: 'Nanum SonPyeonJiCe';
+        border-radius: 5px;
+        border: 2px solid #8ABBF7;
+        cursor: pointer;
+        box-sizing: border-box; 
+        background: rgba(255, 255, 255, 0.5);
+        color: #8ABBF7;
+        font-size: 16px;
+    }
+
+
+    .file-upload-button, .delete-btn{
+        margin-left: 10px;
+        padding: 10px 12px;
+        font-family: 'Nanum SonPyeonJiCe';
+        border-radius: 5px;
+        cursor: pointer;
+        box-sizing: border-box; 
+        background: #8ABBF7;
+        color: #ffffff;
+        font-size: 16px;
+    }
+
+    .login-container::-webkit-scrollbar, .form-page-container::-webkit-scrollbar, .password-form-container::-webkit-scrollbar, .view-container::-webkit-scrollbar, .gallery-container::-webkit-scrollbar, .page-container::-webkit-scrollbar, .settings-container::-webkit-scrollbar, .gallery-container_panel::-webkit-scrollbar{
+        width: 0px;
+        height: 0px;
+    }
+
+    #title, #password {
+        margin-left: 10px;
+        display: inline-block;
+        border-radius: 5px;
+        border: 1px solid #8ABBF7;
+        background: rgba(255, 255, 255, 0.50);
+        flex-shrink: 0;
+        padding: 8px 15px;
+    }
+
+    .gallery-grid {
+        margin-top: 50px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 30px;
+    }
+
+    .gallery-item {
+        height: 264px;
+        width: 220px;
+        text-decoration: none;
+        color: #333;
+        border-radius: 15px;
+        border-radius: 15px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.50);
+    }
+
+
+    .item-thumbnail {
+        margin-top: 22px;
+        margin-left: 22px;
+        width: 176px;
+        padding-top: 176px;
+        background-color:#B1C8DA;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .gallery-item h3 {
+        padding: 10px;
+        font-size: 16px;
+        margin: 0;
+        color: #7078A7;
+    }
+
+    .view-container > h1{
+        font-family: 'Nanum SonPyeonJiCe';
+        margin: 0 0;
+    }
+
+
+    .gallery-grid_panel {
+        margin-top: 50px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(920px, 2fr));
+        gap: 70px;
+    }
+
+    .gallery-item_panel {
+        height: 300px;
+        width: 470px;
+        text-decoration: none;
+        color: #333;
+        border-radius: 15px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.50);
+        align-items: center;
+    }
+
+    .item-thumbnail_panel {
+        margin-top: 40px;
+        margin-left: 92px;
+        width: 294px;
+        height: 220px;
+        background-color:#B1C8DA;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        flex-shrink: 0;
+    }
+
+    .btn-back-to-list{
+        color: #8ABBF7;
     }
 }

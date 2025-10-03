@@ -2,11 +2,9 @@
 require_once '../includes/db.php';
 if (!$is_admin) { die("권한이 없습니다."); }
 
-// URL 파라미터에서 수정할 게시물의 id를 가져옵니다. intval()로 숫자로 강제 변환합니다.
 $post_id = intval($_GET['id'] ?? 0);
 if ($post_id <= 0) { die("유효하지 않은 게시물입니다."); }
 
-// 해당 id를 가진 게시물의 모든 정보를 DB에서 가져옵니다.
 $stmt = $mysqli->prepare("SELECT * FROM gallery WHERE id = ?");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
@@ -40,9 +38,9 @@ if (!$post) { die("게시물이 없습니다."); }
         <button type="submit">수정 완료</button>
         <a class="cancel_btn" href="#/gallery_view?id=<?php echo $post_id; ?>">취소하기</a>
     </form>
+    <br><br>
 </div>
 <script>
-// Summernote 에디터를 활성화합니다.
 
 $('.summernote').summernote({
     height: 400,
@@ -55,12 +53,11 @@ $('.summernote').summernote({
         }
     }
 });
-// '비밀글' 체크박스를 클릭하면 비밀번호 입력란을 보여주거나 숨깁니다.
 $('#is_private').on('change', function() {
     if ($(this).is(':checked')) {
         $('#password').show();
     } else {
-        $('#password').hide().val(''); // 숨기면서 입력된 값도 지웁니다.
+        $('#password').hide().val('');
     }
 });
 </script>
