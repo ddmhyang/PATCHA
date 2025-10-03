@@ -109,7 +109,7 @@ unset($_SESSION['message']); // 메시지 한 번 표시 후 제거
 <div class="settings-container">
     <h2>사이트 설정</h2>
     <form class="ajax-form" action="ajax_save_settings.php" method="post" enctype="multipart/form-data">
-        <div>
+        <!-- <div>
             <label for="youtube_url">YouTube 영상 링크 입력:</label>
             <input type="text" id="youtube_url" name="youtube_url"
                    value="<?php echo htmlspecialchars($current_bgm_type === 'youtube' ? 'https://www.youtube.com/watch?v=' . $current_bgm_youtube_id . ($current_bgm_youtube_si ? '&si=' . $current_bgm_youtube_si : '') : ''); ?>"
@@ -128,7 +128,7 @@ unset($_SESSION['message']); // 메시지 한 번 표시 후 제거
             <?php endif; ?>
             <small>MP3 파일을 업로드하거나 기존 파일을 유지합니다. YouTube 링크가 있으면 MP3는 비활성화됩니다.</small>
         </div>
-
+ -->
 
         <hr>
         <div class="form-group">
