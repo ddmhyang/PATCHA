@@ -2,6 +2,7 @@ $(document).ready(function () {
     const isAdmin = $('nav a[href="logout.php"]').length > 0;
     let currentScale = 1;
     let isDragging = false;
+    const bgmPlayer = document.getElementById('bgm-player');
 
     function adjustScale() {
         const container = $('.container');
@@ -82,9 +83,33 @@ $(document).ready(function () {
             'timeline.php?timeline_type=' + timelineType,
             function () {
                 initializeTimelineInteraction(timelineType);
+                setTimeout(adjustTimelineHeight, 100);
             }
         );
     }
+
+    function adjustTimelineHeight() {
+        const timelineWrapper = $('#timeline-wrapper');
+        if (timelineWrapper.length === 0) return;
+
+        let maxPosition = 0;
+        $('.timeline-item').each(function() {
+            const itemBottom = $(this).position().top + $(this).outerHeight();
+            if (itemBottom > maxPosition) {
+                maxPosition = itemBottom;
+            }
+        });
+
+        const minHeight = window.innerWidth > 786 ? 900 : 1180;
+        let newHeight = maxPosition + 100;
+
+        if (newHeight < minHeight) {
+            newHeight = minHeight;
+        }
+
+        timelineWrapper.height(newHeight);
+    }
+
 
     function initializeTimelineInteraction(viewType) {
         if (!isAdmin) 
@@ -121,6 +146,7 @@ $(document).ready(function () {
                     left: offsetX + dx,
                     top: Math.round((offsetY + dy) / 30) * 30 
                 });
+                adjustTimelineHeight();
             }
 
             
@@ -410,4 +436,19 @@ $(document).ready(function () {
         .trigger('resize');
     $(window).on('hashchange', router);
     router();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const musicPlayer = document.getElementById('music-player');
+
+  const playMusicOnClick = () => {
+    if (musicPlayer && musicPlayer.paused) {
+      musicPlayer.play().catch(error => {
+        console.error("Music autoplay failed:", error);
+      });
+    }
+    document.body.removeEventListener('click', playMusicOnClick);
+  };
+
+  document.body.addEventListener('click', playMusicOnClick);
 });

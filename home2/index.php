@@ -63,6 +63,10 @@
             <div id="ajax-content-view" class="view">
             </div>
         </main>
+        <audio id="music-player" loop>
+            <source src="assets/bgm/music.mp3" type="audio/mpeg">
+            오디오 오류. 문의주세요.
+        </audio>
     </div>
     <script src="assets/js/main.js"></script>
 </body>
