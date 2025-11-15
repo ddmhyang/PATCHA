@@ -1,4 +1,8 @@
 <?php
+/*
+ * login.php (Bcrypt / password_verify() 사용 버전)
+ * z3rdk9.sql 파일의 해시값과 호환됩니다.
+ */
 session_start(); // 세션 시작
 include 'db_connect.php'; // DB 연결
 
@@ -8,17 +12,16 @@ $error_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['username']) && isset($_POST['password'])) {
         $username = $_POST['username'];
-        $password = $_POST['password']; // 사용자가 입력한 원본 비밀번호
+        $password = $_POST['password'];
 
         try {
             // 2. DB에서 'username'으로 관리자 정보 조회
             $sql = "SELECT * FROM youth_admin_users WHERE username = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$username]);
-            $admin_user = $stmt->fetch();
+            $admin_user = $stmt->fetch(); // 1개의 행만 가져옴
 
-            // 3. ★핵심★
-            // 사용자가 존재하고, PHP의 password_verify 함수로 비밀번호가 일치하는지 검사
+            // 3. (★핵심★) 사용자가 존재하고, password_verify()로 비밀번호가 일치하는지 검사
             if ($admin_user && password_verify($password, $admin_user['password_hash'])) {
                 
                 // 4. 일치하면, 세션에 '로그인 성공' 기록

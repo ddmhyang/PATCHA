@@ -8,7 +8,6 @@
 // 1. CORS 헤더 설정
 // ★★★ 1순위: 로그인 안 했으면 여기서 즉시 차단! ★★★
 include 'auth_check.php'; 
-
 // 2. DB 연결 (로그인 성공한 사람만 DB 연결)
 include 'db_connect.php'; 
 header("Access-Control-Allow-Origin: *");

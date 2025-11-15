@@ -18,11 +18,27 @@ include 'db_connect.php';
     <nav id="main-nav">
         <h1>관리자 메뉴</h1>
         <ul>
-            <li><a href="#" data-page="members">회원 관리</a></li>
-            <li><a href="#" data-page="items">상점 관리</a></li>
-            <li><a href="#" data-page="games">도박 관리</a></li>
-            <li><a href="#" data-page="logs">포인트 로그</a></li>
-            <li><a href="logout.php">로그아웃</a></li>
+            <li>
+                <a href="#" data-page="members">회원 관리</a>
+            </li>
+            <li>
+                <a href="#" data-page="items">상점 관리</a>
+            </li>
+            <li>
+                <a href="#" data-page="games">도박 관리</a>
+            </li>
+            <li>
+                <a href="#" data-page="logs">포인트 로그</a>
+            </li>
+            <li>
+                <a href="#" data-page="inventory">인벤토리 관리</a>
+            </li> 
+            <li>
+                <a href="#" data-page="logs">포인트 로그</a>
+            </li>
+            <li>
+                <a href="logout.php">로그아웃</a>
+            </li>
         </ul>
     </nav>
 
