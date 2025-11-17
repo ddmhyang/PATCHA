@@ -1,10 +1,10 @@
 <?php
 /*
  * login.php (Bcrypt / password_verify() 사용 버전)
- * z3rdk9.sql 파일의 해시값과 호환됩니다.
+ * (★ SQLite와 호환됨)
  */
 session_start(); // 세션 시작
-include 'db_connect.php'; // DB 연결
+include 'db_connect.php'; // (SQLite용 db_connect.php를 불러옴)
 
 $error_message = '';
 
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <title>관리자 로그인</title>
     <style>
-        /* (CSS 스타일은 이전과 동일하게 유지) */
+        /* (CSS 스타일은 동일) */
         body { font-family: sans-serif; display: grid; place-items: center; min-height: 100vh; }
         form { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
         .form-group { margin-bottom: 15px; }

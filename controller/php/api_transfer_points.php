@@ -1,8 +1,6 @@
 <?php
 /*
- * api_transfer_points.php
- * [SPA/조종기용 쓰기 API 8]
- * 한 회원의 포인트를 다른 회원에게 양도합니다. (트랜잭션)
+ * api_transfer_points.php (★ SQLite 완전 호환 버전)
  */
 
 // ★★★ 1순위: 로그인 인증 ★★★
@@ -44,8 +42,8 @@ if ($sender_id === $receiver_id) {
 try {
     $pdo->beginTransaction();
 
-    // 6-1. 보내는 사람(Sender) 포인트 조회 및 잠금
-    $sql_sender = "SELECT points, member_name FROM youth_members WHERE member_id = ? FOR UPDATE";
+    // 6-1. 보내는 사람(Sender) 포인트 조회 (★ FOR UPDATE 제거 ★)
+    $sql_sender = "SELECT points, member_name FROM youth_members WHERE member_id = ?";
     $stmt_sender = $pdo->prepare($sql_sender);
     $stmt_sender->execute([$sender_id]);
     $sender = $stmt_sender->fetch();
@@ -59,7 +57,7 @@ try {
         throw new Exception("보내는 분의 포인트가 부족합니다. (보유: {$sender['points']}P)");
     }
     
-    // 6-3. 받는 사람(Receiver) 이름 조회 (로그용)
+    // 6-3. 받는 사람(Receiver) 이름 조회 (동일)
     $sql_receiver = "SELECT member_name FROM youth_members WHERE member_id = ?";
     $stmt_receiver = $pdo->prepare($sql_receiver);
     $stmt_receiver->execute([$receiver_id]);
@@ -72,22 +70,22 @@ try {
     $sender_name = $sender['member_name'];
     $receiver_name = $receiver['member_name'];
 
-    // 6-4. 보내는 사람 포인트 차감
+    // 6-4. 보내는 사람 포인트 차감 (동일)
     $sql_update_sender = "UPDATE youth_members SET points = points - ? WHERE member_id = ?";
     $pdo->prepare($sql_update_sender)->execute([$amount, $sender_id]);
     
-    // 6-5. 받는 사람 포인트 증가
+    // 6-5. 받는 사람 포인트 증가 (동일)
     $sql_update_receiver = "UPDATE youth_members SET points = points + ? WHERE member_id = ?";
     $pdo->prepare($sql_update_receiver)->execute([$amount, $receiver_id]);
     
-    // 6-6. 보내는 사람 로그 기록
+    // 6-6. 보내는 사람 로그 기록 (동일)
     $reason_sender = "{$receiver_name}({$receiver_id})님에게 양도";
     $sql_log_sender = "INSERT INTO youth_point_logs (member_id, point_change, reason) VALUES (?, ?, ?)";
     $pdo->prepare($sql_log_sender)->execute([$sender_id, -$amount, $reason_sender]);
     
-    // 6-7. 받는 사람 로그 기록
+    // 6-7. 받는 사람 로그 기록 (동일)
     $reason_receiver = "{$sender_name}({$sender_id})님으로부터 받음";
-    $sql_log_receiver = "INSERT INTO youth_point_logs (member_id, point_change, reason) VALUES (?, ?, ?)";
+    $sql_log_receiver = "INSERT INTO youth_point_logs (member_id, point_change, reason) VALUES (?, ?, ?, ?)";
     $pdo->prepare($sql_log_receiver)->execute([$receiver_id, $amount, $reason_receiver]);
 
     // 6-8. 모든 작업 성공! DB 최종 반영

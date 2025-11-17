@@ -15,36 +15,18 @@ include 'db_connect.php';
 </head>
 <body>
 
-    <nav id="main-nav">
+<nav id="main-nav">
         <h1>관리자 메뉴</h1>
         <ul>
-            <li>
-                <a href="#" data-page="members">회원 관리</a>
-            </li>
-            <li>
-                <a href="#" data-page="items">상점 관리</a>
-            </li>
-            <li>
-                <a href="#" data-page="games">도박 관리</a>
-            </li>
-            <li>
-                <a href="#" data-page="inventory">인벤토리 관리</a>
-            </li> 
-            <li>
-                <a href="#" data-page="transfer_point">포인트 양도</a>
-            </li>
-            <li>
-                <a href="#" data-page="transfer_item">아이템 양도</a>
-            </li>
-            <li>
-                <a href="#" data-page="logs">포인트 로그</a>
-            </li>
-            <li>
-                <a href="#" data-page="item_logs">아이템 로그</a>
-            </li>
-            <li>
-                <a href="logout.php">로그아웃</a>
-            </li>
+            <li><a href="#" data-page="members">회원 관리</a></li>
+            <li><a href="#" data-page="items">상점 관리</a></li>
+            <li><a href="#" data-page="games">도박 관리</a></li>
+            <li><a href="#" data-page="inventory">인벤토리 관리</a></li>
+            <li><a href="#" data-page="transfer_point">포인트 양도</a></li>
+            <li><a href="#" data-page="transfer_item">아이템 양도</a></li>
+            <li><a href="#" data-page="logs">포인트 로그</a></li>
+            <li><a href="#" data-page="item_logs">아이템 로그</a></li>
+            <li><a href="#" data-page="settings">설정</a></li> <li><a href="logout.php">로그아웃</a></li>
         </ul>
     </nav>
 

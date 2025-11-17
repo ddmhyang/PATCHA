@@ -1,7 +1,7 @@
 /*
  * app.js
  * SPA의 모든 로직을 담당합니다.
- * (★아이템 로그 탭 기능 추가됨)
+ * (★설정 및 초기화 탭 기능 추가됨)
  */
 
 // API 파일들이 있는 기본 경로
@@ -54,8 +54,11 @@ function navigateTo(page) {
         case 'logs':
             loadLogsPage();
             break;
-        case 'item_logs': // ★★★ 신규 추가 ★★★
+        case 'item_logs':
             loadItemLogsPage();
+            break;
+        case 'settings': // ★★★ 신규 추가 ★★★
+            loadSettingsPage();
             break;
         default:
             contentElement.innerHTML = '<h2>페이지를 찾을 수 없습니다.</h2>';
@@ -94,17 +97,17 @@ function populateSelect(selectElement, data, valueField, textField, optionalFiel
 
 
 // -----------------------------------------------------
-// --- 1. 회원 관리 (Members) --- (기존과 동일)
+// --- 1. 캐릭터 관리 (Members) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadMembersPage() {
-    // 1. 폼과 테이블 뼈대 그리기
+    // (이하 캐릭터 관리 함수들은 이전과 동일합니다)
     const pageHtml = `
-        <h2>회원 관리</h2>
+        <h2>캐릭터 관리</h2>
         <form id="member-form">
             <input type="hidden" id="action_mode" value="add">
-            <h3>새 회원 등록 (수정 시 여기를 보세요)</h3>
+            <h3>새 캐릭터 등록 (수정 시 여기를 보세요)</h3>
             <div class="form-group">
-                <label for="member_id">회원 ID (밴드 닉네임)</label>
+                <label for="member_id">캐릭터 번호</label>
                 <input type="text" id="member_id" name="member_id" required>
             </div>
             <div class="form-group">
@@ -119,11 +122,11 @@ async function loadMembersPage() {
             <button type="button" id="form-cancel-button" style="display:none;">취소</button>
             <p id="form-message"></p>
         </form>
-        <h3>전체 회원 목록</h3>
+        <h3>전체 캐릭터 목록</h3>
         <table id="members-table">
             <thead>
                 <tr>
-                    <th>회원 ID</th>
+                    <th>캐릭터 번호</th>
                     <th>이름</th>
                     <th>보유 포인트</th>
                     <th>관리</th>
@@ -133,17 +136,12 @@ async function loadMembersPage() {
         </table>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. 폼 이벤트 리스너 추가
     document.getElementById('member-form').addEventListener('submit', handleMemberSubmit);
     document.getElementById('form-cancel-button').addEventListener('click', resetMemberForm);
-
-    // 3. API 호출하여 테이블 채우기
     try {
         const response = await fetch(`${API_BASE_URL}/api_get_all_members.php`);
         const result = await response.json();
         const tableBody = document.querySelector('#members-table tbody');
-
         if (result.status === 'success' && result.data.length > 0) {
             const rowsHtml = result.data.map(member => `
                 <tr data-id="${member.member_id}">
@@ -165,12 +163,9 @@ async function loadMembersPage() {
                 </tr>
             `).join('');
             tableBody.innerHTML = rowsHtml;
-
-            // 4. 테이블에 버튼 리스너 추가 (이벤트 위임)
             attachMemberTableListeners();
-
         } else if (result.status === 'success') {
-            tableBody.innerHTML = '<tr><td colspan="4">등록된 회원이 없습니다.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="4">등록된 캐릭터가 없습니다.</td></tr>';
         } else {
             tableBody.innerHTML = `<tr><td colspan="4" class="error">${result.message}</td></tr>`;
         }
@@ -184,20 +179,14 @@ async function handleMemberSubmit(event) {
     event.preventDefault();
     const form = event.target;
     const messageElement = document.getElementById('form-message');
-    
     const mode = document.getElementById('action_mode').value;
     const apiUrl = (mode === 'add') ? 'api_add_member.php' : 'api_update_member.php';
-
     const formData = {
         member_id: form.member_id.value,
         member_name: form.member_name.value,
         points: parseInt(form.points.value)
     };
-    
-    if (mode === 'add') {
-        delete formData.points; 
-    }
-
+    if (mode === 'add') { delete formData.points; }
     try {
         const response = await fetch(`${API_BASE_URL}/${apiUrl}`, {
             method: 'POST',
@@ -205,7 +194,6 @@ async function handleMemberSubmit(event) {
             body: JSON.stringify(formData)
         });
         const result = await response.json();
-
         if (result.status === 'success') {
             messageElement.textContent = result.message;
             messageElement.className = 'success';
@@ -226,7 +214,6 @@ function attachMemberTableListeners() {
     tableBody.addEventListener('click', (event) => {
         const target = event.target;
         const memberId = target.dataset.id;
-
         if (target.classList.contains('btn-delete')) {
             handleDeleteMember(memberId);
         } else if (target.classList.contains('btn-edit')) {
@@ -238,10 +225,7 @@ function attachMemberTableListeners() {
 }
 
 async function handleDeleteMember(memberId) {
-    if (!confirm(`정말 [${memberId}] 회원을 삭제하시겠습니까?\n이 회원의 인벤토리와 포인트 로그도 모두 삭제/수정됩니다.`)) {
-        return;
-    }
-    
+    if (!confirm(`정말 [${memberId}] 캐릭터를 삭제하시겠습니까?\n이 캐릭터의 인벤토리와 포인트 로그도 모두 삭제/수정됩니다.`)) { return; }
     try {
         const response = await fetch(`${API_BASE_URL}/api_delete_member.php`, {
             method: 'POST',
@@ -249,7 +233,6 @@ async function handleDeleteMember(memberId) {
             body: JSON.stringify({ member_id: memberId })
         });
         const result = await response.json();
-        
         if (result.status === 'success') {
             alert(result.message);
             loadMembersPage(); // 목록 새로고침
@@ -262,37 +245,28 @@ async function handleDeleteMember(memberId) {
 }
 
 function populateEditForm(id, name, points) {
-    window.scrollTo(0, 0); // 맨 위로 스크롤
-    
+    window.scrollTo(0, 0); 
     const form = document.getElementById('member-form');
-    form.querySelector('h3').textContent = '회원 정보 수정';
+    form.querySelector('h3').textContent = '캐릭터 정보 수정';
     document.getElementById('action_mode').value = 'update';
-    
     document.getElementById('member_id').value = id;
-    document.getElementById('member_id').readOnly = true; // ID(PK)는 수정 불가
-    
+    document.getElementById('member_id').readOnly = true; 
     document.getElementById('member_name').value = name;
-    
     document.getElementById('points').value = points;
     document.getElementById('points-group').style.display = 'block';
-
     document.getElementById('form-submit-button').textContent = '수정 완료';
     document.getElementById('form-cancel-button').style.display = 'inline-block';
 }
 
 function resetMemberForm() {
     const form = document.getElementById('member-form');
-    form.querySelector('h3').textContent = '새 회원 등록';
+    form.querySelector('h3').textContent = '새 캐릭터 등록';
     document.getElementById('action_mode').value = 'add';
-    
     form.reset();
-    
     document.getElementById('member_id').readOnly = false;
     document.getElementById('points-group').style.display = 'none';
-    
     document.getElementById('form-submit-button').textContent = '등록하기';
     document.getElementById('form-cancel-button').style.display = 'none';
-    
     document.getElementById('form-message').textContent = '';
     document.getElementById('form-message').className = '';
 }
@@ -302,7 +276,6 @@ function resetMemberForm() {
 // --- 2. 상점 관리 (Items) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadItemsPage() {
-    // 1. 폼과 테이블 뼈대 그리기
     const pageHtml = `
         <h2>상점 관리</h2>
         <form id="item-form">
@@ -352,17 +325,12 @@ async function loadItemsPage() {
         </table>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. 폼 이벤트 리스너 추가
     document.getElementById('item-form').addEventListener('submit', handleItemSubmit);
     document.getElementById('form-cancel-button').addEventListener('click', resetItemForm);
-
-    // 3. API 호출하여 테이블 채우기
     try {
         const response = await fetch(`${API_BASE_URL}/api_get_all_items.php`);
         const result = await response.json();
         const tableBody = document.querySelector('#items-table tbody');
-
         if (result.status === 'success' && result.data.length > 0) {
             const rowsHtml = result.data.map(item => `
                 <tr>
@@ -390,10 +358,7 @@ async function loadItemsPage() {
                 </tr>
             `).join('');
             tableBody.innerHTML = rowsHtml;
-
-            // 4. 테이블에 버튼 리스너 추가
             attachItemTableListeners();
-
         } else if (result.status === 'success') {
             tableBody.innerHTML = '<tr><td colspan="6">등록된 아이템이 없습니다.</td></tr>';
         } else {
@@ -409,19 +374,16 @@ async function handleItemSubmit(event) {
     event.preventDefault();
     const form = event.target;
     const messageElement = document.getElementById('form-message');
-    
     const mode = document.getElementById('action_mode').value;
     const apiUrl = (mode === 'add') ? 'api_add_item.php' : 'api_update_item.php';
-
     const formData = {
-        item_id: document.getElementById('item_id').value, // (★수정용)
+        item_id: document.getElementById('item_id').value, 
         item_name: document.getElementById('item_name').value,
         item_description: document.getElementById('item_description').value,
         price: parseInt(document.getElementById('price').value),
         stock: parseInt(document.getElementById('stock').value),
         status: document.getElementById('status').value
     };
-
     try {
         const response = await fetch(`${API_BASE_URL}/${apiUrl}`, {
             method: 'POST',
@@ -429,12 +391,11 @@ async function handleItemSubmit(event) {
             body: JSON.stringify(formData)
         });
         const result = await response.json();
-
         if (result.status === 'success') {
             messageElement.textContent = result.message;
             messageElement.className = 'success';
             resetItemForm();
-            loadItemsPage(); // 목록 새로고침
+            loadItemsPage();
         } else {
             messageElement.textContent = result.message;
             messageElement.className = 'error';
@@ -450,23 +411,18 @@ function attachItemTableListeners() {
     tableBody.addEventListener('click', (event) => {
         const target = event.target;
         const itemId = target.dataset.itemId;
-
         if (target.classList.contains('btn-delete')) {
             const itemName = target.dataset.name;
             handleDeleteItem(itemId, itemName);
         } else if (target.classList.contains('btn-edit')) {
-            // 버튼의 모든 data-* 속성을 객체로 수집
-            const itemData = {...target.dataset}; // data-item-id -> itemId
+            const itemData = {...target.dataset};
             populateItemEditForm(itemData);
         }
     });
 }
 
 async function handleDeleteItem(itemId, itemName) {
-    if (!confirm(`정말 [${itemName} (ID: ${itemId})] 아이템을 삭제하시겠습니까?\n이 아이템을 보유한 모든 회원의 인벤토리에서도 아이템이 삭제됩니다.`)) {
-        return;
-    }
-    
+    if (!confirm(`정말 [${itemName} (ID: ${itemId})] 아이템을 삭제하시겠습니까?\n이 아이템을 보유한 모든 캐릭터의 인벤토리에서도 아이템이 삭제됩니다.`)) { return; }
     try {
         const response = await fetch(`${API_BASE_URL}/api_delete_item.php`, {
             method: 'POST',
@@ -474,10 +430,9 @@ async function handleDeleteItem(itemId, itemName) {
             body: JSON.stringify({ item_id: itemId })
         });
         const result = await response.json();
-        
         if (result.status === 'success') {
             alert(result.message);
-            loadItemsPage(); // 목록 새로고침
+            loadItemsPage();
         } else {
             alert(`삭제 실패: ${result.message}`);
         }
@@ -487,20 +442,16 @@ async function handleDeleteItem(itemId, itemName) {
 }
 
 function populateItemEditForm(itemData) {
-    window.scrollTo(0, 0); // 맨 위로 스크롤
-    
+    window.scrollTo(0, 0); 
     const form = document.getElementById('item-form');
     form.querySelector('h3').textContent = '아이템 정보 수정';
     document.getElementById('action_mode').value = 'update';
-    
-    // data-item-id -> itemData.itemId
     document.getElementById('item_id').value = itemData.itemId; 
     document.getElementById('item_name').value = itemData.name;
     document.getElementById('item_description').value = itemData.description;
     document.getElementById('price').value = itemData.price;
     document.getElementById('stock').value = itemData.stock;
     document.getElementById('status').value = itemData.status;
-
     document.getElementById('form-submit-button').textContent = '수정 완료';
     document.getElementById('form-cancel-button').style.display = 'inline-block';
 }
@@ -509,14 +460,10 @@ function resetItemForm() {
     const form = document.getElementById('item-form');
     form.querySelector('h3').textContent = '새 아이템 등록';
     document.getElementById('action_mode').value = 'add';
-    
-    form.reset(); // 폼 내용 지우기
-    
-    document.getElementById('item_id').value = ''; // 숨겨진 ID도 비움
-
+    form.reset(); 
+    document.getElementById('item_id').value = ''; 
     document.getElementById('form-submit-button').textContent = '등록하기';
     document.getElementById('form-cancel-button').style.display = 'none';
-    
     document.getElementById('form-message').textContent = '';
     document.getElementById('form-message').className = '';
 }
@@ -526,7 +473,6 @@ function resetItemForm() {
 // --- 3. 도박 관리 (Games) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadGamesPage() {
-    // 1. 폼과 테이블 뼈대 그리기
     const pageHtml = `
         <h2>도박 관리</h2>
         <form id="add-game-form">
@@ -553,16 +499,11 @@ async function loadGamesPage() {
         </table>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. 폼 이벤트 리스너 추가
     document.getElementById('add-game-form').addEventListener('submit', handleAddGame);
-
-    // 3. API 호출하여 테이블 채우기
     try {
         const response = await fetch(`${API_BASE_URL}/api_get_all_games.php`);
         const result = await response.json();
         const tableBody = document.querySelector('#games-table tbody');
-
         if (result.status === 'success' && result.data.length > 0) {
             const rowsHtml = result.data.map(game => `
                 <tr>
@@ -593,7 +534,6 @@ async function handleAddGame(event) {
         description: form.description.value,
         outcomes: form.outcomes.value
     };
-
     try {
         const response = await fetch(`${API_BASE_URL}/api_add_game.php`, {
             method: 'POST',
@@ -601,12 +541,11 @@ async function handleAddGame(event) {
             body: JSON.stringify(formData)
         });
         const result = await response.json();
-
         if (result.status === 'success') {
             messageElement.textContent = result.message;
             messageElement.className = 'success';
             form.reset();
-            loadGamesPage(); // 목록 새로고침
+            loadGamesPage();
         } else {
             messageElement.textContent = result.message;
             messageElement.className = 'error';
@@ -622,15 +561,14 @@ async function handleAddGame(event) {
 // --- 4. 인벤토리 관리 (Inventory) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadInventoryPage() {
-    // 1. 폼과 테이블 뼈대 그리기
     const pageHtml = `
         <h2>인벤토리 관리</h2>
         <form id="give-item-form">
             <h3>관리자 아이템 지급</h3>
             <div class="form-group">
-                <label for="member_id_select">회원 선택</label>
+                <label for="member_id_select">캐릭터 선택</label>
                 <select id="member_id_select" name="member_id" required>
-                    <option value="">회원 로딩 중...</option>
+                    <option value="">캐릭터 로딩 중...</option>
                 </select>
             </div>
             <div class="form-group">
@@ -650,7 +588,7 @@ async function loadInventoryPage() {
         <table id="inventory-table">
             <thead>
                 <tr>
-                    <th>회원 이름</th>
+                    <th>캐릭터 이름</th>
                     <th>아이템 이름</th>
                     <th>보유 수량</th>
                     <th>관리</th>
@@ -660,31 +598,23 @@ async function loadInventoryPage() {
         </table>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. 폼 이벤트 리스너 추가
     document.getElementById('give-item-form').addEventListener('submit', handleGiveItem);
-
-    // 3. API 병렬 호출 (회원 목록, 아이템 목록, 인벤토리 목록)
     try {
-        // (★ 폼을 채우기 위해 회원/아이템 목록을 먼저 불러옴)
         const [membersRes, itemsRes, inventoryRes] = await Promise.all([
             fetch(`${API_BASE_URL}/api_get_all_members.php`),
             fetch(`${API_BASE_URL}/api_get_all_items.php`),
             fetch(`${API_BASE_URL}/api_get_all_inventory.php`)
         ]);
-
         const membersResult = await membersRes.json();
         const itemsResult = await itemsRes.json();
         const inventoryResult = await inventoryRes.json();
 
-        // 4. 폼의 <select> 드롭다운 채우기
         const memberSelect = document.getElementById('member_id_select');
         populateSelect(memberSelect, membersResult.data, 'member_id', 'member_name');
 
         const itemSelect = document.getElementById('item_id_select');
         populateSelect(itemSelect, itemsResult.data, 'item_id', 'item_name');
 
-        // 5. 인벤토리 테이블 채우기
         const tableBody = document.querySelector('#inventory-table tbody');
         if (inventoryResult.status === 'success' && inventoryResult.data.length > 0) {
             const rowsHtml = inventoryResult.data.map(inv => `
@@ -702,16 +632,12 @@ async function loadInventoryPage() {
                 </tr>
             `).join('');
             tableBody.innerHTML = rowsHtml;
-
-            // 6. 테이블에 삭제 버튼 리스너 추가
             attachInventoryTableListeners();
-
         } else if (inventoryResult.status === 'success') {
             tableBody.innerHTML = '<tr><td colspan="4">인벤토리에 아이템이 없습니다.</td></tr>';
         } else {
             tableBody.innerHTML = `<tr><td colspan="4" class="error">${inventoryResult.message}</td></tr>`;
         }
-
     } catch (error) {
         contentElement.innerHTML += `<p class="error">페이지 로드 중 심각한 오류 발생: ${error}</p>`;
     }
@@ -726,7 +652,6 @@ async function handleGiveItem(event) {
         item_id: parseInt(form.item_id_select.value),
         quantity: parseInt(form.quantity.value)
     };
-
     try {
         const response = await fetch(`${API_BASE_URL}/api_admin_give_item.php`, {
             method: 'POST',
@@ -734,7 +659,6 @@ async function handleGiveItem(event) {
             body: JSON.stringify(formData)
         });
         const result = await response.json();
-
         if (result.status === 'success') {
             messageElement.textContent = result.message;
             messageElement.className = 'success';
@@ -757,11 +681,7 @@ function attachInventoryTableListeners() {
         if (target.classList.contains('btn-delete')) {
             const memberId = target.dataset.memberId;
             const itemId = target.dataset.itemId;
-            
-            if (!confirm(`[${memberId}] 회원의 [아이템 ID: ${itemId}]을(를)\n인벤토리에서 전부 삭제하시겠습니까?`)) {
-                return;
-            }
-
+            if (!confirm(`[${memberId}] 캐릭터의 [아이템 ID: ${itemId}]을(를)\n인벤토리에서 전부 삭제하시겠습니까?`)) { return; }
             try {
                 const response = await fetch(`${API_BASE_URL}/api_admin_delete_inventory_item.php`, {
                     method: 'POST',
@@ -769,7 +689,6 @@ function attachInventoryTableListeners() {
                     body: JSON.stringify({ member_id: memberId, item_id: itemId })
                 });
                 const result = await response.json();
-                
                 if (result.status === 'success') {
                     alert(result.message);
                     loadInventoryPage(); // 목록 새로고침
@@ -788,7 +707,6 @@ function attachInventoryTableListeners() {
 // --- 5. 포인트 양도 (Point Transfer) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadTransferPointPage() {
-    // 1. 폼 뼈대 그리기
     const pageHtml = `
         <h2>포인트 양도</h2>
         <form id="transfer-point-form">
@@ -796,13 +714,13 @@ async function loadTransferPointPage() {
             <div class="form-group">
                 <label for="sender_id_select">보내는 분</label>
                 <select id="sender_id_select" name="sender_id" required>
-                    <option value="">회원 로딩 중...</option>
+                    <option value="">캐릭터 로딩 중...</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="receiver_id_select">받는 분</label>
                 <select id="receiver_id_select" name="receiver_id" required>
-                    <option value="">회원 로딩 중...</option>
+                    <option value="">캐릭터 로딩 중...</option>
                 </select>
             </div>
             <div class="form-group">
@@ -814,22 +732,14 @@ async function loadTransferPointPage() {
         </form>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. 폼 이벤트 리스너 추가
     document.getElementById('transfer-point-form').addEventListener('submit', handleTransferPoint);
-
-    // 3. API 호출 (회원 목록)
     try {
         const response = await fetch(`${API_BASE_URL}/api_get_all_members.php`);
         const result = await response.json();
-
-        // 4. '보내는 분' / '받는 분' 폼 채우기
         const senderSelect = document.getElementById('sender_id_select');
         populateSelect(senderSelect, result.data, 'member_id', 'member_name');
-        
         const receiverSelect = document.getElementById('receiver_id_select');
         populateSelect(receiverSelect, result.data, 'member_id', 'member_name');
-
     } catch (error) {
         contentElement.innerHTML += `<p class="error">페이지 로드 중 심각한 오류 발생: ${error}</p>`;
     }
@@ -844,8 +754,6 @@ async function handleTransferPoint(event) {
         receiver_id: form.receiver_id.value,
         amount: parseInt(form.amount.value)
     };
-    
-    // (기존에 조종기용으로 만든 API 재활용)
     try {
         const response = await fetch(`${API_BASE_URL}/api_transfer_points.php`, {
             method: 'POST',
@@ -853,7 +761,6 @@ async function handleTransferPoint(event) {
             body: JSON.stringify(formData)
         });
         const result = await response.json();
-
         if (result.status === 'success') {
             messageElement.textContent = result.message;
             messageElement.className = 'success';
@@ -873,7 +780,6 @@ async function handleTransferPoint(event) {
 // --- 6. 아이템 양도 (Item Transfer) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadTransferItemPage() {
-    // 1. 폼 뼈대 그리기 (아이템/수량 폼은 비활성화)
     const pageHtml = `
         <h2>아이템 양도</h2>
         <form id="transfer-item-form">
@@ -881,13 +787,13 @@ async function loadTransferItemPage() {
             <div class="form-group">
                 <label for="sender_id_select">보내는 분</label>
                 <select id="sender_id_select" name="sender_id" required>
-                    <option value="">회원 로딩 중...</option>
+                    <option value="">캐릭터 로딩 중...</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="receiver_id_select">받는 분</label>
                 <select id="receiver_id_select" name="receiver_id" required>
-                    <option value="">회원 로딩 중...</option>
+                    <option value="">캐릭터 로딩 중...</option>
                 </select>
             </div>
             <hr>
@@ -906,27 +812,16 @@ async function loadTransferItemPage() {
         </form>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. 폼 이벤트 리스너 추가
     document.getElementById('transfer-item-form').addEventListener('submit', handleTransferItem);
-    
-    // (★핵심★) '보내는 분'이 바뀔 때마다 '보유 아이템' 목록을 새로 불러오는 리스너
     document.getElementById('sender_id_select').addEventListener('change', handleSenderChange);
-    // (★핵심★) '보유 아이템'이 바뀔 때마다 '수량'의 최대값을 설정하는 리스너
     document.getElementById('item_id_select').addEventListener('change', handleItemChange);
-
-    // 3. API 호출 (회원 목록만)
     try {
         const response = await fetch(`${API_BASE_URL}/api_get_all_members.php`);
         const result = await response.json();
-
-        // 4. '보내는 분' / '받는 분' 폼 채우기
         const senderSelect = document.getElementById('sender_id_select');
         populateSelect(senderSelect, result.data, 'member_id', 'member_name');
-        
         const receiverSelect = document.getElementById('receiver_id_select');
         populateSelect(receiverSelect, result.data, 'member_id', 'member_name');
-
     } catch (error) {
         contentElement.innerHTML += `<p class="error">페이지 로드 중 심각한 오류 발생: ${error}</p>`;
     }
@@ -937,25 +832,18 @@ async function handleSenderChange(event) {
     const itemSelect = document.getElementById('item_id_select');
     const quantityInput = document.getElementById('quantity');
     const submitButton = document.getElementById('transfer-item-submit');
-
-    // 리셋
     itemSelect.innerHTML = '<option value="">불러오는 중...</option>';
     itemSelect.disabled = true;
     quantityInput.disabled = true;
     submitButton.disabled = true;
-
     if (!senderId) {
         itemSelect.innerHTML = '<option value="">먼저 \'보내는 분\'을 선택하세요</option>';
         return;
     }
-
     try {
-        // (★핵심★) 우리가 만든 새 API 호출
         const response = await fetch(`${API_BASE_URL}/api_get_member_inventory.php?member_id=${senderId}`);
         const result = await response.json();
-
         if (result.status === 'success') {
-            // (헬퍼 함수를 이용해 '보유 수량'까지 표시)
             populateSelect(itemSelect, result.data, 'item_id', 'item_name', 'quantity');
         } else {
             populateSelect(itemSelect, [], '', ''); // 데이터 없음
@@ -969,22 +857,17 @@ function handleItemChange(event) {
     const itemSelect = event.target;
     const quantityInput = document.getElementById('quantity');
     const submitButton = document.getElementById('transfer-item-submit');
-
-    // <option>에 저장해둔 data-quantity 값을 가져옴
     const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-    
     if (!selectedOption || !selectedOption.value) {
         quantityInput.value = 1;
         quantityInput.disabled = true;
         submitButton.disabled = true;
         return;
     }
-
     const maxQuantity = parseInt(selectedOption.dataset.quantity || 0);
-
     if (maxQuantity > 0) {
-        quantityInput.max = maxQuantity; // (★핵심★) 수량 input의 최대값을 보유 수량으로 제한
-        quantityInput.value = 1; // 1로 리셋
+        quantityInput.max = maxQuantity; 
+        quantityInput.value = 1; 
         quantityInput.disabled = false;
         submitButton.disabled = false;
     }
@@ -1000,7 +883,6 @@ async function handleTransferItem(event) {
         item_id: parseInt(form.item_id.value),
         quantity: parseInt(form.quantity.value)
     };
-
     try {
         const response = await fetch(`${API_BASE_URL}/api_transfer_item.php`, {
             method: 'POST',
@@ -1008,11 +890,9 @@ async function handleTransferItem(event) {
             body: JSON.stringify(formData)
         });
         const result = await response.json();
-
         if (result.status === 'success') {
             messageElement.textContent = result.message;
             messageElement.className = 'success';
-            // (★성공 시 폼을 리셋하는 대신 목록을 다시 불러옴)
             loadTransferItemPage();
         } else {
             messageElement.textContent = result.message;
@@ -1029,7 +909,6 @@ async function handleTransferItem(event) {
 // --- 7. 포인트 로그 (Logs) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadLogsPage() {
-    // 1. (읽기 전용) 테이블 뼈대 그리기
     const pageHtml = `
         <h2>포인트 로그</h2>
         <h3>전체 포인트 변동 내역</h3>
@@ -1037,8 +916,8 @@ async function loadLogsPage() {
             <thead>
                 <tr>
                     <th>시간</th>
-                    <th>회원 ID</th>
-                    <th>회원 이름</th>
+                    <th>캐릭터 ID</th>
+                    <th>캐릭터 이름</th>
                     <th>변동 포인트</th>
                     <th>사유</th>
                 </tr>
@@ -1047,13 +926,10 @@ async function loadLogsPage() {
         </table>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. API 호출하여 테이블 채우기
     try {
         const response = await fetch(`${API_BASE_URL}/api_get_all_logs.php`);
         const result = await response.json();
         const tableBody = document.querySelector('#logs-table tbody');
-
         if (result.status === 'success' && result.data.length > 0) {
             const rowsHtml = result.data.map(log => {
                 let pointClass = '';
@@ -1065,7 +941,6 @@ async function loadLogsPage() {
                     pointClass = 'error';
                     pointDisplay = `${log.point_change.toLocaleString()}`;
                 }
-                
                 return `
                     <tr>
                         <td>${log.log_time}</td>
@@ -1088,11 +963,11 @@ async function loadLogsPage() {
     }
 }
 
+
 // -----------------------------------------------------
-// --- 8. (★★★ 신규 ★★★) 아이템 로그 (Item Logs) ---
+// --- 8. 아이템 로그 (Item Logs) --- (기존과 동일)
 // -----------------------------------------------------
 async function loadItemLogsPage() {
-    // 1. (읽기 전용) 테이블 뼈대 그리기
     const pageHtml = `
         <h2>아이템 로그</h2>
         <h3>전체 아이템 변동 내역</h3>
@@ -1100,7 +975,7 @@ async function loadItemLogsPage() {
             <thead>
                 <tr>
                     <th>시간</th>
-                    <th>회원 이름</th>
+                    <th>캐릭터 이름</th>
                     <th>아이템 이름</th>
                     <th>변동 수량</th>
                     <th>사유</th>
@@ -1110,26 +985,21 @@ async function loadItemLogsPage() {
         </table>
     `;
     contentElement.innerHTML = pageHtml;
-
-    // 2. API 호출하여 테이블 채우기 (신규 API 호출)
     try {
         const response = await fetch(`${API_BASE_URL}/api_get_all_item_logs.php`);
         const result = await response.json();
         const tableBody = document.querySelector('#item-logs-table tbody');
-
         if (result.status === 'success' && result.data.length > 0) {
             const rowsHtml = result.data.map(log => {
-                // 수량 값에 따라 CSS 클래스와 텍스트(+,-) 설정
                 let qtyClass = '';
                 let qtyDisplay = log.quantity_change;
                 if (log.quantity_change > 0) {
-                    qtyClass = 'success'; // .success { color: green }
+                    qtyClass = 'success'; 
                     qtyDisplay = `+${log.quantity_change.toLocaleString()}`;
                 } else if (log.quantity_change < 0) {
-                    qtyClass = 'error'; // .error { color: red }
+                    qtyClass = 'error'; 
                     qtyDisplay = `${log.quantity_change.toLocaleString()}`;
                 }
-                
                 return `
                     <tr>
                         <td>${log.log_time}</td>
@@ -1149,5 +1019,71 @@ async function loadItemLogsPage() {
     } catch (error) {
         document.querySelector('#item-logs-table tbody').innerHTML = 
             `<tr><td colspan="5" class="error">데이터 로드 오류: ${error}</td></tr>`;
+    }
+}
+
+
+// -----------------------------------------------------
+// --- 9. (★★★ 신규 ★★★) 설정 (Settings) ---
+// -----------------------------------------------------
+async function loadSettingsPage() {
+    // 1. (읽기 전용) 뼈대 그리기
+    const pageHtml = `
+        <h2>설정</h2>
+        <h3>데이터 초기화 (시즌 2 시작)</h3>
+        <div class="form-group">
+            <p>이 기능은 <strong>관리자 계정, 상점 아이템, 도박 규칙</strong>을 제외한<br>
+            <strong>모든 캐릭터, 인벤토리, 포인트 로그, 아이템 로그</strong>를 영구적으로 삭제합니다.</p>
+            <p style="font-weight:bold; color:red;">절대로 되돌릴 수 없습니다. 신중하게 사용하세요.</p>
+            
+            <button id="reset-data-button" class="btn-action btn-delete">모든 운영 데이터 초기화</button>
+        </div>
+        <p id="form-message"></p>
+    `;
+    contentElement.innerHTML = pageHtml;
+
+    // 2. 버튼에 이벤트 리스너 추가
+    document.getElementById('reset-data-button').addEventListener('click', handleResetData);
+}
+
+// (★ 신규: 데이터 초기화 핸들러)
+async function handleResetData() {
+    const messageElement = document.getElementById('form-message');
+    messageElement.textContent = '';
+    messageElement.className = '';
+
+    // 1. (경고 1)
+    if (!confirm("정말... 정말로 모든 캐릭터, 인벤토리, 로그 데이터를 삭제하시겠습니까?")) {
+        return;
+    }
+    // 2. (경고 2)
+    const confirmation = prompt("데이터 삭제를 확인하려면 '초기화합니다'라고 정확히 입력하세요.");
+    if (confirmation !== "초기화합니다") {
+        messageElement.textContent = '입력이 일치하지 않아 취소되었습니다.';
+        messageElement.className = 'error';
+        return;
+    }
+
+    // 3. API 호출
+    try {
+        messageElement.textContent = '데이터 초기화 중...';
+        const response = await fetch(`${API_BASE_URL}/api_reset_data.php`, {
+            method: 'POST'
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            messageElement.textContent = result.message;
+            messageElement.className = 'success';
+            alert('데이터가 성공적으로 초기화되었습니다! 페이지를 새로고침합니다.');
+            // (가장 깔끔하게 모든 탭을 갱신하기 위해 페이지 자체를 새로고침)
+            location.reload(); 
+        } else {
+            messageElement.textContent = result.message;
+            messageElement.className = 'error';
+        }
+    } catch (error) {
+        messageElement.textContent = `전송 오류: ${error}`;
+        messageElement.className = 'error';
     }
 }

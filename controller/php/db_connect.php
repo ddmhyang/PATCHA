@@ -1,12 +1,16 @@
 <?php
-$db_host = "localhost";
-$db_name = "z3rdk9";
-$db_user = "z3rdk9";
-$db_pass = "Rkwhr1027hyun!";
+/*
+ * db_connect.php
+ * (★★★ SQLite 버전 ★★★)
+ * 데이터베이스 연결을 설정합니다.
+ */
 
-// PDO (PHP Data Objects)를 사용한 연결 방식
-// (보안이 좋고 현대적인 방식입니다.)
-$dsn = "mysql:host=$db_host;dbname=$db_name;charset=utf8mb4";
+// 1. 데이터베이스 파일 이름 정의
+// 이 파일이 모든 데이터를 담게 됩니다.
+$db_file = __DIR__ . '/database.db';
+
+// 2. PDO (PHP Data Objects)를 사용한 SQLite 연결
+$dsn = "sqlite:" . $db_file;
 
 // 옵션: 에러가 났을 때 예외(Exception)를 발생시킴
 $options = [
@@ -17,9 +21,16 @@ $options = [
 
 try {
      // DB 연결 시도
-     $pdo = new PDO($dsn, $db_user, $db_pass, $options);
+     $pdo = new PDO($dsn, null, null, $options);
+     
+     // (★중요★) SQLite는 동시 접근 성능을 위해 WAL 모드를 켜는 것이 좋습니다.
+     $pdo->exec('PRAGMA journal_mode = wal;');
+     
+     // (★중요★) 외래 키(Foreign Key) 제약 조건을 활성화합니다.
+     $pdo->exec('PRAGMA foreign_keys = ON;');
+     
 } catch (\PDOException $e) {
      // 연결 실패 시 에러 메시지 출력
-     throw new \PDOException($e->getMessage(), (int)$e->getCode());
+     throw new \PDOException($e->getMessage(), (int)$e.getCode());
 }
 ?>
