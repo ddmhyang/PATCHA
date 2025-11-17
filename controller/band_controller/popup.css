@@ -1,0 +1,112 @@
+/* popup.css */
+body {
+    width: 350px; /* 팝업창 가로 크기 고정 */
+    font-family: sans-serif;
+    margin: 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+header h2 {
+    margin: 5px 0;
+}
+
+/* 탭 버튼 스타일 */
+.tab-nav {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+}
+.tab-button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: #eee;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+.tab-button.active { /* 현재 선택된 탭 */
+    background-color: #fff;
+    border-top: 2px solid #007bff;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    font-weight: bold;
+}
+
+/* 탭 콘텐츠 기본 숨김 */
+.tab-content {
+    display: none;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+/* 선택된 탭만 보여주기 */
+.tab-content.active {
+    display: block;
+}
+
+/* 폼 스타일 */
+.form-group {
+    margin-bottom: 12px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+.form-group input,
+.form-group select {
+    width: 95%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* 결과창 */
+footer {
+    margin-top: 10px;
+}
+footer textarea {
+    width: 95%;
+    background-color: #eee;
+}
+#error-message {
+    color: red;
+    font-size: 0.9em;
+    margin: 5px 0 0 0;
+}
+
+
+/* popup.css 맨 아래에 추가 */
+
+.form-group-inline {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.form-group-inline input[type="checkbox"] {
+    width: auto; /* 체크박스 찌그러짐 방지 */
+    margin-right: 8px;
+}
+.form-group-inline label {
+    margin-bottom: 0; /* 라벨을 체크박스와 정렬 */
+    font-weight: normal; /* 일반 굵기 */
+}
