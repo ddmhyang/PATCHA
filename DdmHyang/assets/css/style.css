@@ -1,0 +1,517 @@
+/* =========================================
+   1. 기본 변수 및 초기화 (Variables & Reset)
+   모든 페이지에서 공통으로 쓰는 색상과 폰트 설정입니다.
+   ========================================= */
+:root {
+    --bg-color: #fffafc;
+    --accent-pink: #ffc0cb;
+    --accent-dark: #554247;
+    --frame-border: #f0e6e8;
+    --font-serif: 'Abril Fatface', cursive;
+    --font-sans: 'Noto Sans KR', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* =========================================
+   2. 전체 레이아웃 (Global Layout)
+   화면 중앙 정렬, 배경 패턴, 메인 프레임 설정입니다.
+   ========================================= */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    visibility: hidden;
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: var(--font-sans);
+    color: var(--accent-dark);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(90deg, var(--frame-border) 1px, transparent 1px), linear-gradient(var(--frame-border) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.container {
+    width: 1440px;
+    height: 900px;
+    flex-shrink: 0;
+    background-size: cover;
+    transform-origin: top left;
+    transform: scale(0);
+    position: absolute;
+    display: flex;
+    align-items: center;
+}
+
+.main-frame {
+    left: 50%;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    position: absolute;
+    width: 850px;
+    height: 550px;
+    background-color: #fff;
+    /* 은은한 원형 그라데이션 배경 */
+    background-image: radial-gradient(circle at 30% 30%, rgba(255, 192, 203, 0.2) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(220, 208, 255, 0.2) 0%, transparent 50%);
+    border: 3px solid var(--accent-pink);
+    border-radius: 25px;
+    box-shadow: 20px 20px 0 rgba(255, 192, 203, 0.4);
+    display: flex;
+    padding: 50px;
+    align-items: center;
+}
+
+/* =========================================
+   3. 장식 요소 (Decorations)
+   테이프, 떠다니는 아이콘 등 꾸밈 요소입니다.
+   ========================================= */
+.deco-tape {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--accent-pink);
+    z-index: 10;
+    font-size: 0.8rem;
+    color: var(--accent-pink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.tape-1 {
+    top: -15px;
+    left: 50px;
+    width: 120px;
+    height: 30px;
+    transform: rotate(-5deg);
+}
+.tape-2 {
+    bottom: -15px;
+    right: 50px;
+    width: 100px;
+    height: 25px;
+    transform: rotate(5deg);
+}
+
+.floating-icon {
+    position: absolute;
+    color: var(--accent-pink);
+    opacity: 0.6;
+    z-index: 0;
+}
+.fi-1 {
+    top: -30px;
+    left: -20px;
+    font-size: 2.5rem;
+    transform: rotate(-15deg);
+}
+.fi-2 {
+    bottom: 20px;
+    left: 150px;
+    font-size: 2rem;
+    transform: rotate(10deg);
+}
+.fi-3 {
+    top: 50%;
+    right: 0;
+    font-size: 1.8rem;
+}
+
+/* =========================================
+   4. 왼쪽 섹션 (Common Left Section)
+   제목, 설명글이 들어가는 왼쪽 영역입니다.
+   ========================================= */
+.left-section {
+    flex: 1.3;
+    padding-right: 40px;
+    position: relative;
+}
+
+body:not(:has(.menu-btn)) .left-section {
+    flex: 1;
+}
+
+.sub-title {
+    font-family: var(--font-serif);
+    color: var(--accent-pink);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+}
+
+h1 {
+    font-family: var(--font-serif);
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--accent-dark);
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 3px 3px 0 rgba(255, 192, 203, 0.5);
+    letter-spacing: 1px;
+}
+
+.description {
+    font-size: 1rem;
+    letter-spacing: 4px;
+    color: var(--accent-dark);
+    line-height: 1.8;
+    position: relative;
+    z-index: 1;
+    background: rgba(255,255,255,0.6);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-top: 5px;
+    text-decoration: none;
+    color: var(--accent-pink);
+    font-weight: 700;
+}
+.back-btn:hover {
+    text-decoration: underline;
+}
+
+/* =========================================
+   5. 메인 페이지 전용 (Main Page Specifics)
+   메뉴 버튼, 음악 플레이어 버튼 등
+   ========================================= */
+.right-section {
+    flex: 1;
+    padding-left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-btn {
+    text-decoration: none;
+    color: var(--accent-dark);
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    background-color: #fff;
+    border: 2px solid var(--accent-pink);
+    padding: 15px 25px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s;
+    box-shadow: 5px 5px 0 rgba(255, 192, 203, 0.3);
+}
+
+.menu-btn i {
+    color: var(--accent-pink);
+    font-size: 1.1rem;
+}
+
+.menu-btn:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 rgba(255, 192, 203, 0.5);
+    background-color: #fffafc;
+}
+
+.music-toggle-btn {
+    position: absolute;
+    top: 120px;
+    right: 180px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid var(--accent-pink);
+    color: var(--accent-pink);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    transition: all 0.3s ease;
+    box-shadow: 3px 3px 0 rgba(255, 192, 203, 0.3);
+}
+
+.music-toggle-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 rgba(255, 192, 203, 0.5);
+    background-color: var(--accent-pink);
+    color: #fff;
+}
+
+/* =========================================
+   6. 서브 페이지 공통 (Sub-Page Right Section)
+   스크롤이 가능한 오른쪽 영역 스타일
+   ========================================= */
+.right-section-content {
+    flex: 1.5;
+    height: 100%;
+    padding-left: 30px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.right-section-content::-webkit-scrollbar {
+    width: 8px;
+}
+.right-section-content::-webkit-scrollbar-thumb {
+    background-color: var(--accent-pink);
+    border-radius: 4px;
+}
+.right-section-content::-webkit-scrollbar-track {
+    background-color: #f0e6e8;
+    border-radius: 4px;
+}
+
+/* =========================================
+   7. 페이지별 상세 스타일 (Page Specifics)
+   ========================================= */
+
+.profile-card {
+    background-color: #fff;
+    border: 2px solid var(--accent-pink);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 8px 8px 0 rgba(255, 192, 203, 0.3);
+    width: 100%;
+    max-width: 350px;
+    position: relative;
+    margin: auto;
+}
+.profile-img-box {
+    width: 100px;
+    height: 100px;
+    background: url("../images/profile.jpg") no-repeat center center;
+    background-size: cover;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    color: #fff;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px var(--accent-pink);
+}
+.profile-name {
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    color: var(--accent-dark);
+    margin-bottom: 10px;
+}
+.profile-bio {
+    font-size: 0.95rem;
+    color: #777;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+.likes-section {
+    border-top: 2px dashed var(--frame-border);
+    padding-top: 15px;
+}
+.likes-title {
+    font-family: var(--font-sans);
+    color: var(--accent-pink);
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.like-tag {
+    background-color: #fffafc;
+    border: 1px solid var(--accent-pink);
+    color: var(--accent-dark);
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: transform 0.3s ease-in-out;
+}
+.like-tag:hover {
+    transform: scale(1.1);
+}
+.deco-heart {
+    position: absolute;
+    color: var(--accent-pink);
+    font-size: 1.2rem;
+}
+.dh-1 {
+    top: 20px;
+    left: 20px;
+    transform: rotate(-20deg);
+}
+.dh-2 {
+    bottom: 20px;
+    right: 20px;
+    transform: rotate(20deg);
+}
+
+.novel-list {
+    list-style: none;
+    width: 100%;
+}
+.novel-item {
+    background-color: #fff;
+    border: 2px solid var(--accent-pink);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 5px 5px 0 rgba(255, 192, 203, 0.3);
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+}
+.novel-item::before {
+    content: '\f02e';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    color: var(--accent-pink);
+    font-size: 1.5rem;
+}
+.novel-item:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 rgba(255, 192, 203, 0.5);
+    background-color: #fffafc;
+}
+.novel-title {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: var(--accent-dark);
+}
+.novel-desc {
+    font-size: 0.9rem;
+    color: #777;
+}
+.novel-tags {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+.tag {
+    background-color: #f0e6e8;
+    color: var(--accent-dark);
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+.gallery-item {
+    position: relative;
+    border: 2px solid var(--accent-pink);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 5px 5px 0 rgba(255, 192, 203, 0.3);
+    transition: all 0.3s;
+    cursor: pointer;
+    background: #fff;
+}
+.gallery-item:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 rgba(255, 192, 203, 0.5);
+}
+.img-placeholder {
+    height: 150px;
+    background: linear-gradient(45deg, #ffdde1, #ee9ca7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 2rem;
+}
+.gallery-info {
+    padding: 15px;
+    text-align: center;
+}
+.gallery-title {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--accent-dark);
+}
+
+/* [Programming Page] 프로그래밍 리스트 */
+.prog-list {
+    list-style: none;
+    width: 100%;
+}
+.prog-item {
+    background-color: #fff;
+    border: 2px solid var(--accent-pink);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 5px 5px 0 rgba(255, 192, 203, 0.3);
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+    outline: 2px dashed var(--accent-pink);
+    outline-offset: -5px;
+}
+.prog-item:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 rgba(255, 192, 203, 0.5);
+    background-color: #fffafc;
+}
+.prog-title {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: var(--accent-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.prog-desc {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 15px;
+}
+.tech-stack {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.tech-badge {
+    background-color: var(--accent-pink);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 2px 2px 0 rgba(85, 66, 71, 0.2);
+}
