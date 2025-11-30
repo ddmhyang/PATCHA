@@ -1,5 +1,26 @@
 $(document).ready(function() {
     const contentContainer = $('#content');
+    const chatOverlay = $('#chat-overlay');
+
+
+    function loadPage(url) {
+        $.ajax({
+            url: url, type: 'GET',
+            success: (response) => contentContainer.html(response),
+            error: () => contentContainer.html('<h1>페이지를 불러올 수 없습니다.</h1>')
+        });
+    }
+    
+    function loadChat() {
+        $.ajax({
+            url: 'chat.php',
+            type: 'GET',
+            success: function(response) {
+                chatOverlay.html(response).show();
+            }
+        });
+    }
+
     function router() {
         setTimeout(function() {
             hljs.highlightAll();
@@ -110,39 +131,38 @@ $(document).ready(function() {
     });
     
 
-    var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    //뮤직!!!
+    const musicPlayer = document.getElementById('music-player');
+    const playButton = $('.index_panel2');
 
-    var player;
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('song', {
-            events: {
-                'onReady': onPlayerReady
-            }
-        });
+    if (musicPlayer.paused) {
+        playButton.removeClass('playing');
+    } else {
+        playButton.addClass('playing');
     }
 
-    function onPlayerReady(event) {
-        const musicBtn = document.querySelector('.tBOff');
-        
-        if(musicBtn) {
-            musicBtn.addEventListener('click', function() {
-                if (player && typeof player.getPlayerState === 'function') {
-                    
-                    var playerState = player.getPlayerState();
+    playButton.on('click', function() {
+        if (musicPlayer.paused) {
+            musicPlayer.play();
+            $(this).addClass('playing');
+        } else {
+            musicPlayer.pause();
+            $(this).removeClass('playing');
+        }
+    });
 
-                    if (playerState == YT.PlayerState.PLAYING) {
-                        player.pauseVideo();
-                    } 
-                    else {
-                        player.playVideo();
-                    }
-                }
+    $(musicPlayer).on('ended', function() {
+        playButton.removeClass('playing');
+    });
+    
+    $(document).one('click', function() {
+        if (musicPlayer.paused) {
+            musicPlayer.play().then(() => {
+                playButton.addClass('playing');
+            }).catch(error => {
             });
         }
-    }
+    });
 });
 
 

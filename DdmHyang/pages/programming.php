@@ -1,17 +1,17 @@
 <?php
 require_once '../includes/db.php';
 
-// 'novel' 타입의 게시글만 가져오기
-$gallery_type = 'novel';
+// 'programming' 타입의 게시글만 가져오기
+$gallery_type = 'programming';
 
-// [수정됨] 쿼리에 'tags'를 추가했습니다!
+// 태그(tags)도 함께 가져오도록 쿼리 작성
 $posts = $mysqli->query("SELECT id, title, content, is_private, tags FROM gallery WHERE gallery_type = '$gallery_type' ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
 
 // HTML 태그 제거 및 내용 요약 함수 (한 줄 소개용)
 function get_summary($content) {
     $text = strip_tags($content); // HTML 태그 제거
-    if (mb_strlen($text) > 50) {
-        return mb_substr($text, 0, 50) . '...';
+    if (mb_strlen($text) > 60) {
+        return mb_substr($text, 0, 60) . '...';
     }
     return $text;
 }
@@ -23,20 +23,22 @@ function get_summary($content) {
         <div class="deco-tape tape-2">World !</div>
 
         <div class="left-section">
-            <i class="fa-solid fa-book-open floating-icon fi-1"></i>
-            <i class="fa-solid fa-feather-pointed floating-icon fi-2"
-                style="left: 180px; bottom: 40px;"></i>
+            <i class="fa-solid fa-code floating-icon fi-1"></i>
+            <i class="fa-solid fa-gear floating-icon fi-2"
+                style="left: 170px; bottom: 60px;"></i>
 
             <div class="sub-title">Category</div>
-            <h1>Novel</h1>
+            <h1 style="font-size:46px;">Programing</h1>
             <p class="description">
-                여긴 또 뭘 쓰지
+                따~~악!!!!<br>
+                <b>버그 하나만 더 고치고</b><br>
+                잔다 내가!!!!
             </p>
+
 
             <?php if ($is_admin): ?>
                 <a href="#/gallery_upload?type=<?php echo $gallery_type; ?>" class="action-btn write-btn">
-                    <i class="fa-solid fa-pen"></i> 새 글 작성
-                </a>
+                    <i class="fa-solid fa-pen"></i> 새 글 작성</a>
             <?php endif; ?>
 
             <a href="#/" class="back-btn">
@@ -46,44 +48,45 @@ function get_summary($content) {
         </div>
 
         <div class="right-section-content">
-            <ul class="novel-list">
+            <ul class="prog-list">
                 <?php if (count($posts) > 0): ?>
                     <?php foreach ($posts as $post): ?>
-                        <li class="novel-item" onclick="location.href='#/gallery_view?id=<?php echo $post['id']; ?>'">
-                            <h3 class="novel-title">
+                        <li class="prog-item" onclick="location.href='#/gallery_view?id=<?php echo $post['id']; ?>'">
+                            <h3 class="prog-title">
+                                <i class="fa-brands fa-unity"></i>
                                 <?php echo htmlspecialchars($post['title']); ?>
+                                
                                 <?php if($post['is_private']): ?>
                                     <span style="font-size: 0.8rem; color: #ff6b6b; margin-left:5px;">🔒</span>
                                 <?php endif; ?>
                             </h3>
                             
-                            <p class="novel-desc">
+                            <p class="prog-desc">
                                 <?php echo htmlspecialchars(get_summary($post['content'])); ?>
                             </p>
                             
-                            <div class="novel-tags">
+                            <div class="tech-stack">
                                 <?php 
-                                // 1. DB에 저장된 태그가 있는지 확인
                                 if (!empty($post['tags'])) {
-                                    // 2. 쉼표(,)를 기준으로 글자를 쪼개서 배열로 만듦
                                     $tag_list = explode(',', $post['tags']);
-                                    
-                                    // 3. 하나씩 꺼내서 화면에 출력
                                     foreach ($tag_list as $tag) {
-                                        $tag = trim($tag); // 앞뒤 공백 제거
+                                        $tag = trim($tag);
                                         if (!empty($tag)) {
-                                            // #을 붙여서 출력
-                                            echo '<span class="tag">#' . htmlspecialchars($tag) . '</span>';
+                                            // tech-badge 클래스 사용
+                                            echo '<span class="tech-badge">' . htmlspecialchars($tag) . '</span>';
                                         }
                                     }
+                                } else {
+                                    // 태그가 없을 때 기본값 (선택사항)
+                                    echo '<span class="tech-badge" style="background:#eee; color:#aaa;">Etc</span>';
                                 }
                                 ?>
                             </div>
                         </li>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <li class="novel-item" style="cursor: default; text-align: center;">
-                        <p class="novel-desc">등록된 글이 없습니다.</p>
+                    <li class="prog-item" style="cursor: default; text-align: center;">
+                        <p class="prog-desc">등록된 프로젝트가 없습니다.</p>
                     </li>
                 <?php endif; ?>
             </ul>
