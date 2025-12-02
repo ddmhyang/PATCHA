@@ -7,7 +7,6 @@ if (!$is_admin) {
     exit;
 }
 
-// 썸네일 생성 함수
 function create_thumbnail($source_path, $destination_path, $width = 400, $height = 400) {
     list($source_width, $source_height, $source_type) = getimagesize($source_path);
 
@@ -58,14 +57,13 @@ function create_thumbnail($source_path, $destination_path, $width = 400, $height
     return true;
 }
 
-// --- 메인 로직 시작 ---
 
 $post_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 $title = $_POST['title'];
 $content = $_POST['content'];
 $gallery_type = $_POST['gallery_type'];
-$tags = $_POST['tags'] ?? ''; // 태그 받기
-$tags = trim($tags); // 공백 제거
+$tags = $_POST['tags'] ?? ''; 
+$tags = trim($tags); 
 
 $is_private = isset($_POST['is_private']) ? 1 : 0;
 $password = $_POST['password'] ?? '';
@@ -74,7 +72,6 @@ $thumbnail_path = null;
 $uploadDir = '../uploads/gallery/';
 if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
 
-// 1. 파일 업로드로 썸네일 생성
 if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['thumbnail'];
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -92,16 +89,19 @@ if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_
     }
 }
 
-// 2. 파일이 없으면 본문 첫 이미지 추출
-if (empty($thumbnail_path) && $post_id == 0) { // 새 글 작성일 때만 자동 추출 (수정 시 기존 유지 위해)
-    preg_match('/<img[^>]+src="([^">]+)"/', $content, $matches);
+if (empty($thumbnail_path)) { 
+    preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/', $content, $matches);
+    
     if (isset($matches[1])) {
         $first_image_url = $matches[1];
-        // 외부 이미지가 아닐 경우에만 썸네일 생성 시도
+        
         if(strpos($first_image_url, 'http') === false) {
              $first_image_path = '..' . $first_image_url;
+             
              if (file_exists($first_image_path)) {
                 $ext = strtolower(pathinfo($first_image_path, PATHINFO_EXTENSION));
+                if (!$ext) $ext = 'jpg'; 
+                
                 $thumbFileName = 'thumb-' . uniqid() . '.' . $ext;
                 $thumbPath = $uploadDir . $thumbFileName;
                 
@@ -119,29 +119,18 @@ if (empty($thumbnail_path) && $post_id == 0) { // 새 글 작성일 때만 자�
     }
 }
 
-// 비밀번호 해시 처리
-$password_hash = null;
-if ($is_private && !empty($password)) {
-    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-}
-
-// --- DB 저장 로직 (여기가 중요하게 수정됨) ---
 
 if ($post_id > 0) {
-    // [수정] UPDATE 로직
-    // 기본적으로 업데이트할 필드들
     $sql = "UPDATE gallery SET title=?, content=?, is_private=?, tags=?";
-    $types = "ssis"; // string, string, int, string
+    $types = "ssis";
     $params = [$title, $content, $is_private, $tags];
 
-    // 썸네일이 새로 업로드 되었을 때만 SQL에 추가
     if ($thumbnail_path) {
         $sql .= ", thumbnail=?";
         $types .= "s";
         $params[] = $thumbnail_path;
     }
     
-    // 비밀번호가 입력되었을 때만 SQL에 추가
     if ($password_hash) {
         $sql .= ", password_hash=?";
         $types .= "s";
@@ -153,15 +142,12 @@ if ($post_id > 0) {
     $params[] = $post_id;
 
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param($types, ...$params); // 가변 인자 사용
+    $stmt->bind_param($types, ...$params); 
 
 } else {
-    // [수정] INSERT 로직 (새 글 작성)
-    // prepare를 먼저 하고 bind_param을 해야 합니다.
     $sql = "INSERT INTO gallery (gallery_type, title, content, thumbnail, is_private, password_hash, tags, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
     $stmt = $mysqli->prepare($sql);
     
-    // 타입: s(str), s, s, s, i(int), s, s
     $stmt->bind_param("ssssiss", $gallery_type, $title, $content, $thumbnail_path, $is_private, $password_hash, $tags);
 }
 

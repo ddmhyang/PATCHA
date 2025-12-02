@@ -50,17 +50,25 @@ $(document).ready(function() {
     });
 
 
-    //이미지 업로드
-    window.uploadSummernoteImage = function(file, editor) {
+// 이미지 업로드
+    window.uploadSummernoteImage = function(file, editor, insertAuto = true) {
         let data = new FormData();
         data.append("file", file);
-        $.ajax({
+        
+        return $.ajax({
             url: 'ajax_upload_image.php',
-            type: "POST", data: data,
-            contentType: false, processData: false, dataType: 'json',
+            type: "POST", 
+            data: data,
+            contentType: false, 
+            processData: false, 
+            dataType: 'json',
             success: function(response) {
                 if (response.success && response.url) {
-                    $(editor).summernote('insertImage', response.url);
+                    if (insertAuto) {
+                        $(editor).summernote('insertImage', response.url, function($image) {
+                            $image.css('width', '100%');
+                        });
+                    }
                 } else {
                     alert('이미지 업로드 실패: ' + (response.message || '알 수 없는 오류'));
                 }

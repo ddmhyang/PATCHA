@@ -1,15 +1,12 @@
 <?php
 require_once '../includes/db.php';
 
-// 'novel' 타입의 게시글만 가져오기
 $gallery_type = 'novel';
 
-// [수정됨] 쿼리에 'tags'를 추가했습니다!
 $posts = $mysqli->query("SELECT id, title, content, is_private, tags FROM gallery WHERE gallery_type = '$gallery_type' ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
 
-// HTML 태그 제거 및 내용 요약 함수 (한 줄 소개용)
 function get_summary($content) {
-    $text = strip_tags($content); // HTML 태그 제거
+    $text = strip_tags($content); 
     if (mb_strlen($text) > 50) {
         return mb_substr($text, 0, 50) . '...';
     }
@@ -22,7 +19,7 @@ function get_summary($content) {
         <div class="deco-tape tape-1">Hello</div>
         <div class="deco-tape tape-2">World !</div>
 
-        <div class="left-section">
+        <div class="left-section" id="novel-left">
             <i class="fa-solid fa-book-open floating-icon fi-1"></i>
             <i class="fa-solid fa-feather-pointed floating-icon fi-2"
                 style="left: 180px; bottom: 40px;"></i>
@@ -45,7 +42,7 @@ function get_summary($content) {
             </a>
         </div>
 
-        <div class="right-section-content">
+        <div class="right-section-content" id="novel-right">
             <ul class="novel-list">
                 <?php if (count($posts) > 0): ?>
                     <?php foreach ($posts as $post): ?>
@@ -63,16 +60,12 @@ function get_summary($content) {
                             
                             <div class="novel-tags">
                                 <?php 
-                                // 1. DB에 저장된 태그가 있는지 확인
                                 if (!empty($post['tags'])) {
-                                    // 2. 쉼표(,)를 기준으로 글자를 쪼개서 배열로 만듦
                                     $tag_list = explode(',', $post['tags']);
                                     
-                                    // 3. 하나씩 꺼내서 화면에 출력
                                     foreach ($tag_list as $tag) {
-                                        $tag = trim($tag); // 앞뒤 공백 제거
+                                        $tag = trim($tag); 
                                         if (!empty($tag)) {
-                                            // #을 붙여서 출력
                                             echo '<span class="tag">#' . htmlspecialchars($tag) . '</span>';
                                         }
                                     }

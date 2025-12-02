@@ -15,22 +15,21 @@ if (!$post) { die("게시물이 없습니다."); }
 ?>
 
 <div class="page-container" id="main_content">
-    <div class="main-frame">
+    <div class="main-frame edit-mode">
         <div class="deco-tape tape-1">Edit</div>
         <div class="deco-tape tape-2">Mode</div>
 
-        <div class="left-section">
+        <div class="left-section" id="gallery-edit-left">
             <i class="fa-solid fa-wrench floating-icon fi-1"></i>
             <div class="sub-title">System</div>
             <h1>Edit</h1>
-            <p class="description">내용을 수정합니다.</p>
 
             <a href="#/gallery_view?id=<?php echo $post_id; ?>" class="back-btn">
                 <i class="fa-solid fa-arrow-left"></i> 뒤로 가기
             </a>
         </div>
 
-        <div class="right-section-content">
+        <div class="right-section-content" id="gallery-edit-right">
             <form class="ajax-form styled-form" action="ajax_save_gallery.php" method="post">
                 <input type="hidden" name="id" value="<?php echo $post['id']; ?>">
                 <input type="hidden" name="gallery_type" value="<?php echo htmlspecialchars($post['gallery_type']); ?>">
@@ -67,16 +66,41 @@ if (!$post) { die("게시물이 없습니다."); }
                     <i class="fa-solid fa-check"></i> 수정 완료
                 </button>
             </form>
+            <div id="imageOrderModal" style="display:none;">
+                <div class="modal-content">
+                    <h3 style="margin-top:0;">이미지 순서 확인</h3>
+                    <p style="font-size:12px; color:#666;">화살표를 눌러 순서를 변경하세요.</p>
+                    
+                    <div id="imageListContainer">
+                        </div>
+
+                    <div class="modal-buttons">
+                        <button type="button" class="btn-cancel" onclick="closeImageModal()">취소</button>
+                        <button type="button" class="btn-confirm" onclick="confirmImageUpload()">순서대로 업로드</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    var pendingFiles = [];
+    var currentEditor = null;
+    var dragStartIndex = null;
+
     $(document).ready(function() {
+        pendingFiles = [];
+
         $('.summernote').summernote({
             height: 400,
             callbacks: {
-                onImageUpload: function(files) { uploadSummernoteImage(files[0], $(this)); }
+                onImageUpload: function(files) {
+                    currentEditor = $(this);
+                    var newFiles = Array.from(files);
+                    pendingFiles = pendingFiles.concat(newFiles);
+                    openImageModal();
+                }
             },
             toolbar: [
                 ['style', ['style']],
@@ -87,8 +111,113 @@ if (!$post) { die("게시물이 없습니다."); }
                 ['view', ['codeview', 'help']]
             ]
         });
+
         $('#is_private').on('change', function() {
             $('#password').toggle(this.checked).prop('required', this.checked);
         });
     });
+
+    window.openImageModal = function() {
+        $('#imageOrderModal').css('display', 'flex');
+        renderImageList();
+    };
+
+    window.closeImageModal = function() {
+        $('#imageOrderModal').hide();
+        pendingFiles = []; 
+    };
+
+    window.renderImageList = function() {
+        var container = document.getElementById('imageListContainer');
+        container.innerHTML = '';
+
+        if (pendingFiles.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">선택된 이미지가 없습니다.</div>';
+            return;
+        }
+
+        pendingFiles.forEach(function(file, index) {
+            var div = document.createElement('div');
+            div.className = 'image-list-item';
+            div.setAttribute('draggable', 'true');
+            div.dataset.index = index;
+
+            div.addEventListener('dragstart', dragStart);
+            div.addEventListener('dragover', dragOver);
+            div.addEventListener('drop', dragDrop);
+            div.addEventListener('dragenter', dragEnter);
+            div.addEventListener('dragleave', dragLeave);
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center;">
+                        <span style="margin-right:10px; color:#888; font-weight:bold;">${index + 1}</span>
+                        <img src="${e.target.result}" class="image-preview">
+                        <div class="file-info">
+                            <span class="file-name">${file.name}</span>
+                            <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                    </div>
+                    <button type="button" class="delete-btn" onclick="removeImage(${index})">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                `;
+            };
+            reader.readAsDataURL(file);
+            container.appendChild(div);
+        });
+    };
+
+    window.dragStart = function(e) {
+        dragStartIndex = +this.dataset.index;
+        this.classList.add('dragging');
+    };
+    window.dragOver = function(e) { e.preventDefault(); };
+    window.dragEnter = function(e) { this.classList.add('over'); };
+    window.dragLeave = function(e) { this.classList.remove('over'); };
+    window.dragDrop = function(e) {
+        var dragEndIndex = +this.dataset.index;
+        swapItems(dragStartIndex, dragEndIndex);
+        this.classList.remove('dragging');
+    };
+
+    window.swapItems = function(fromIndex, toIndex) {
+        if (fromIndex === toIndex) return;
+        var itemToMove = pendingFiles[fromIndex];
+        pendingFiles.splice(fromIndex, 1);
+        pendingFiles.splice(toIndex, 0, itemToMove);
+        renderImageList();
+    };
+
+    window.removeImage = function(index) {
+        pendingFiles.splice(index, 1);
+        renderImageList();
+    };
+
+    window.confirmImageUpload = async function() {
+        if (pendingFiles.length === 0) {
+            alert("업로드할 이미지가 없습니다.");
+            return;
+        }
+
+        $('#imageOrderModal').hide(); 
+        var htmlContent = ''; 
+
+        for (var i = 0; i < pendingFiles.length; i++) {
+            try {
+                var response = await uploadSummernoteImage(pendingFiles[i], currentEditor, false);
+                if (response && response.success && response.url) {
+                    htmlContent += `<p><img src="${response.url}" style="width: 100%;"></p>`;
+                }
+            } catch (e) {
+                console.error("업로드 오류:", e);
+            }
+        }
+        
+        if (htmlContent) {
+            currentEditor.summernote('pasteHTML', htmlContent);
+        }
+        pendingFiles = []; 
+    };
 </script>

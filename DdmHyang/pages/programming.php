@@ -22,13 +22,13 @@ function get_summary($content) {
         <div class="deco-tape tape-1">Hello</div>
         <div class="deco-tape tape-2">World !</div>
 
-        <div class="left-section">
+        <div class="left-section" id="programming-left">
             <i class="fa-solid fa-code floating-icon fi-1"></i>
             <i class="fa-solid fa-gear floating-icon fi-2"
                 style="left: 170px; bottom: 60px;"></i>
 
             <div class="sub-title">Category</div>
-            <h1 style="font-size:46px;">Programing</h1>
+            <h1>Programing</h1>
             <p class="description">
                 따~~악!!!!<br>
                 <b>버그 하나만 더 고치고</b><br>
@@ -47,7 +47,7 @@ function get_summary($content) {
             </a>
         </div>
 
-        <div class="right-section-content">
+        <div class="right-section-content" id="programming-right">
             <ul class="prog-list">
                 <?php if (count($posts) > 0): ?>
                     <?php foreach ($posts as $post): ?>
@@ -72,12 +72,10 @@ function get_summary($content) {
                                     foreach ($tag_list as $tag) {
                                         $tag = trim($tag);
                                         if (!empty($tag)) {
-                                            // tech-badge 클래스 사용
                                             echo '<span class="tech-badge">' . htmlspecialchars($tag) . '</span>';
                                         }
                                     }
                                 } else {
-                                    // 태그가 없을 때 기본값 (선택사항)
                                     echo '<span class="tech-badge" style="background:#eee; color:#aaa;">Etc</span>';
                                 }
                                 ?>

@@ -12,20 +12,20 @@ if ($is_admin) {
         <div class="deco-tape tape-1">Hello</div>
         <div class="deco-tape tape-2">World !</div>
 
-        <div class="left-section">
+        <div class="left-section" id="login-left">
             <i class="fa-solid fa-key floating-icon fi-1"></i>
             <i class="fa-solid fa-feather-pointed floating-icon fi-2"
                style="left: 180px; bottom: 40px;"></i>
 
-            <div class="sub-title">System</div>
-            <h1>Login</h1>
+            <div class="sub-title">Login</div>
+            <h1>System</h1>
             <a href="#/" class="back-btn">
                 <i class="fa-solid fa-arrow-left"></i>
                 메인으로 돌아가기
             </a>
         </div>
 
-        <div class="login-container">
+        <div class="login-container" id="login-right">
             <div class="login-box">
                 <h2 class="login-title">Welcome Back!</h2>
                 <form id="login-form" action="ajax_login.php" method="post">

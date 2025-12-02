@@ -6,6 +6,7 @@
     <title>DdmHyang</title>
     <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="128x128" href="assets/images/favicon.png">
     <style>
         :root {
             --bg-color: #fffafc;
@@ -94,7 +95,7 @@
                 #ffdee3 40px
             );
             border-radius: 20px;
-            transition: width 0.5s ease;
+            transition: width 0.2s ease;
             position: relative;
         }
 
@@ -145,6 +146,22 @@
         }
         .blinking {
             animation: blink 1s infinite;
+        }
+
+
+        @media screen and (max-width: 784px) {
+            .container {
+                width: 720px;
+                height: 1280px;
+                flex-shrink: 0;
+                transform-origin: top left;
+                transform: scale(0);
+                position: absolute;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
         }
     </style>
 </head>
@@ -202,7 +219,7 @@
         let percentage = 0;
 
         const loadingInterval = setInterval(() => {
-            percentage += 2;
+            percentage += 1;
 
             levelBar.style.width = percentage + '%';
             textLabel.innerText = `Charging... ${percentage}%`;
@@ -215,7 +232,7 @@
                 clearInterval(loadingInterval); 
                 finishLoading();
             }
-        }, 60); 
+        }, 15); 
 
         function finishLoading() {
             textLabel.innerText = "System Ready!";

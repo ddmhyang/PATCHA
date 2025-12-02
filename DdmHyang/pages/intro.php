@@ -1,9 +1,9 @@
-<div class="page=container" id="main_content">
+<div class="page-container" id="main_content">
     <div class="main-frame">
         <div class="deco-tape tape-1">Hello</div>
         <div class="deco-tape tape-2">World !</div>
 
-        <div class="left-section">
+        <div class="left-section" id="intro-left">
             <i class="fa-solid fa-user-astronaut floating-icon fi-1"></i>
             <i
                 class="fa-solid fa-heart floating-icon fi-2"
@@ -16,8 +16,10 @@
                 메인으로 돌아가기</a>
         </div>
 
-        <div class="right-section-content">
+        <div class="right-section-content" id="intro-right">
             <div class="profile-card">
+                    <i class="fa-solid fa-heart deco-heart dh-1"></i>
+                    <i class="fa-solid fa-heart deco-heart dh-2"></i>
                 <div class="profile-img-box">
                 </div>
                 <h2 class="profile-name">DdmHyang</h2>

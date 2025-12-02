@@ -12,7 +12,6 @@ $stmt->close();
 
 if (!$post) { die("게시물이 존재하지 않습니다."); }
 
-// 권한 체크 로직 (기존 유지)
 $can_view = false;
 if ($post['is_private'] == 0 || $is_admin || (isset($_SESSION['post_access'][$post_id]) && (time() - $_SESSION['post_access'][$post_id] < 1800))) {
     $can_view = true;
