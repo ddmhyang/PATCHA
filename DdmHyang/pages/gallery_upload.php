@@ -4,6 +4,10 @@ if (!$is_admin) { die("권한이 없습니다."); }
 $gallery_type = $_GET['type'] ?? 'gallery';
 ?>
 
+<style>
+
+</style>
+
 <div class="page-container" id="main_content">
     <div class="main-frame upload-mode">
         <div class="deco-tape tape-1">New</div>
@@ -56,14 +60,15 @@ $gallery_type = $_GET['type'] ?? 'gallery';
                     <i class="fa-solid fa-check"></i> 저장하기
                 </button>
             </form>
-            <div id="imageOrderModal" style="display:none;">
-                <div class="modal-content">
-                    <h3 style="margin-top:0;">이미지 순서 확인</h3>
-                    <p style="font-size:12px; color:#666;">화살표를 눌러 순서를 변경하세요.</p>
-                    
-                    <div id="imageListContainer">
-                        </div>
 
+            <div id="imageOrderModal">
+                <div class="modal-content">
+                    <h3 style="margin-top:0;">이미지 순서 편집</h3>
+                    <p style="font-size:13px; color:#666; margin-bottom:15px;">
+                        <i class="fa-solid fa-arrows-up-down-left-right"></i> 이미지를 드래그하여 순서를 변경하세요.<br>
+                        <b>순서대로 업로드</b> 버튼을 눌러야 본문에 삽입됩니다.
+                    </p>
+                    <div id="imageListContainer"></div>
                     <div class="modal-buttons">
                         <button type="button" class="btn-cancel" onclick="closeImageModal()">취소</button>
                         <button type="button" class="btn-confirm" onclick="confirmImageUpload()">순서대로 업로드</button>
@@ -75,11 +80,13 @@ $gallery_type = $_GET['type'] ?? 'gallery';
 </div>
 
 <script>
+    // [중요] let 대신 var를 사용하여 재선언 오류(Text Box 현상) 방지
     var pendingFiles = [];
     var currentEditor = null;
     var dragStartIndex = null;
 
     $(document).ready(function() {
+        // 페이지가 열릴 때마다 목록 초기화
         pendingFiles = [];
 
         $('.summernote').summernote({
@@ -87,6 +94,7 @@ $gallery_type = $_GET['type'] ?? 'gallery';
             callbacks: {
                 onImageUpload: function(files) {
                     currentEditor = $(this);
+                    // 새로 선택한 파일들을 목록에 '추가' (기존 목록 유지)
                     var newFiles = Array.from(files);
                     pendingFiles = pendingFiles.concat(newFiles);
                     openImageModal();
@@ -107,16 +115,19 @@ $gallery_type = $_GET['type'] ?? 'gallery';
         });
     });
 
+    // 팝업창 열기 및 목록 그리기
     window.openImageModal = function() {
         $('#imageOrderModal').css('display', 'flex');
         renderImageList();
     };
 
+    // 팝업창 닫기 (취소 시 목록 초기화)
     window.closeImageModal = function() {
         $('#imageOrderModal').hide();
         pendingFiles = []; 
     };
 
+    // 이미지 목록 렌더링
     window.renderImageList = function() {
         var container = document.getElementById('imageListContainer');
         container.innerHTML = '';
@@ -132,6 +143,7 @@ $gallery_type = $_GET['type'] ?? 'gallery';
             div.setAttribute('draggable', 'true');
             div.dataset.index = index;
 
+            // 드래그 이벤트 연결
             div.addEventListener('dragstart', dragStart);
             div.addEventListener('dragover', dragOver);
             div.addEventListener('drop', dragDrop);
@@ -159,6 +171,7 @@ $gallery_type = $_GET['type'] ?? 'gallery';
         });
     };
 
+    // --- 드래그 앤 드롭 로직 ---
     window.dragStart = function(e) {
         dragStartIndex = +this.dataset.index;
         this.classList.add('dragging');
@@ -185,6 +198,7 @@ $gallery_type = $_GET['type'] ?? 'gallery';
         renderImageList();
     };
 
+    // --- 최종 업로드 로직 ---
     window.confirmImageUpload = async function() {
         if (pendingFiles.length === 0) {
             alert("업로드할 이미지가 없습니다.");
@@ -194,10 +208,13 @@ $gallery_type = $_GET['type'] ?? 'gallery';
         $('#imageOrderModal').hide(); 
         var htmlContent = ''; 
 
+        // 사용자가 정한 순서대로 하나씩 서버에 업로드 (자동 삽입 X)
         for (var i = 0; i < pendingFiles.length; i++) {
             try {
+                // main.js의 수정된 함수 호출 (3번째 인자 false = 자동삽입 안함)
                 var response = await uploadSummernoteImage(pendingFiles[i], currentEditor, false);
                 if (response && response.success && response.url) {
+                    // HTML 태그 생성 후 문자열에 추가 (100% 너비 적용)
                     htmlContent += `<p><img src="${response.url}" style="width: 100%;"></p>`;
                 }
             } catch (e) {
@@ -205,9 +222,10 @@ $gallery_type = $_GET['type'] ?? 'gallery';
             }
         }
         
+        // 모든 업로드가 끝나면 모아둔 HTML을 한 번에 에디터에 삽입
         if (htmlContent) {
             currentEditor.summernote('pasteHTML', htmlContent);
         }
-        pendingFiles = []; 
+        pendingFiles = []; // 목록 초기화
     };
 </script>
