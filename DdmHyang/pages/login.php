@@ -9,9 +9,6 @@ if ($is_admin) {
 
 <div class="page-container" id="main_content">
     <div class="main-frame">
-        <div class="deco-tape tape-1">Hello</div>
-        <div class="deco-tape tape-2">World !</div>
-
         <div class="left-section" id="login-left">
             <i class="fa-solid fa-key floating-icon fi-1"></i>
             <i class="fa-solid fa-feather-pointed floating-icon fi-2"

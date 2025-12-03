@@ -21,6 +21,9 @@ require_once '../includes/db.php';
     </head>
     <body>
         <div class="container">
+            <div class="deco-tape tape-1">Hello</div>
+            <div class="deco-tape tape-2">World !</div>
+
             <main id="content"></main>
 
             <iframe id="song" width="0" height="0"
@@ -216,6 +219,23 @@ require_once '../includes/db.php';
                     });
                 }
             }
+
+            function updateLayoutMode() {
+                    var hash = window.location.hash;
+                    
+                    if (hash.indexOf('gallery_view') !== -1) {
+                        $('body').addClass('view-mode-active');
+                    } else if (hash.indexOf('gallery_edit') !== -1) {
+                        $('body').addClass('view-mode-active');
+                    } else if (hash.indexOf('gallery_upload') !== -1) {
+                        $('body').addClass('view-mode-active');
+                    } 
+                    else {
+                        $('body').removeClass('view-mode-active');
+                    }
+                }
+
+                $(window).on('load hashchange', updateLayoutMode);
         </script>
     </body>
 </html>

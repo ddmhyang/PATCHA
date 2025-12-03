@@ -1,9 +1,6 @@
 
 <div class="page-container" id="main_content">
     <div class="main-frame">
-        <div class="deco-tape tape-1">Hello</div>
-        <div class="deco-tape tape-2">World !</div>
-
         <div class="left-section" id="main-left">
             <i class="fa-solid fa-butterfly floating-icon fi-1"></i>
             <i class="fa-solid fa-star floating-icon fi-2"></i>

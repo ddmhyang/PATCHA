@@ -1,15 +1,12 @@
 <?php
 require_once '../includes/db.php';
 
-// 'programming' 타입의 게시글만 가져오기
 $gallery_type = 'programming';
 
-// 태그(tags)도 함께 가져오도록 쿼리 작성
-$posts = $mysqli->query("SELECT id, title, content, is_private, tags FROM gallery WHERE gallery_type = '$gallery_type' ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
+$posts = $mysqli->query("SELECT id, title, thumbnail, is_private, tags FROM gallery WHERE gallery_type = '$gallery_type' ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
 
-// HTML 태그 제거 및 내용 요약 함수 (한 줄 소개용)
 function get_summary($content) {
-    $text = strip_tags($content); // HTML 태그 제거
+    $text = strip_tags($content); 
     if (mb_strlen($text) > 60) {
         return mb_substr($text, 0, 60) . '...';
     }
@@ -19,9 +16,6 @@ function get_summary($content) {
 
 <div class="page-container" id="main_content">
     <div class="main-frame">
-        <div class="deco-tape tape-1">Hello</div>
-        <div class="deco-tape tape-2">World !</div>
-
         <div class="left-section" id="programming-left">
             <i class="fa-solid fa-code floating-icon fi-1"></i>
             <i class="fa-solid fa-gear floating-icon fi-2"
@@ -61,10 +55,20 @@ function get_summary($content) {
                                 <?php endif; ?>
                             </h3>
                             
-                            <p class="prog-desc">
-                                <?php echo htmlspecialchars(get_summary($post['content'])); ?>
-                            </p>
                             
+                            <?php
+                                $thumbnail_url = $post['thumbnail'] ?? '';
+                                $style = !empty($thumbnail_url) 
+                                    ? "background-image: url('" . htmlspecialchars($thumbnail_url) . "');" 
+                                    : "background-color: #f0f0f0;"; 
+                            ?>
+                            
+                            <div class="img-placeholder" style="<?php echo $style; ?>">
+                                <?php if (empty($thumbnail_url)): ?>
+                                    <i class="fa-regular fa-image" style="color: #ccc;"></i>
+                                <?php endif; ?>
+                            </div>
+
                             <div class="tech-stack">
                                 <?php 
                                 if (!empty($post['tags'])) {

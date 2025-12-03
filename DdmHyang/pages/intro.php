@@ -1,8 +1,5 @@
 <div class="page-container" id="main_content">
     <div class="main-frame">
-        <div class="deco-tape tape-1">Hello</div>
-        <div class="deco-tape tape-2">World !</div>
-
         <div class="left-section" id="intro-left">
             <i class="fa-solid fa-user-astronaut floating-icon fi-1"></i>
             <i

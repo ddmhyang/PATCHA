@@ -26,9 +26,6 @@ if (!$can_view) {
 ?>
 <div class="page-container" id="main_content">
     <div class="main-frame view-mode">
-        <div class="deco-tape tape-1">Hello</div>
-        <div class="deco-tape tape-2">World !</div>
-
         <div class="view-container">
             <div class="view-header">
                 <span class="gallery-badge">

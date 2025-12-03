@@ -8,9 +8,6 @@ $posts = $mysqli->query("SELECT id, title, thumbnail, is_private FROM gallery WH
 
 <div class="page-container" id="main_content">
     <div class="main-frame">
-        <div class="deco-tape tape-1">Hello</div>
-        <div class="deco-tape tape-2">World !</div>
-
         <div class="left-section" id="art-left">
                     <i class="fa-solid fa-palette floating-icon fi-1"></i>
                     <i
