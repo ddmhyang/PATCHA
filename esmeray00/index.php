@@ -6,7 +6,7 @@ require_once 'includes/db.php';
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>title</title>
+        <title>esmeray00</title>
         <style>
             @font-face {
                 font-family: 'MyMixFont';
@@ -97,6 +97,18 @@ require_once 'includes/db.php';
                 color: black;
             }
 
+            .house_link{
+                list-style: none;
+                color: white;
+                position: absolute;
+                bottom: 50px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 10px;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
         </style>
     </head>
     <body>
@@ -107,6 +119,8 @@ require_once 'includes/db.php';
                 <div class="index_bar"></div>
                 <a class="index_content">> (v.) take part or intervene in an activity without invitation or necessity.</a>
             </div>
+
+            <a class="house_link">https://youtu.be/HAEF8TlCub8?si=NtqDs-WxTbTZuDm_</a>
         </div>
         <script>
             function adjustScale() {
