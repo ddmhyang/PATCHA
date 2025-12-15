@@ -1,0 +1,551 @@
+/* =========================================
+   1. 기본 설정 및 폰트 (기존 유지)
+   ========================================= */
+* {
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: 'MyMixFont';
+    src: url("../fonts/LibreBodoni-VariableFont_wght.ttf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    unicode-range: U+0020-007E;
+}
+@font-face {
+    font-family: 'MyMixFont';
+    src: url("../fonts/KoPubWorld Batang Bold.ttf") format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0);
+    overflow: hidden;
+    position: relative;
+    visibility: hidden;
+    transition: background-color 1s ease-in-out;
+}
+
+/* =========================================
+   2. 메인 컨테이너 (720x1280)
+   ========================================= */
+.container {
+    flex-shrink: 0;
+    aspect-ratio: 9/16;
+    background-size: cover;
+    background-color: rgb(255, 161, 161);
+    transform-origin: top left;
+    position: absolute;
+    transform: scale(0);
+    font-family: 'MyMixFont';
+    transition: background-color 1s ease-in-out;
+    width: 720px;
+    height: 1280px;
+}
+
+main {
+    position: absolute;
+    width: 720px;
+    height: 1280px;
+    flex-shrink: 0;
+    aspect-ratio: 9/16;
+    overflow-y: auto;
+    top: 0px;
+    left: 0px;
+}
+main::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* 배경 이미지 */
+.main_back1 {
+    width: 720px;
+    height: 1280px;
+    flex-shrink: 0;
+    aspect-ratio: 9/16;
+    background: url("../images/background.png") no-repeat center center;
+    background-size: cover;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+/* =========================================
+   3. 메인 버튼들 (문, 거울, 토끼, 책)
+   ========================================= */
+.btn_login {
+    position: absolute;
+    top: 226px;
+    left: 238px;
+    width: 244px;
+    height: 461px;
+    background: url("../images/door.png") no-repeat center center;
+    background-size: cover;
+}
+
+.btn_gallery {
+    position: absolute;
+    top: 807px;
+    left: 47px;
+    width: 163px;
+    height: 229px;
+    background: url("../images/mirror.png") no-repeat center center;
+    background-size: cover;
+}
+
+.btn_profile {
+    position: absolute;
+    top: 807px;
+    left: 280px;
+    width: 160px;
+    height: 229px;
+    background: url("../images/rabbit.png") no-repeat center center;
+    background-size: cover;
+}
+
+.btn_guest_book {
+    position: absolute;
+    top: 887px;
+    left: 510px;
+    width: 168px;
+    height: 70px;
+    background: url("../images/book.png") no-repeat center center;
+    background-size: cover;
+}
+
+/* =========================================
+   4. 갤러리/게시판 공통 레이아웃
+   ========================================= */
+.gallery-container > h2 {
+    font-family: 'MyMixFont';
+    position: absolute;
+    top: 71px;
+    left: 255px;
+    font-size: 64px;
+    color: white;
+    font-weight: 500;
+    margin: 0;
+}
+
+.gallery_bar {
+    position: absolute;
+    top: 180px;
+    left: 73px;
+    width: 580px;
+    height: 6px;
+    background-color: white;
+    margin-bottom: 53px;
+}
+
+/* 갤러리 그리드 */
+.gallery-grid {
+    position: absolute;
+    top: 223px;
+    left: 70px;
+    width: 580px;
+    height: 800px;
+    display: grid;
+    grid-template-columns: 250px 250px;
+    justify-content: space-between;
+    row-gap: 120px;
+}
+
+.gallery-item {
+    text-decoration: none;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.item-thumbnail {
+    width: 250px;
+    height: 250px;
+    background-color: #000000;
+    background-size: cover;
+    background-position: center;
+    border: white 4px solid;
+    background-repeat: no-repeat;
+}
+
+.gallery-item h3 {
+    text-align: center;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 0;
+    font-size: 24px;
+    color: #A10000;
+    font-weight: bold;
+    padding: 0;
+}
+
+/* =========================================
+   5. 게시글 상세 보기 (View)
+   ========================================= */
+.view-container h1 {
+    text-align: center;
+    width: 100%;
+    margin-top: 152px;
+    margin-bottom: 138px;
+    font-size: 64px;
+    color: #A10000;
+    font-weight: bold;
+    padding: 0;
+}
+
+.post-meta {
+    text-align: right;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.post-content {
+    line-height: 1.8;
+    max-width: 540px;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 auto;       /* 중앙 정렬 */
+    text-align: left;     /* 글자 왼쪽 정렬 */
+    color: white;         /* 기본 글자색 흰색 추가 (배경이 검정이므로) */
+}
+
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.post-actions {
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* 버튼 스타일들 */
+.btn-action, .btn-back-to-list, button, .cancel_btn {
+    padding: 10px 20px;
+    color: white;
+    background-color: black;
+    border: 2px black solid;
+    font-size: 16px;
+    border-radius: 10px;
+    margin: 50px 20px 40px 0px;
+    font-family: 'MyMixFont';
+    cursor: pointer;
+}
+
+.btn-action.delete-btn, .cancel_btn  {
+    background-color: white;
+    color: black;
+}
+
+.add-btn{
+    position: absolute;
+    top: 105px;
+    right: 71px;
+    padding: 10px 20px;
+    background-color: white;
+    color: black;
+    border: 2px black solid;
+    font-size: 16px;
+    border-radius: 10px;
+    font-family: 'MyMixFont';
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* =========================================
+   6. [NEW] 글쓰기/입력 폼 (Form Page)
+   ========================================= */
+/* 갤러리 그리드와 동일한 위치에 폼을 배치 */
+.form-page-container {
+    position: absolute;   /* 위치 고정을 위해 추가 */
+    top: 140px;           /* 갤러리 그리드와 동일한 시작 높이 */
+    left: 70px;           /* 왼쪽 여백 70px */
+    width: 580px;         /* 너비 유지 */
+    height: 1000px;        /* 높이 확보 */
+    overflow-y: auto;     /* 내용이 길면 스크롤 */
+    color: white;         /* 라벨 텍스트 흰색 */
+}
+/* 스크롤바 숨김 */
+.form-page-container::-webkit-scrollbar {
+    width: 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 20px;      /* 라벨 폰트 크기 */
+    font-weight: bold;
+}
+
+/* 입력창 스타일 */
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group textarea {    /* textarea도 있다면 포함 */
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    font-family: 'MyMixFont'; /* 폰트 통일 */
+    font-size: 16px;
+    border: 3px solid #000000; /* 기존 요청 색상 유지 */
+    background: rgba(255, 255, 255, 0.9); /* 가독성을 위해 불투명도 조정 */
+    border-radius: 10px;
+    color: #333;
+}
+
+
+/* =========================================
+   7. [NEW] 로그인 화면 (Login Form)
+   ========================================= */
+.login-form, .password_content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -65%); /* 화면 중앙 정렬 */
+    text-align: center;
+    width: 100%; /* 중앙 정렬을 위해 너비 확보 */
+    z-index: 100; /* 다른 요소보다 위에 뜨게 */
+}
+
+.login-form > form {
+    display: flex;
+    gap: 26px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-form > form > input,
+.password_content > form > input {
+    color: #000000;
+    width: 399px;
+    height: 90px;
+    flex-shrink: 0;
+    border-radius: 30px;
+    border: 3px solid #000000;
+    background: rgba(255, 255, 255, 0.8); /* 배경 조금 더 밝게 */
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'MyMixFont'; /* 폰트 통일 */
+    font-size: 24px;
+}
+
+.login-form > form > button,
+.password_content > form > button {
+    color: #000000;
+    width: 252px;
+    height: 68px;
+    flex-shrink: 0;
+    border-radius: 30px;
+    border: 3px solid #000000;
+    background: rgba(255, 255, 255, 0.8);
+    margin-top: 13px;
+    font-family: 'MyMixFont'; /* 폰트 통일 */
+    font-size: 24px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+.login-form {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -65%);
+    text-align: center;
+}
+.login-form > form {
+    display: flex;
+    gap: 26px;
+    flex-direction: column;
+    align-items: center;
+}
+.login-form > form > input{
+    color: #000000;
+    width: 399px;
+    height: 90px;
+    flex-shrink: 0;
+    border-radius: 30px;
+    border: 3px solid #000000;
+    background: rgba(255, 255, 255, 0.30);
+    text-align: center;
+    margin-top: 20px;
+}
+.login-form > form > button,
+.password_content > form > button {
+    color: #000000;
+    width: 252px;
+    height: 68px;
+    flex-shrink: 0;
+    border-radius: 30px;
+    border: 3px solid #000000;
+    background: rgba(255, 255, 255, 0.30);
+    margin-top: 13px;
+}
+
+.file-upload-button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: white;
+    color: black;
+    font-size: 12px;
+    border: black 2px solid;
+    border-radius: 10px;
+    text-decoration-line: none;
+    cursor: pointer;
+}
+
+/* 1. 에디터 전체 외곽 틀 투명화 */
+.note-editor.note-frame {
+    border: 2px solid #ffffff !important; /* 테두리 색상 (원하는대로 수정 가능) */
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* 2. 상단 툴바(버튼 영역) 투명화 */
+.note-toolbar {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important; /* 툴바 아래 구분선 살짝 */
+}
+
+/* 3. 실제 글 쓰는 영역 투명화 */
+.note-editing-area, 
+.note-editable {
+    background-color: transparent !important;
+    color: black !important; /* 글자색 (배경이 어두우면 white로 변경) */
+}
+
+/* 4. 최하단 크기 조절 바 투명화 */
+.note-statusbar {
+    background-color: transparent !important;
+}
+
+/* 5. 툴바 안의 버튼들도 투명하게 (선택사항) */
+.note-btn {
+    background-color: rgba(255, 255, 255, 0.5) !important; /* 버튼은 살짝 흰색 깔기 */
+    border: 1px solid #ffffff !important;
+}
+
+.modal-backdrop,
+.note-modal-backdrop {
+    z-index: -1 !important;
+}
+
+/* =========================================
+   8. Summernote 팝업창(이미지/파일 업로드 등) 디자인 수정
+   ========================================= */
+
+/* 1. 팝업창 전체 틀 (반투명 배경 + 검정 테두리) */
+.note-modal-content, 
+.modal-content {
+    background-color: rgba(255, 255, 255, 0.9) !important; /* 뒤가 살짝 비치는 흰색 */
+    border: 3px solid #000000 !important; /* 검정 테두리 */
+    border-radius: 15px !important;
+    color: #000000 !important; /* 글자색 검정으로 강제 지정 */
+    box-shadow: none !important;
+}
+
+/* 2. 팝업창 헤더 (제목 부분) */
+.note-modal-header, 
+.modal-header {
+    border-bottom: 2px solid #000000 !important; /* 구분선 검정 */
+    color: #000000 !important;
+}
+.note-modal-title, 
+.modal-title {
+    color: #000000 !important;
+    font-weight: bold;
+    font-family: 'MyMixFont';
+}
+
+/* 3. 닫기 버튼 (X표시) */
+.close, .note-modal-close {
+    color: #000000 !important;
+    opacity: 1 !important;
+}
+
+/* 4. 팝업창 내부 입력칸 (파일 선택, URL 입력 등) */
+.note-modal-body input[type="text"],
+.note-modal-body input[type="file"],
+.modal-body input {
+    color: #000000 !important;      /* 입력 글자 검정 */
+    border: 2px solid #000000 !important; /* 입력창 테두리 검정 */
+    background-color: transparent !important;
+    padding: 10px !important;
+    border-radius: 5px !important;
+}
+
+/* 5. 파일 선택 버튼 주변 라벨 */
+.note-form-label {
+    color: #000000 !important;
+    font-weight: bold;
+}
+
+/* 6. 하단 버튼 (Insert, Close 등) */
+.note-btn-primary, 
+.btn-primary {
+    background-color: #000000 !important; /* 버튼 배경 검정 */
+    border: 1px solid #000000 !important;
+    color: #ffffff !important; /* 버튼 글씨 흰색 */
+}
+.note-btn-primary:hover, 
+.btn-primary:hover {
+    background-color: #333333 !important;
+}
+
+/* 7. 체크박스 등 기타 텍스트 */
+.note-checkbox, .checkbox {
+    color: #000000 !important;
+}
+/* =========================================
+   9. Summernote 툴바 간격(마진/패딩) 정리
+   ========================================= */
+
+/* 1. 툴바 전체의 안쪽 여백을 줄여서 날씬하게 만듦 */
+.note-toolbar {
+    padding: 5px !important; /* 위아래여백 5px로 축소 */
+    display: flex !important;    /* 버튼들을 가로로 유연하게 배치 */
+    flex-wrap: wrap !important;  /* 창이 좁으면 자연스럽게 줄바꿈 */
+    align-items: center !important; /* 세로 기준 중앙 정렬 */
+}
+
+/* 2. 버튼 그룹(예: 굵게/기울임 묶음, 정렬 묶음 등) 사이의 간격 조정 */
+.note-btn-group, .btn-group {
+    margin-right: 8px !important;  /* 그룹 간격 8px (적당히 띄움) */
+    margin-bottom: 5px !important; /* 줄 바뀔 때 아래 간격 */
+    margin-top: 0 !important;      /* 위쪽 불필요한 여백 제거 */
+}
+
+/* 3. 개별 버튼끼리는 딱 붙이고 크기 정돈 */
+.note-btn {
+    margin: 0 !important;           /* 버튼끼리 여백 제거 (딱 붙게) */
+    padding: 6px 12px !important;   /* 버튼 내부 여백 (아이콘 주변 공간) */
+    height: 35px !important;        /* 버튼 높이 통일 */
+    line-height: 1.2 !important;    /* 아이콘 수직 정렬 */
+}
+
+/* 4. (선택사항) 폰트 선택 박스 등 드롭다운 높이 조절 */
+.note-current-fontsize, .note-current-fontname {
+    line-height: 1.2 !important;
+}
