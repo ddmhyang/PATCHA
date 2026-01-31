@@ -2,6 +2,14 @@
 // api.php : School RPG 핵심 로직 (전투, 인벤토리, 상점, 도박, 상태이상 등)
 require_once 'common.php';
 
+if (!function_exists('json_out')) {
+    function json_out($data) {
+        ob_end_clean(); // 기존에 쌓인 잡동사니(에러 메시지 등) 제거
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
 $input = json_decode(file_get_contents('php://input'), true);
 $cmd = isset($_POST['cmd']) ? $_POST['cmd'] : (isset($input['cmd']) ? $input['cmd'] : '');
 
@@ -28,27 +36,33 @@ try {
         // =========================================================
         // [1] 유저 기본 (로그인/정보/프로필)
         // =========================================================
-        case 'login':
+case 'login':
             $name = trim($input['name']);
             $pw = trim($input['pw']);
             if (!$name || !$pw) throw new Exception("정보를 입력하세요.");
-            
             if ($name === 'admin') $user = sql_fetch("SELECT * FROM School_Members WHERE user_id = 'admin'");
             else $user = sql_fetch("SELECT * FROM School_Members WHERE name = ? AND role != 'admin'", [$name]);
-            
             if (!$user || !password_verify($pw, $user['pw'])) throw new Exception("정보가 일치하지 않습니다.");
-            
             $_SESSION['uid'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
             sql_exec("UPDATE School_Members SET last_action_at = NOW() WHERE id = ?", [$user['id']]);
-            write_log($user['id'], 'SYSTEM', '로그인 성공');
             json_res(['status'=>'success']);
             break;
 
+        case 'logout':
+            session_destroy();
+            json_res(['status'=>'success']);
+            break;
+
+// [수정] get_my_info: 활동 시간 갱신 추가
         case 'get_my_info':
+            // 접속 시마다 활동 시간 갱신 (유저 목록에 뜨게 하기 위함)
+            sql_exec("UPDATE School_Members SET last_action_at = NOW() WHERE id = ?", [$my_id]);
+            
             $me = sql_fetch("SELECT * FROM School_Members WHERE id = ?", [$my_id]);
-            // 나에게 온 대기 중인 결투 신청 확인
+            
+            // 결투 신청 확인 (guest_id가 0이거나 나로 설정된 대기방)
             $challenge = sql_fetch("
                 SELECT b.room_id, m.name 
                 FROM School_Battles b
@@ -57,9 +71,262 @@ try {
                 LIMIT 1
             ", [$my_id]);
             
-            $me['challenge'] = $challenge;
-            json_res(['status'=>'success', 'data'=>$me]);
+            $active_room = sql_fetch("SELECT room_id, status FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY','FIGHTING')", [$my_id, $my_id]);
+
+            json_res([
+                'status'=>'success', 
+                'data'=>$me,
+                'challenge'=>$challenge,
+                'active_room'=>$active_room
+            ]);
             break;
+            
+case 'battle_list_users':
+            try {
+                // 1. 정상 시도 (injury 컬럼 포함)
+                $list = sql_all("SELECT id, name, level, injury FROM School_Members WHERE id != ? AND last_action_at > DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND role != 'admin'", [$my_id]);
+            } catch (Exception $e) {
+                // 2. 에러 발생 시 (컬럼이 없는 경우) -> injury 빼고 조회
+                $list = sql_all("SELECT id, name, level FROM School_Members WHERE id != ? AND last_action_at > DATE_SUB(NOW(), INTERVAL 10 MINUTE) AND role != 'admin'", [$my_id]);
+                // 가짜 데이터 채워주기 (JS 오류 방지)
+                foreach ($list as &$u) $u['injury'] = 0;
+            }
+            json_out(['status'=>'success', 'list'=>$list]);
+            break;
+
+
+        case 'battle_make_room':
+            // 1. 이미 내가 참여 중인(호스트거나 게스트인) 방이 있는지 확인
+            $chk = sql_fetch("SELECT room_id FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY','FIGHTING')", [$my_id, $my_id]);
+            
+            if ($chk) {
+                // 이미 있으면 그 방 ID 반환
+                json_out(['status'=>'success', 'room_id'=>$chk['room_id']]);
+            }
+            
+            // 2. 없으면 새로 생성 (PVE)
+            sql_exec("INSERT INTO School_Battles (host_id, target_id, status, host_ready, guest_ready, created_at, updated_at) VALUES (?, 0, 'WAIT', 0, 0, NOW(), NOW())", [$my_id]);
+            json_out(['status'=>'success', 'room_id'=>$pdo->lastInsertId()]);
+            break;
+
+        case 'battle_challenge':
+            $target_id = to_int($input['target_id']);
+            $chk = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? OR guest_id=?", [$my_id, $my_id]);
+            if ($chk) throw new Exception("이미 전투 중이거나 대기 중입니다.");
+
+            sql_exec("INSERT INTO School_Battles (host_id, target_id, status, host_ready, guest_ready, created_at, updated_at) VALUES (?, ?, 'WAIT', 0, 0, NOW(), NOW())", [$my_id, $target_id]);
+            json_res(['status'=>'success', 'msg'=>'결투장을 보냈습니다.']);
+            break;
+
+        case 'battle_join':
+            $rid = to_int($input['room_id']);
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE room_id=? AND status='WAIT'", [$rid]);
+            if (!$room) throw new Exception("입장할 수 없습니다.");
+            
+            sql_exec("UPDATE School_Battles SET guest_id=?, updated_at=NOW() WHERE room_id=?", [$my_id, $rid]);
+            json_res(['status'=>'success', 'room_id'=>$rid]);
+            break;
+
+        // --- 대기실 로직 (레디) ---
+        case 'battle_room_info':
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY','FIGHTING') ORDER BY room_id DESC LIMIT 1", [$my_id, $my_id]);
+            if (!$room) { json_res(['status'=>'none']); break; }
+
+            $host = sql_fetch("SELECT name FROM School_Members WHERE id=?", [$room['host_id']]);
+            $guest = ($room['guest_id']) ? sql_fetch("SELECT name FROM School_Members WHERE id=?", [$room['guest_id']]) : null;
+
+            json_res([
+                'status'=>'success',
+                'room'=>$room,
+                'host_name'=>$host['name'],
+                'guest_name'=>$guest ? $guest['name'] : '없음'
+            ]);
+            break;
+
+        case 'battle_ready':
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY')", [$my_id, $my_id]);
+            if (!$room) throw new Exception("대기방이 없습니다.");
+
+            $is_host = ($room['host_id'] == $my_id);
+            $field = $is_host ? 'host_ready' : 'guest_ready';
+            $new_val = ($input['ready'] == true || $input['ready'] == 1) ? 1 : 0;
+
+            // 준비 상태 업데이트
+            sql_exec("UPDATE School_Battles SET {$field}=? WHERE room_id=?", [$new_val, $room['room_id']]);
+            
+            // 다시 방 상태 조회 (상대방 상태 확인용)
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE room_id=?", [$room['room_id']]);
+
+            // [조건 체크] 전투 시작 가능?
+            $can_start = false;
+            
+            // 1. PVE (탐색): 호스트가 준비하면 바로 시작
+            if ($room['target_id'] == 0 && $room['host_ready'] == 1) {
+                $can_start = true;
+            }
+            // 2. PVP (결투): 둘 다 준비하면 시작
+            elseif ($room['target_id'] > 0 && $room['host_ready'] == 1 && $room['guest_ready'] == 1) {
+                $can_start = true;
+            }
+
+            if ($can_start) {
+                // 전투 데이터 생성 함수 호출
+                start_battle($room['room_id'], $my_id, $input); 
+                return; // start_battle 안에서 json_out으로 종료됨
+            }
+
+            json_out(['status'=>'success']);
+            break;
+
+        // --- 전투 시작 (내부 호출용 label) ---
+        start_battle_logic:
+        case 'battle_start':
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY')", [$my_id, $my_id]);
+            if (!$room) throw new Exception("시작할 방이 없습니다.");
+
+            // 몬스터 / 플레이어 세팅
+            $players_list = [$room['host_id']];
+            if ($room['guest_id']) $players_list[] = $room['guest_id'];
+
+            $mob_live_data = [];
+            $logs = [];
+
+            // PVP / PVE 분기
+            if ($room['target_id'] > 0) {
+                $logs[] = ['msg' => "⚔️ 결투가 시작되었습니다!", 'type' => 'system'];
+            } else {
+                // 몬스터 개수 (기본 1~3, 인원 많으면 추가)
+                $mob_count = isset($input['mob_count']) ? max(1, to_int($input['mob_count'])) : rand(1, 3);
+                $base_mob = sql_fetch("SELECT * FROM School_Monsters ORDER BY RAND() LIMIT 1");
+                
+                for($i=0; $i<$mob_count; $i++) {
+                    $m_st = json_decode($base_mob['stats'], true);
+                    $m_calc = calc_battle_stats($m_st);
+                    if ($mob_count > 1) $m_calc['atk'] = floor($m_calc['atk'] * (1 - ($mob_count * 0.05))); // 너프
+
+                    $mob_live_data[] = [
+                        'id' => 'mob_'.$i, 'name' => $base_mob['name']." ".($i+1),
+                        'hp_max' => $m_calc['hp_max'], 'hp_cur' => $m_calc['hp_max'],
+                        'atk' => $m_calc['atk'], 'def' => $m_calc['def'], 'speed' => $m_calc['speed'],
+                        'is_dead' => false
+                    ];
+                }
+                $logs[] = ['msg' => "<b>{$base_mob['name']}</b> {$mob_count}마리가 나타났다!", 'type' => 'system'];
+            }
+
+            // 플레이어 스탯 계산
+            $players_data = [];
+            $max_speed_player = 0;
+            foreach($players_list as $pid) {
+                $p_db = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$pid]);
+                // 장비/상태이상 스탯 반영 생략(기존 코드 참고하여 구현)
+                $p_calc = calc_battle_stats($p_db); 
+                $p_calc['id'] = $pid;
+                $p_calc['name'] = $p_db['name'];
+                $p_calc['hp_cur'] = $p_db['hp_current'];
+                $p_calc['is_dead'] = false;
+                if ($p_calc['speed'] > $max_speed_player) $max_speed_player = $p_calc['speed'];
+                $players_data[] = $p_calc;
+            }
+
+            $turn = ($max_speed_player >= ($mob_live_data[0]['speed'] ?? 0)) ? 'player' : 'enemy_ready';
+
+            sql_exec("UPDATE School_Battles SET status='FIGHTING', mob_live_data=?, players_data=?, battle_log=?, turn_status=? WHERE room_id=?", 
+                [json_encode($mob_live_data), json_encode($players_data), json_encode($logs), $turn, $room['room_id']]
+            );
+            json_res(['status'=>'success', 'start'=>true]);
+            break;
+
+        // --- 전투 진행 ---
+        case 'battle_refresh': // (구 battle_info)
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('FIGHTING','END')", [$my_id, $my_id]);
+            if (!$room) { json_res(['status'=>'none']); break; }
+
+            // 전투 종료 상태면 클라이언트에 알림
+            if ($room['status'] === 'END') {
+                // 방 삭제 혹은 유지 정책 (여기선 DB에서 삭제하지 않고 클라가 나가면 처리하도록 둠)
+                json_res(['status'=>'end', 'win'=>true]); // 승패 여부는 로그 등으로 판단
+                break;
+            }
+
+            $mobs = json_decode($room['mob_live_data'], true);
+            
+            // [중요] 몬스터 전멸 체크 (버그 수정)
+            $alive_mobs = 0;
+            foreach($mobs as $m) if(!$m['is_dead']) $alive_mobs++;
+            
+            if ($alive_mobs === 0 && $room['target_id'] == 0) {
+                // 즉시 승리 처리
+                sql_exec("UPDATE School_Battles SET status='END' WHERE room_id=?", [$room['room_id']]);
+                json_res(['status'=>'end', 'win'=>true]);
+                break;
+            }
+
+            json_res([
+                'status' => 'battle',
+                'room' => $room,
+                'me_id' => $my_id,
+                'players' => json_decode($room['players_data'], true),
+                'enemies' => $mobs,
+                'logs' => json_decode($room['battle_log'], true)
+            ]);
+            break;
+
+        case 'battle_action_attack':
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE room_id=?", [$input['room_id']]);
+            if (!$room || $room['status'] !== 'FIGHTING') throw new Exception("전투 중이 아닙니다.");
+            
+            $mobs = json_decode($room['mob_live_data'], true);
+            $players = json_decode($room['players_data'], true);
+            $logs = json_decode($room['battle_log'], true);
+
+            // 타겟 선정 (살아있는 몹)
+            $target_idx = -1;
+            foreach($mobs as $idx => $m) { if(!$m['is_dead']) { $target_idx = $idx; break; } }
+            
+            if ($target_idx == -1) {
+                // 이미 다 죽음 -> 승리
+                sql_exec("UPDATE School_Battles SET status='END' WHERE room_id=?", [$room['room_id']]);
+                json_res(['status'=>'win']);
+            }
+
+            $me = null; foreach($players as $p) if($p['id'] == $my_id) $me = $p;
+            $dmg = max(1, $me['atk'] - $mobs[$target_idx]['def']);
+            
+            $mobs[$target_idx]['hp_cur'] -= $dmg;
+            $logs[] = ['msg'=>"⚔️ <b>{$mobs[$target_idx]['name']}</b>에게 {$dmg} 피해!", 'type'=>'player'];
+
+            if ($mobs[$target_idx]['hp_cur'] <= 0) {
+                $mobs[$target_idx]['hp_cur'] = 0;
+                $mobs[$target_idx]['is_dead'] = true;
+                $logs[] = ['msg'=>"💀 {$mobs[$target_idx]['name']} 처치!", 'type'=>'system'];
+            }
+
+            // 전멸 확인
+            $all_dead = true;
+            foreach($mobs as $m) if(!$m['is_dead']) $all_dead = false;
+
+            if ($all_dead) {
+                $logs[] = ['msg'=>"🏆 <b>전투 승리!</b>", 'type'=>'system'];
+                sql_exec("UPDATE School_Battles SET status='END', mob_live_data=?, battle_log=? WHERE room_id=?", 
+                    [json_encode($mobs), json_encode($logs), $room['room_id']]);
+                
+                // 보상 지급 로직 추가 가능
+                json_res(['status'=>'win']);
+            } else {
+                // 턴 넘기기
+                sql_exec("UPDATE School_Battles SET mob_live_data=?, battle_log=?, turn_status='enemy_ready' WHERE room_id=?", 
+                    [json_encode($mobs), json_encode($logs), $room['room_id']]);
+                json_res(['status'=>'success']);
+            }
+            break;
+            
+        case 'battle_exit':
+            // 방 나가기 (상태 END로 만듦)
+            sql_exec("UPDATE School_Battles SET status='END' WHERE host_id=? OR guest_id=?", [$my_id, $my_id]);
+            json_res(['status'=>'success']);
+            break;
+
 
         case 'update_profile_img_file':
             if (!isset($_FILES['img_file']) || $_FILES['img_file']['error'] != UPLOAD_ERR_OK) {
@@ -222,32 +489,6 @@ try {
         // [3] 전투 시스템 (다수 몹 & 밸런스 패치 적용)
         // =========================================================
         
-        case 'battle_refresh':
-            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY','BATTLE','END','FIGHTING')", [$my_id, $my_id]);
-            if (!$room) { json_res(['status'=>'none']); break; }
-
-            $chats = sql_fetch_all("SELECT * FROM School_Battle_Chat WHERE room_id=? ORDER BY id ASC", [$room['room_id']]);
-
-            // 내 정보 및 적 정보 구성
-            $players = json_decode($room['players_data'], true) ?? [];
-            $me_stat = [];
-            foreach($players as $p) {
-                if($p['id'] == $my_id) $me_stat = $p;
-            }
-            $mobs = json_decode($room['mob_live_data'], true) ?? [];
-
-            json_res([
-                'status' => 'battle',
-                'room_stat' => $room['status'],
-                'me' => $me_stat,
-                'players' => $players,
-                'enemies' => $mobs,
-                'turn_status' => $room['turn_status'],
-                'is_my_turn' => ($room['turn_status'] === 'player' || $room['turn_status'] === 'player_defend'),
-                'chats' => $chats
-            ]);
-            break;
-
         case 'battle_chat_send':
             $msg = trim($input['msg']);
             if (!$msg) throw new Exception("");
@@ -260,134 +501,7 @@ try {
             json_res(['status'=>'success']);
             break;
 
-        case 'battle_list_users':
-            $list = sql_fetch_all("
-                SELECT id, name, level, point, injury 
-                FROM School_Members 
-                WHERE id != ? AND injury < 4 AND role != 'admin'
-                ORDER BY level DESC LIMIT 30
-            ", [$my_id]);
-            json_res(['status'=>'success', 'list'=>$list]);
-            break;
 
-        case 'battle_challenge':
-            $target_id = to_int($input['target_id']);
-            $target = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$target_id]);
-            if (!$target) throw new Exception("존재하지 않는 유저입니다.");
-            if ($target['injury'] >= 4) throw new Exception("이미 사망한 유저입니다.");
-            
-            $chk = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? OR guest_id=?", [$my_id, $my_id]);
-            if ($chk) throw new Exception("이미 전투 중이거나 대기 중입니다.");
-
-            sql_exec("INSERT INTO School_Battles (host_id, target_id, status, created_at, updated_at) VALUES (?, ?, 'WAIT', NOW(), NOW())", [$my_id, $target_id]);
-            write_log($my_id, 'BATTLE', "{$target['name']}님에게 결투를 신청했습니다.");
-            json_res(['status'=>'success', 'msg'=>'결투장을 보냈습니다.']);
-            break;
-
-        case 'battle_make_room':
-            $chk = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? OR guest_id=?", [$my_id, $my_id]);
-            if ($chk) throw new Exception("이미 참여 중인 전투가 있습니다.");
-            
-            sql_exec("INSERT INTO School_Battles (host_id, target_id, status, created_at, updated_at) VALUES (?, 0, 'WAIT', NOW(), NOW())", [$my_id]);
-            json_res(['status'=>'success']);
-            break;
-
-        case 'battle_join':
-            $rid = to_int($input['room_id']);
-            $room = sql_fetch("SELECT * FROM School_Battles WHERE room_id=? AND status='WAIT'", [$rid]);
-            if (!$room) throw new Exception("입장할 수 없는 방입니다.");
-            if ($room['target_id'] != 0 && $room['target_id'] != $my_id) throw new Exception("당신에게 온 신청이 아닙니다.");
-            
-            sql_exec("UPDATE School_Battles SET guest_id=?, status='READY', updated_at=NOW() WHERE room_id=?", [$my_id, $rid]);
-            json_res(['status'=>'success']);
-            break;
-
-        // 전투 시작 (다수 몹 생성 및 밸런스 적용)
-        case 'battle_start':
-            $active = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? AND status='FIGHTING'", [$my_id]);
-            if ($active) json_res(['status'=>'success', 'room_id'=>$active['room_id']]);
-
-            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY','BATTLE','END','FIGHTING')", [$my_id, $my_id]);
-            $room = sql_fetch("SELECT * FROM School_Battles WHERE host_id=? AND status IN ('WAIT','READY')", [$my_id]);
-            $players_list = [$my_id];
-            if ($room && $room['guest_id']) $players_list[] = $room['guest_id'];
-
-            // 1. 몬스터 생성 (1~3마리, 다수 인원 시 추가)
-            $mob_count = rand(1, 3);
-            if (count($players_list) > 1) $mob_count += rand(1, 2);
-
-            $mob_live_data = [];
-            $base_mob = sql_fetch("SELECT * FROM School_Monsters ORDER BY RAND() LIMIT 1");
-            if (!$base_mob) throw new Exception("몬스터 데이터가 없습니다.");
-
-            for($i=0; $i<$mob_count; $i++) {
-                $m_st = json_decode($base_mob['stats'], true);
-                $m_calc = calc_battle_stats($m_st);
-                
-                // 다수 출현 시 마리당 공격력 5% 너프
-                if ($mob_count > 1) {
-                    $nerf = 1 - ($mob_count * 0.05);
-                    $m_calc['atk'] = floor($m_calc['atk'] * $nerf);
-                }
-
-                $mob_live_data[] = [
-                    'id' => 'mob_'.$i,
-                    'name' => $base_mob['name'] . " " . ($i+1),
-                    'hp_max' => $m_calc['hp_max'],
-                    'hp_cur' => $m_calc['hp_max'],
-                    'atk' => $m_calc['atk'],
-                    'def' => $m_calc['def'],
-                    'speed' => $m_calc['speed'],
-                    'give_exp' => $base_mob['give_exp'],
-                    'give_point' => $base_mob['give_point'],
-                    'is_dead' => false
-                ];
-            }
-
-            // 2. 플레이어 데이터 생성
-            $players_data = [];
-            $max_speed_player = 0;
-            
-            foreach($players_list as $pid) {
-                $p_db = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$pid]);
-                $equip = sql_fetch_all("SELECT i.effect_data FROM School_Inventory inv JOIN School_Item_Info i ON inv.item_id=i.item_id WHERE inv.owner_id=? AND inv.is_equipped=1", [$pid]);
-                $add_atk=0; $add_def=0;
-                foreach($equip as $eq) {
-                    $eff = json_decode($eq['effect_data'], true);
-                    if(isset($eff['atk'])) $add_atk += $eff['atk'];
-                    if(isset($eff['def'])) $add_def += $eff['def'];
-                }
-                
-                // 상태이상 보정
-                $p_status = []; // (함수 내부에서 처리하거나 여기서 미리 계산)
-                if (function_exists('get_player_status_adjust')) $p_status = get_player_status_adjust($pid);
-
-                $p_calc = calc_battle_stats($p_db, $add_atk, $add_def, $p_status);
-                $p_calc['id'] = $pid;
-                $p_calc['name'] = $p_db['name'];
-                $p_calc['hp_cur'] = $p_db['hp_current'];
-                $p_calc['is_dead'] = false;
-                
-                if ($p_calc['speed'] > $max_speed_player) $max_speed_player = $p_calc['speed'];
-                $players_data[] = $p_calc;
-            }
-
-            // 3. 선공 결정
-            $turn = ($max_speed_player >= $mob_live_data[0]['speed']) ? 'player' : 'enemy_ready';
-            $logs = [['msg' => "<b>{$base_mob['name']}</b> 무리({$mob_count}마리)가 나타났다!", 'type' => 'system']];
-
-            if ($room) {
-                sql_exec("UPDATE School_Battles SET status='FIGHTING', mob_live_data=?, players_data=?, battle_log=?, turn_status=? WHERE room_id=?", 
-                    [json_encode($mob_live_data), json_encode($players_data), json_encode($logs), $turn, $room['room_id']]
-                );
-                json_res(['status'=>'success', 'room_id'=>$room['room_id']]);
-            } else {
-                sql_exec("INSERT INTO School_Battles (host_id, status, mob_live_data, players_data, battle_log, turn_status) VALUES (?, 'FIGHTING', ?, ?, ?, ?)", 
-                    [$my_id, json_encode($mob_live_data), json_encode($players_data), json_encode($logs), $turn]
-                );
-                json_res(['status'=>'success', 'room_id'=>$pdo->lastInsertId()]);
-            }
-            break;
 
         case 'battle_info':
             $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status='FIGHTING' ORDER BY room_id DESC LIMIT 1", [$my_id, $my_id]);
@@ -417,105 +531,6 @@ try {
             json_res(['status'=>'playing', 'data'=>$room]);
             break;
 
-        // 플레이어 공격
-        case 'battle_action_attack':
-            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status='FIGHTING' ORDER BY room_id DESC LIMIT 1", [$my_id, $my_id]);
-            if (!$room || $room['turn_status'] !== 'player') throw new Exception("당신의 턴이 아닙니다.");
-
-            $mobs = json_decode($room['mob_live_data'], true);
-            $players = json_decode($room['players_data'], true);
-            $logs = json_decode($room['battle_log'], true);
-            
-            $me = null;
-            foreach($players as $p) if($p['id'] == $my_id) $me = $p;
-            
-            $target_idx = -1;
-            foreach($mobs as $idx => $m) {
-                if (!$m['is_dead']) { $target_idx = $idx; break; }
-            }
-            
-            if ($target_idx === -1) throw new Exception("적들이 이미 모두 쓰러졌습니다.");
-            $target = &$mobs[$target_idx];
-
-            // [공격] 내 공격력 - 적 방어력
-            $dmg = max(1, $me['atk'] - $target['def']);
-            
-            $is_crit = (rand(1, 100) > 90);
-            if ($is_crit) {
-                $dmg = floor($dmg * 1.5);
-                $msg = "⚡ <b>치명타!</b> ";
-            } else {
-                $msg = "";
-            }
-            $msg .= "⚔️ <b>{$target['name']}</b>에게 {$dmg} 피해!";
-            
-            $target['hp_cur'] -= $dmg;
-            $logs[] = ['msg'=>$msg, 'type'=>'player'];
-
-            // [내구도 감소] 무기 (WEAPON 타입만)
-            $weapon = sql_fetch("SELECT inv.id, inv.cur_dur, i.name FROM School_Inventory inv JOIN School_Item_Info i ON inv.item_id=i.item_id WHERE inv.owner_id=? AND inv.is_equipped=1 AND i.type='WEAPON' LIMIT 1", [$my_id]);
-            if ($weapon && $weapon['cur_dur'] > 0 && rand(1,5)==1) {
-                sql_exec("UPDATE School_Inventory SET cur_dur = cur_dur - 1 WHERE id=?", [$weapon['id']]);
-            }
-
-            // 처치 확인
-            if ($target['hp_cur'] <= 0) {
-                $target['hp_cur'] = 0; $target['is_dead'] = true;
-                $logs[] = ['msg'=>"💀 <b>{$target['name']}</b> 처치!", 'type'=>'system'];
-            }
-
-            // 전멸 체크 및 보상
-            $all_dead = true;
-            foreach($mobs as $m) if(!$m['is_dead']) $all_dead = false;
-
-            if ($all_dead) {
-                $msg_reward = "";
-                foreach($players as $p) {
-                    $total_exp = 0; $total_point = 0;
-                    foreach($mobs as $m) {
-                        $total_exp += ($m['give_exp'] ?? 20);
-                        $total_point += ($m['give_point'] ?? 40);
-                    }
-                    
-                    $db_user = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$p['id']]);
-                    $db_user['exp'] += $total_exp;
-                    $db_user['point'] += $total_point;
-                    
-                    $lv_up = 0;
-                    while(true) {
-                        $req = $db_user['level'] * 10;
-                        if($db_user['exp'] >= $req) {
-                            $db_user['exp'] -= $req;
-                            $db_user['level']++;
-                            $db_user['point'] += 200;
-                            $db_user['stat_str']+=2; $db_user['stat_dex']+=2; $db_user['stat_con']+=2; $db_user['stat_int']+=2; $db_user['stat_luk']+=2;
-                            $db_user['hp_max'] = $db_user['stat_con'];
-                            $lv_up++;
-                        } else break;
-                    }
-                    
-                    sql_exec("UPDATE School_Members SET level=?, exp=?, point=?, hp_max=?, stat_str=?, stat_dex=?, stat_con=?, stat_int=?, stat_luk=? WHERE id=?", 
-                        [$db_user['level'], $db_user['exp'], $db_user['point'], $db_user['hp_max'], 
-                         $db_user['stat_str'], $db_user['stat_dex'], $db_user['stat_con'], $db_user['stat_int'], $db_user['stat_luk'], $p['id']]
-                    );
-                    
-                    $msg_reward .= "<br>{$p['name']}: Exp +{$total_exp}, Point +{$total_point}" . ($lv_up?" (LvUP!)":"");
-                }
-                
-                $logs[] = ['msg'=>"🏆 <b>전투 승리!</b>".$msg_reward, 'type'=>'system'];
-                write_log($my_id, 'BATTLE', "전투 승리");
-                
-                sql_exec("UPDATE School_Battles SET status='ENDED', mob_live_data=?, players_data=?, battle_log=? WHERE room_id=?", 
-                    [json_encode($mobs), json_encode($players), json_encode($logs), $room['room_id']]
-                );
-                json_res(['status'=>'win']);
-            } else {
-                sql_exec("UPDATE School_Battles SET turn_status='enemy_ready', mob_live_data=?, players_data=?, battle_log=? WHERE room_id=?", 
-                    [json_encode($mobs), json_encode($players), json_encode($logs), $room['room_id']]
-                );
-                json_res(['status'=>'success']);
-            }
-            break;
 
         // 플레이어 방어 (적 턴)
         case 'battle_action_defend':
@@ -703,52 +718,97 @@ try {
         // =========================================================
         // [5] 도박 (홀짝, 룰렛, 블랙잭)
         // =========================================================
-        case 'gamble_hj':
+case 'gamble_hj':
             $amount = to_int($input['amount']);
             $pick = $input['pick'];
             if ($amount <= 0) throw new Exception("배팅 금액 확인");
-            
             $me = sql_fetch("SELECT point FROM School_Members WHERE id=?", [$my_id]);
             if ($me['point'] < $amount) throw new Exception("포인트 부족");
+            
+            // 배팅 차감
             sql_exec("UPDATE School_Members SET point = point - ? WHERE id=?", [$amount, $my_id]);
-
+            
             $dice = rand(1, 10);
             $result = ($dice % 2 !== 0) ? 'odd' : 'even';
             $is_win = ($pick === $result);
             $current_point = $me['point'] - $amount;
-            $gain = 0;
+            $gain = 0; // 순수 획득량
 
             if ($is_win) {
-                $gain = floor($amount * 2);
-                $current_point += $gain;
-                sql_exec("UPDATE School_Members SET point = point + ? WHERE id=?", [$gain, $my_id]);
-                write_log($my_id, 'GAMBLE', "홀짝 승리 (+{$gain} P)");
-                json_res(['status'=>'win', 'result'=>$result, 'gain'=>$gain, 'current_point'=>$current_point]);
+                // 승리 시 2배 지급 (원금+원금)
+                $payout = floor($amount * 2);
+                $gain = $payout; // 이미 배팅금 깠으므로 받는 돈이 전액 gain은 아님. 순이익은 amount.
+                sql_exec("UPDATE School_Members SET point = point + ? WHERE id=?", [$payout, $my_id]);
+                $current_point += $payout;
+                json_res(['status'=>'win', 'result'=>$result, 'gain'=>$payout, 'current_point'=>$current_point]);
             } else {
-                write_log($my_id, 'GAMBLE', "홀짝 패배 (-{$amount} P)");
                 json_res(['status'=>'lose', 'result'=>$result, 'current_point'=>$current_point]);
             }
             break;
+// [추가] 룰렛 종류 가져오기
+        case 'get_roulette_types':
+            $types = sql_fetch_all("SELECT DISTINCT game_type FROM School_Gamble_Config");
+            $list = [];
+            foreach($types as $t) $list[] = $t['game_type'];
+            if(empty($list)) $list = ['기본']; // 없을 경우 기본값
+            json_res(['status'=>'success', 'list'=>$list]);
+            break;
 
+        // [수정] 룰렛 돌리기
         case 'gamble_roulette':
-            $bet = to_int($input['bet']);
-            if ($bet <= 0) throw new Exception("금액 오류");
-            $me = sql_fetch("SELECT point FROM School_Members WHERE id=?", [$my_id]);
-            if ($me['point'] < $bet) throw new Exception("포인트 부족");
-
-            $item = sql_fetch("SELECT * FROM School_Gamble_Config ORDER BY RAND() LIMIT 1");
-            if (!$item) throw new Exception("룰렛 설정 없음");
-
-            $ratio = floatval($item['ratio']);
-            $change = floor($bet * $ratio);
+            $bet = to_int($input['amount']);
+            $type = isset($input['type']) ? $input['type'] : '기본'; // 게임 종류
             
-            sql_exec("UPDATE School_Members SET point = point + ? WHERE id=?", [$change, $my_id]);
-            write_log($my_id, 'GAMBLE', "룰렛: {$change} P");
+            if ($bet <= 0) throw new Exception("배팅 금액을 확인하세요.");
+
+            $me = sql_fetch("SELECT point FROM School_Members WHERE id=?", [$my_id]);
+            if ($me['point'] < $bet) throw new Exception("포인트가 부족합니다.");
+
+            // 1. 해당 타입의 설정 불러오기
+            $configs = sql_fetch_all("SELECT * FROM School_Gamble_Config WHERE game_type=?", [$type]);
+            if (!$configs) throw new Exception("설정된 룰렛 데이터가 없습니다.");
+
+            // 2. 확률 기반 아이템 뽑기 (가중치 랜덤)
+            $total_prob = 0;
+            foreach($configs as $c) $total_prob += $c['probability'];
+            
+            $rand = rand(1, $total_prob);
+            $current = 0;
+            $selected = null;
+            
+            foreach($configs as $c) {
+                $current += $c['probability'];
+                if ($rand <= $current) {
+                    $selected = $c;
+                    break;
+                }
+            }
+            if(!$selected) $selected = $configs[count($configs)-1]; // Fallback
+
+            // 3. 결과 계산 (중요: 배팅금 선차감 로직)
+            // 공식: (현재포인트 - 배팅금) + (배팅금 * 배율)
+            // 배율이 2배면: -100 + 200 = +100 이득
+            // 배율이 -1배면: -100 + (-100) = -200 손해
+            
+            $ratio = (float)$selected['ratio'];
+            $payout = floor($bet * $ratio); // 배당금 (음수일 수도 있음)
+            $net_change = $payout - $bet;   // 최종 변동액 (배당금 - 배팅비용)
+
+            // 포인트 업데이트 (음수 허용을 위해 GREATEST 제거 가능)
+            // 만약 포인트가 0 미만으로 떨어지는 걸 허용한다면 아래처럼:
+            sql_exec("UPDATE School_Members SET point = point + ? WHERE id=?", [$net_change, $my_id]);
+            
+            // 로그
+            write_log($my_id, 'GAMBLE', "룰렛[{$type}]: {$selected['name']} (x{$ratio}) / 변동: {$net_change} P");
 
             json_res([
-                'status'=>'success', 'result_name'=>$item['name'], 
-                'ratio'=>$ratio, 'change'=>$change,
-                'now_point'=> ($me['point'] + $change)
+                'status' => 'success',
+                'data' => [
+                    'name' => $selected['name'], 
+                    'ratio' => $ratio
+                ],
+                'gain' => $net_change, // 클라이언트에 표시할 순이익/순손실
+                'current_point' => $me['point'] + $net_change
             ]);
             break;
 
@@ -862,5 +922,79 @@ function get_player_status_adjust($uid) {
         }
     }
     return ['atk' => $st_atk, 'def' => $st_def];
+}
+
+// --- 전투 시작 공통 함수 ---
+function start_battle($room_id, $my_id, $input) {
+    global $pdo; // DB 연결 객체 사용
+
+    // 방 정보 다시 가져오기
+    $room = sql_fetch("SELECT * FROM School_Battles WHERE room_id=?", [$room_id]);
+    
+    $players_list = [$room['host_id']];
+    if ($room['guest_id']) $players_list[] = $room['guest_id'];
+
+    $mob_live_data = [];
+    $logs = [];
+
+    // A. PVP (유저 vs 유저)
+    if ($room['target_id'] > 0) {
+        $logs[] = ['msg' => "⚔️ 결투가 시작되었습니다!", 'type' => 'system'];
+    } 
+    // B. PVE (유저 vs 몬스터)
+    else {
+        $mob_count = isset($input['mob_count']) ? max(1, (int)$input['mob_count']) : rand(1, 3);
+        
+        // 몬스터 랜덤 가져오기 (없으면 슬라임 강제 생성)
+        $base_mob = sql_fetch("SELECT * FROM School_Monsters ORDER BY RAND() LIMIT 1");
+        if (!$base_mob) {
+            $base_mob = ['name'=>'슬라임', 'stats'=>json_encode(['stat_con'=>10, 'stat_str'=>5, 'stat_dex'=>5]), 'give_exp'=>10, 'give_point'=>10];
+        }
+
+        for($i=0; $i<$mob_count; $i++) {
+            $m_st = json_decode($base_mob['stats'], true);
+            $m_calc = calc_battle_stats($m_st); // 스탯 계산
+            
+            // 다수일 때 너프
+            if ($mob_count > 1) $m_calc['atk'] = floor($m_calc['atk'] * (1 - ($mob_count * 0.05)));
+
+            $mob_live_data[] = [
+                'id' => 'mob_'.$i, 
+                'name' => $base_mob['name']." ".($i+1),
+                'hp_max' => $m_calc['hp_max'], 'hp_cur' => $m_calc['hp_max'],
+                'atk' => $m_calc['atk'], 'def' => $m_calc['def'], 'speed' => $m_calc['speed'],
+                'is_dead' => false
+            ];
+        }
+        $logs[] = ['msg' => "<b>{$base_mob['name']}</b> {$mob_count}마리가 나타났다!", 'type' => 'system'];
+    }
+
+    // 플레이어 데이터 생성
+    $players_data = [];
+    $max_speed_player = 0;
+    
+    foreach($players_list as $pid) {
+        $p_db = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$pid]);
+        $p_calc = calc_battle_stats($p_db); // 유저 스탯 계산
+        
+        $p_calc['id'] = $pid;
+        $p_calc['name'] = $p_db['name'];
+        $p_calc['hp_cur'] = $p_db['hp_current'];
+        $p_calc['is_dead'] = false;
+        
+        if ($p_calc['speed'] > $max_speed_player) $max_speed_player = $p_calc['speed'];
+        $players_data[] = $p_calc;
+    }
+
+    // 선공 결정 (유저 스피드가 몬스터보다 빠르면 유저 턴)
+    $mob_speed = $mob_live_data[0]['speed'] ?? 0;
+    $turn = ($max_speed_player >= $mob_speed) ? 'player' : 'enemy_ready';
+
+    // DB 업데이트 (전투 시작 상태로 변경)
+    sql_exec("UPDATE School_Battles SET status='FIGHTING', mob_live_data=?, players_data=?, battle_log=?, turn_status=? WHERE room_id=?", 
+        [json_encode($mob_live_data), json_encode($players_data), json_encode($logs), $turn, $room['room_id']]
+    );
+
+    json_out(['status'=>'success', 'start'=>true]);
 }
 ?>

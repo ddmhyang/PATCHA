@@ -113,20 +113,22 @@ if (isset($_POST['run_setup'])) {
             created_at DATETIME
         )");
 
-        // (4) 전투 방 (target_id 추가됨)
-        $pdo->exec("CREATE TABLE IF NOT EXISTS School_Battles (
-            room_id INT AUTO_INCREMENT PRIMARY KEY,
-            host_id INT NOT NULL,
-            target_id INT DEFAULT 0 COMMENT '결투 대상 ID (0이면 전체공개)',
-            guest_id INT DEFAULT 0,
-            status VARCHAR(20) DEFAULT 'WAIT',
-            turn_count INT DEFAULT 0,
-            current_turn_id INT DEFAULT 0,
-            battle_log TEXT,
-            created_at DATETIME,
-            updated_at DATETIME
-        )");
-
+// (5) 전투/방 (업데이트됨: host_ready, guest_ready 추가)
+    sql_exec($db, "CREATE TABLE IF NOT EXISTS School_Battles (
+        room_id INT AUTO_INCREMENT PRIMARY KEY,
+        host_id INT NOT NULL,
+        guest_id INT DEFAULT 0,
+        target_id INT DEFAULT 0 COMMENT '0=몬스터, >0=유저',
+        status VARCHAR(20) DEFAULT 'WAIT',
+        host_ready TINYINT DEFAULT 0,
+        guest_ready TINYINT DEFAULT 0,
+        mob_live_data JSON,
+        players_data JSON,
+        battle_log JSON,
+        turn_status VARCHAR(20) DEFAULT 'player',
+        created_at DATETIME,
+        updated_at DATETIME
+    )");
         // (5) 상태이상 도감
         $pdo->exec("CREATE TABLE IF NOT EXISTS School_Status_Info (
             status_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -190,7 +192,7 @@ if (isset($_POST['run_setup'])) {
         $pdo->exec("INSERT INTO School_Shop_Config (item_id, stock) 
                     SELECT item_id, -1 FROM School_Item_Info 
                     WHERE item_id NOT IN (SELECT item_id FROM School_Shop_Config)");
-                    
+
         $msg = "<div class='success'>설치 완료! <a href='index.php'>메인으로 이동</a></div>";
     } catch(PDOException $e) {
         $msg = "<div class='error'>오류 발생: " . $e->getMessage() . "</div>";
