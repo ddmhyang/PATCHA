@@ -1,44 +1,70 @@
 <?php
-// fix.php : 새로운 장비 타입 아이템 데이터 추가 및 DB 점검
-include 'config.php'; // 설정 파일 로드
+// fix_battle_db.php : 전투 시스템에 필요한 DB 컬럼 추가
+require_once 'common.php'; // DB 연결 설정 로드
 
 try {
-    $pdo = new PDO("mysql:host=".MS_HOST.";dbname=".MS_DB.";charset=utf8mb4", MS_USER, MS_PASS);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    echo "<h3>🛠️ 데이터베이스 패치 중...</h3>";
-
-    // 1. 새로운 장비 타입의 아이템들이 존재하는지 확인하고 없으면 추가합니다.
-    // 추가할 아이템 목록
-    $new_items = [
-        ['name' => '초보자 모자', 'type' => 'HAT', 'price' => 50, 'descr' => '평범한 야구모자입니다.', 'eff' => '{"def":1}'],
-        ['name' => '검은 마스크', 'type' => 'FACE', 'price' => 50, 'descr' => '얼굴을 가려주는 마스크.', 'eff' => '{"luk":1}'],
-        ['name' => '학교 체육복(상)', 'type' => 'TOP', 'price' => 100, 'descr' => '활동하기 편한 체육복 상의.', 'eff' => '{"def":2, "hp_max":10}'],
-        ['name' => '학교 체육복(하)', 'type' => 'BOTTOM', 'price' => 100, 'descr' => '활동하기 편한 체육복 하의.', 'eff' => '{"def":2, "speed":1}'],
-        ['name' => '목장갑', 'type' => 'GLOVES', 'price' => 30, 'descr' => '미끄럼 방지 장갑.', 'eff' => '{"str":1}'],
-        ['name' => '실내화', 'type' => 'SHOES', 'price' => 30, 'descr' => '학교 매점에서 파는 실내화.', 'eff' => '{"speed":2}']
+    // 1. School_Battles 테이블 업데이트
+    echo "<h3>🛠️ School_Battles 테이블 구조 업데이트 중...</h3>";
+    
+    $alter_queries = [
+        "ADD COLUMN guest_id INT DEFAULT 0",
+        "ADD COLUMN target_id INT DEFAULT 0",
+        "ADD COLUMN mob_live_data LONGTEXT",
+        "ADD COLUMN players_data LONGTEXT",
+        "ADD COLUMN battle_log LONGTEXT",
+        "ADD COLUMN turn_status VARCHAR(50) DEFAULT 'ready'",
+        "ADD COLUMN enemy_roll INT DEFAULT 0",
+        "ADD COLUMN current_turn_id INT DEFAULT 0"
     ];
 
-    foreach ($new_items as $it) {
-        $stmt = $pdo->prepare("SELECT count(*) FROM School_Item_Info WHERE name = ?");
-        $stmt->execute([$it['name']]);
-        if ($stmt->fetchColumn() == 0) {
-            $ins = $pdo->prepare("INSERT INTO School_Item_Info (name, type, price, descr, max_dur, img_icon, effect_data) VALUES (?, ?, ?, ?, 100, '<i class=\"fa-solid fa-shirt\"></i>', ?)");
-            $ins->execute([$it['name'], $it['type'], $it['price'], $it['descr'], $it['eff']]);
-            echo "추가됨: {$it['name']} ({$it['type']})<br>";
+    foreach ($alter_queries as $sql) {
+        try {
+            // 컬럼 추가 시도
+            $pdo->exec("ALTER TABLE School_Battles " . $sql);
+            echo "<div style='color:green'>[성공] $sql</div>";
+        } catch (PDOException $e) {
+            // 이미 컬럼이 존재하면 오류가 발생하므로 무시 (Duplicate column name)
+            if ($e->getCode() == '42S21') {
+                echo "<div style='color:gray'>[패스] 이미 존재하는 컬럼입니다. (" . explode(' ', $sql)[2] . ")</div>";
+            } else {
+                echo "<div style='color:red'>[오류] $sql : " . $e->getMessage() . "</div>";
+            }
         }
     }
-    
-    // 2. 상점 설정에도 자동으로 추가 (재고 무제한)
-    // 방금 추가된 아이템들을 상점에 등록
-    $pdo->exec("INSERT INTO School_Shop_Config (item_id, stock) 
-                SELECT item_id, -1 FROM School_Item_Info 
-                WHERE item_id NOT IN (SELECT item_id FROM School_Shop_Config)");
 
-    echo "<hr><h3 style='color:green;'>패치 완료! 게임을 즐기세요.</h3>";
-    echo "<a href='index.php'>메인으로 돌아가기</a>";
+    // 2. School_Status_Active 테이블 생성 (상태이상용)
+    echo "<br><h3>🛠️ 상태이상 테이블 점검 중...</h3>";
+    $pdo->exec("CREATE TABLE IF NOT EXISTS School_Status_Active (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        target_id INT NOT NULL,
+        status_id INT NOT NULL,
+        current_stage INT DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_evolved_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+    echo "<div style='color:green'>[성공] School_Status_Active 테이블 확인 완료</div>";
 
-} catch (PDOException $e) {
-    die("오류 발생: " . $e->getMessage());
+    // 3. School_Status_Info 테이블 생성 (상태이상 정보용)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS School_Status_Info (
+        status_id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(50),
+        max_stage INT DEFAULT 3,
+        stage_config TEXT
+    )");
+    echo "<div style='color:green'>[성공] School_Status_Info 테이블 확인 완료</div>";
+
+    // 4. School_Gamble_Config 테이블 생성 (도박용)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS School_Gamble_Config (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(50) NOT NULL,
+        ratio DECIMAL(5,2) NOT NULL DEFAULT 2.0
+    )");
+    echo "<div style='color:green'>[성공] School_Gamble_Config 테이블 확인 완료</div>";
+
+    echo "<hr><h2>✅ 모든 패치가 완료되었습니다!</h2>";
+    echo "<a href='index.php'>[메인으로 돌아가기]</a>";
+
+} catch (Exception $e) {
+    die("<h2 style='color:red'>치명적 오류 발생: " . $e->getMessage() . "</h2>");
 }
 ?>

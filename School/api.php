@@ -307,6 +307,7 @@ try {
             $active = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? AND status='FIGHTING'", [$my_id]);
             if ($active) json_res(['status'=>'success', 'room_id'=>$active['room_id']]);
 
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY','BATTLE','END','FIGHTING')", [$my_id, $my_id]);
             $room = sql_fetch("SELECT * FROM School_Battles WHERE host_id=? AND status IN ('WAIT','READY')", [$my_id]);
             $players_list = [$my_id];
             if ($room && $room['guest_id']) $players_list[] = $room['guest_id'];
@@ -425,11 +426,9 @@ try {
             $players = json_decode($room['players_data'], true);
             $logs = json_decode($room['battle_log'], true);
             
-            // 내 데이터 찾기
             $me = null;
             foreach($players as $p) if($p['id'] == $my_id) $me = $p;
             
-            // 타겟: 첫 번째 살아있는 몹
             $target_idx = -1;
             foreach($mobs as $idx => $m) {
                 if (!$m['is_dead']) { $target_idx = $idx; break; }
@@ -441,7 +440,6 @@ try {
             // [공격] 내 공격력 - 적 방어력
             $dmg = max(1, $me['atk'] - $target['def']);
             
-            // 크리티컬
             $is_crit = (rand(1, 100) > 90);
             if ($is_crit) {
                 $dmg = floor($dmg * 1.5);
@@ -454,8 +452,8 @@ try {
             $target['hp_cur'] -= $dmg;
             $logs[] = ['msg'=>$msg, 'type'=>'player'];
 
-            // 무기 내구도
-            $weapon = sql_fetch("SELECT inv.id, inv.cur_dur FROM School_Inventory inv JOIN School_Item_Info i ON inv.item_id=i.item_id WHERE inv.owner_id=? AND inv.is_equipped=1 AND i.type='WEAPON' LIMIT 1", [$my_id]);
+            // [내구도 감소] 무기 (WEAPON 타입만)
+            $weapon = sql_fetch("SELECT inv.id, inv.cur_dur, i.name FROM School_Inventory inv JOIN School_Item_Info i ON inv.item_id=i.item_id WHERE inv.owner_id=? AND inv.is_equipped=1 AND i.type='WEAPON' LIMIT 1", [$my_id]);
             if ($weapon && $weapon['cur_dur'] > 0 && rand(1,5)==1) {
                 sql_exec("UPDATE School_Inventory SET cur_dur = cur_dur - 1 WHERE id=?", [$weapon['id']]);
             }
@@ -466,12 +464,11 @@ try {
                 $logs[] = ['msg'=>"💀 <b>{$target['name']}</b> 처치!", 'type'=>'system'];
             }
 
-            // 전멸 체크
+            // 전멸 체크 및 보상
             $all_dead = true;
             foreach($mobs as $m) if(!$m['is_dead']) $all_dead = false;
 
             if ($all_dead) {
-                // 승리 보상
                 $msg_reward = "";
                 foreach($players as $p) {
                     $total_exp = 0; $total_point = 0;
@@ -484,7 +481,6 @@ try {
                     $db_user['exp'] += $total_exp;
                     $db_user['point'] += $total_point;
                     
-                    // 레벨업 처리
                     $lv_up = 0;
                     while(true) {
                         $req = $db_user['level'] * 10;
