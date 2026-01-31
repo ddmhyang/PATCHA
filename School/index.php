@@ -496,6 +496,15 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
                             }
                         }
 
+                        const avatarBox = document.querySelector('.profile-avatar');
+                        if (me.img_profile) {
+                            // 이미지가 있으면 img 태그로 교체
+                            avatarBox.innerHTML = `<img src="${me.img_profile}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        } else {
+                            // 없으면 기본 아이콘
+                            avatarBox.innerHTML = `<i class="fa-solid fa-user"></i>`;
+                        }
+
                         // 결투 신청 확인
                         if (me.challenge) {
                             document

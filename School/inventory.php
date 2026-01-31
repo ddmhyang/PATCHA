@@ -174,8 +174,13 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
                     </div>
                     <div style="font-size:12px; color:#888;">x<?=$item['count']?></div>
                     
-                    <?php if($item['max_dur'] > 0): ?>
-                        <?php $per = ($item['current_dur'] / $item['max_dur']) * 100; ?>
+                    <?php 
+                    // [수정] 내구도 표시 로직 (current_dur -> cur_dur)
+                    if($item['max_dur'] > 0): 
+                        // DB에 cur_dur가 없다면 0으로 처리하여 오류 방지
+                        $cur_dur = isset($item['cur_dur']) ? $item['cur_dur'] : (isset($item['current_dur']) ? $item['current_dur'] : $item['max_dur']);
+                        $per = ($cur_dur / $item['max_dur']) * 100; 
+                    ?>
                         <div class="dur-bar"><div class="dur-fill" style="width:<?=$per?>%"></div></div>
                     <?php endif; ?>
                 </div>
@@ -185,11 +190,11 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
             <div class="item-detail">
                 <p><?=$item['descr']?></p>
                 <?php if($item['max_dur'] > 0): ?>
-                    <p>내구도: <?=$item['current_dur']?> / <?=$item['max_dur']?></p>
+                    <p>내구도: <?=$cur_dur?> / <?=$item['max_dur']?></p>
                 <?php endif; ?>
                 
                 <div style="display:flex; gap:5px; margin-top:10px;">
-                    <?php if($item['type'] === 'consumable'): ?>
+                    <?php if($item['type'] === 'consumable' || $item['type'] === 'CONSUME'): ?>
                         <button onclick="itemAction(<?=$item['id']?>, 'use')" style="flex:1; padding:8px; background:#CE5961; color:white; border:none; border-radius:5px;">사용</button>
                     <?php else: ?>
                         <?php if($item['is_equipped']): ?>
@@ -284,19 +289,17 @@ function toggleDetail(head) {
     detail.classList.toggle('show');
 }
 
-// [수정] 아이템 사용/장착/해제 로직 완벽 구현
+// 아이템 사용/장착/해제 로직
 async function itemAction(id, type) {
     if(type=='use' && !confirm("사용하시겠습니까?")) return;
     
-    // type에 따라 cmd 매핑
     let cmd = 'use_item';
-    if (type === 'equip') cmd = 'equip_item';
-    if (type === 'unequip') cmd = 'unequip_item';
+    if (type === 'equip' || type === 'unequip') cmd = 'inventory_action'; // [중요] action 통합 cmd 사용
     
     try {
         const res = await fetch('api.php', {
             method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({cmd: cmd, inv_id:id}) // 매핑된 cmd 전송
+            body: JSON.stringify({cmd: 'inventory_action', inv_id:id, action: type}) // cmd 통일
         }).then(r=>r.json());
         
         if(res.status=='success') { alert(res.msg || '완료되었습니다.'); location.reload(); }

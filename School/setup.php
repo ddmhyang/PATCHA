@@ -174,6 +174,23 @@ if (isset($_POST['run_setup'])) {
             probability INT NOT NULL DEFAULT 1
         )");
 
+// [setup.php] School_Item_Info 테이블 생성 exec 바로 다음 줄에 추가
+
+        // [추가됨] 기본 장착 아이템 데이터 삽입
+        $pdo->exec("INSERT INTO School_Item_Info (name, type, price, descr, max_dur, img_icon, effect_data) VALUES 
+            ('야구모자', 'HAT', 50, '기본적인 모자', 100, '<i class=\"fa-solid fa-hat-cowboy\"></i>', '{\"def\":1}'),
+            ('마스크', 'FACE', 50, '먼지 방지용', 100, '<i class=\"fa-solid fa-mask\"></i>', '{\"luk\":1}'),
+            ('체육복(상)', 'TOP', 100, '학교 체육복', 100, '<i class=\"fa-solid fa-shirt\"></i>', '{\"def\":2}'),
+            ('체육복(하)', 'BOTTOM', 100, '학교 체육복', 100, '<i class=\"fa-solid fa-user\"></i>', '{\"speed\":1}'),
+            ('목장갑', 'GLOVES', 30, '작업용 장갑', 50, '<i class=\"fa-solid fa-mitten\"></i>', '{\"str\":1}'),
+            ('실내화', 'SHOES', 30, '하얀 실내화', 50, '<i class=\"fa-solid fa-shoe-prints\"></i>', '{\"speed\":2}')
+        ");
+        
+        // [추가됨] 상점 기본 재고 등록
+        $pdo->exec("INSERT INTO School_Shop_Config (item_id, stock) 
+                    SELECT item_id, -1 FROM School_Item_Info 
+                    WHERE item_id NOT IN (SELECT item_id FROM School_Shop_Config)");
+                    
         $msg = "<div class='success'>설치 완료! <a href='index.php'>메인으로 이동</a></div>";
     } catch(PDOException $e) {
         $msg = "<div class='error'>오류 발생: " . $e->getMessage() . "</div>";

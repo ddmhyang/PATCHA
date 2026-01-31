@@ -303,52 +303,6 @@ try {
             json_res(['status'=>'success']);
             break;
 
-        case 'battle_action_attack':
-            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status='BATTLE'", [$my_id, $my_id]);
-            if (!$room) throw new Exception("전투 중이 아닙니다.");
-            if ($room['current_turn_id'] != $my_id) throw new Exception("아직 턴이 아닙니다!");
-
-            $is_host = ($room['host_id'] == $my_id);
-            $enemy_id = $is_host ? $room['guest_id'] : $room['host_id'];
-
-            // 데미지 계산 (간략화)
-            $me = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$my_id]);
-            
-            // 상태이상/장비 적용된 공격력 가져오기
-            $my_eq = sql_fetch_all("SELECT i.effect_data FROM School_Inventory inv JOIN School_Item_Info i ON inv.item_id=i.item_id WHERE inv.owner_id=? AND inv.is_equipped=1", [$my_id]);
-            $my_st = sql_fetch_all("SELECT s.current_stage, i.stage_config FROM School_Status_Active s JOIN School_Status_Info i ON s.status_id = i.status_id WHERE s.target_id = ?", [$my_id]);
-            
-            $add_atk = 0; 
-            foreach($my_eq as $eq) { $e=json_decode($eq['effect_data'],true); if(isset($e['atk'])) $add_atk+=$e['atk']; }
-            foreach($my_st as $st) { $c=json_decode($st['stage_config'],true); $s=$st['current_stage']; if(isset($c[$s]['atk'])) $add_atk+=$c[$s]['atk']; }
-            
-            $stats = calc_battle_stats($me, $add_atk, 0);
-            $dmg = rand(round($stats['atk']*0.9), round($stats['atk']*1.1));
-            
-            // 적 HP 차감
-            sql_exec("UPDATE School_Members SET hp_current = hp_current - ? WHERE id=?", [$dmg, $enemy_id]);
-            
-            // 시스템 로그 저장 (Chat Table)
-            $log_msg = "⚔️ {$me['name']}의 공격! {$dmg}의 피해를 입혔다.";
-            sql_exec("INSERT INTO School_Battle_Chat (room_id, user_id, name, message, type) VALUES (?, 0, 'SYSTEM', ?, 'DAMAGE')", 
-                [$room['room_id'], $log_msg]);
-
-            // 적 사망 체크
-            $enemy = sql_fetch("SELECT hp_current FROM School_Members WHERE id=?", [$enemy_id]);
-            if ($enemy['hp_current'] <= 0) {
-                // 전투 종료 처리
-                sql_exec("UPDATE School_Battles SET status='END' WHERE room_id=?", [$room['room_id']]);
-                sql_exec("INSERT INTO School_Battle_Chat (room_id, user_id, name, message, type) VALUES (?, 0, 'SYSTEM', '상대방이 쓰러졌습니다. 승리!', 'SYSTEM')", [$room['room_id']]);
-                
-                // 승리 보상 등 로직 추가 가능
-                
-                json_res(['status'=>'win']);
-            } else {
-                // 턴 넘기기
-                sql_exec("UPDATE School_Battles SET current_turn_id=?, turn_count=turn_count+1 WHERE room_id=?", [$enemy_id, $room['room_id']]);
-                json_res(['status'=>'success']);
-            }
-            break;
 
         // 1. 유저 목록 조회 (다툼 대상 찾기)
         case 'battle_list_users':
@@ -523,17 +477,31 @@ try {
             $logs[] = ['msg'=>$msg, 'type'=>'player'];
 
             // [내구도 감소] 무기
-            $wep = sql_fetch("SELECT inv.id, inv.cur_dur, info.name FROM School_Inventory inv JOIN School_Item_Info info ON inv.item_id=info.item_id WHERE inv.owner_id=? AND inv.is_equipped=1 AND info.type='WEAPON' LIMIT 1", [$my_id]);
-            if ($wep && $wep['cur_dur'] > 0) {
-                $new_dur = $wep['cur_dur'] - 1;
-                if ($new_dur <= 0) {
-                    sql_exec("DELETE FROM School_Inventory WHERE id=?", [$wep['id']]);
-                    $logs[] = ['msg'=>"💥 <b>{$wep['name']}</b>이(가) 부서졌습니다!", 'type'=>'system'];
-                    write_log($my_id, 'ITEM', "무기 {$wep['name']} 파괴됨");
-                } else {
-                    sql_exec("UPDATE School_Inventory SET cur_dur=? WHERE id=?", [$new_dur, $wep['id']]);
+            // // [내구도 감소] 방어구 (모든 장비 부위 적용)
+                // ARMOR 뿐만 아니라 HAT, TOP, BOTTOM 등 모든 방어구 타입을 검색
+                $armor_types_str = "'HAT','FACE','TOP','BOTTOM','GLOVES','SHOES','ARMOR'";
+                
+                // 착용 중인 방어구 중 랜덤하게 하나를 가져옴
+                $armor = sql_fetch("
+                    SELECT inv.id, inv.cur_dur, info.name 
+                    FROM School_Inventory inv 
+                    JOIN School_Item_Info info ON inv.item_id=info.item_id 
+                    WHERE inv.owner_id=? 
+                    AND inv.is_equipped=1 
+                    AND info.type IN ($armor_types_str) 
+                    ORDER BY RAND() LIMIT 1
+                ", [$my_id]);
+
+                if ($armor && $armor['cur_dur'] > 0) {
+                    $new_dur = $armor['cur_dur'] - 1;
+                    if ($new_dur <= 0) {
+                        sql_exec("DELETE FROM School_Inventory WHERE id=?", [$armor['id']]);
+                        $logs[] = ['msg'=>"💥 <b>{$armor['name']}</b>이(가) 부서졌습니다!", 'type'=>'system'];
+                        write_log($my_id, 'ITEM', "방어구 {$armor['name']} 파괴됨");
+                    } else {
+                        sql_exec("UPDATE School_Inventory SET cur_dur=? WHERE id=?", [$new_dur, $armor['id']]);
+                    }
                 }
-            }
 
             // 승리 판정 & 레벨업
             if ($target['hp_cur'] <= 0) {
@@ -782,55 +750,83 @@ try {
 
         // =========================================================
         // [4] 인벤토리 (장착 제한 적용)
+            // [4] 인벤토리 액션 (장착/해제/사용)
         // =========================================================
         case 'inventory_action':
             $inv_id = to_int($input['inv_id']);
             $action = $input['action']; 
             
-            $item = sql_fetch("SELECT inv.*, info.type, info.name, info.effect_data FROM School_Inventory inv JOIN School_Item_Info info ON inv.item_id = info.item_id WHERE inv.id=? AND inv.owner_id=?", [$inv_id, $my_id]);
-            if (!$item) throw new Exception("아이템 없음");
+            // 아이템 정보 조회
+            $item = sql_fetch("SELECT inv.*, info.type, info.name, info.effect_data 
+                               FROM School_Inventory inv 
+                               JOIN School_Item_Info info ON inv.item_id = info.item_id 
+                               WHERE inv.id=? AND inv.owner_id=?", [$inv_id, $my_id]);
+            
+            if (!$item) throw new Exception("아이템이 존재하지 않습니다.");
 
+            // 1. 장착 요청 (슬롯 제한 로직 적용)
             if ($action === 'equip') {
-                if (!in_array($item['type'], ['WEAPON', 'ARMOR', 'ETC'])) throw new Exception("장착불가");
+                // 장착 가능한 부위 목록 (무기 + 방어구 6종)
+                $allowed_slots = ['WEAPON', 'HAT', 'FACE', 'TOP', 'BOTTOM', 'GLOVES', 'SHOES'];
                 
-                // 장착 제한 확인
-                $equipped = sql_fetch_all("SELECT info.type FROM School_Inventory inv JOIN School_Item_Info info ON inv.item_id = info.item_id WHERE inv.owner_id=? AND inv.is_equipped=1", [$my_id]);
-                $cnt = ['WEAPON'=>0, 'ARMOR'=>0, 'ETC'=>0];
-                foreach($equipped as $eq) $cnt[$eq['type']]++;
+                // (1) 장신구(ETC)는 최대 5개까지 장착 가능
+                if ($item['type'] === 'ETC') {
+                     $cnt = sql_fetch("SELECT count(*) as c FROM School_Inventory inv 
+                                       JOIN School_Item_Info info ON inv.item_id = info.item_id 
+                                       WHERE inv.owner_id=? AND inv.is_equipped=1 AND info.type='ETC'", [$my_id]);
+                     if ($cnt['c'] >= 5) throw new Exception("장신구(기타)는 최대 5개까지만 장착 가능합니다.");
+                } 
+                // (2) 주요 장비는 부위별 1개만 장착 (기존 것 자동 해제 후 교체)
+                elseif (in_array($item['type'], $allowed_slots)) {
+                    // 해당 부위에 이미 장착된 아이템이 있다면 해제
+                    sql_exec("UPDATE School_Inventory inv 
+                              JOIN School_Item_Info info ON inv.item_id = info.item_id 
+                              SET inv.is_equipped = 0 
+                              WHERE inv.owner_id = ? AND info.type = ? AND inv.is_equipped = 1", 
+                              [$my_id, $item['type']]);
+                } 
+                // (3) 장착 불가 아이템
+                else {
+                    throw new Exception("이 아이템은 장착할 수 없습니다.");
+                }
 
-                if ($item['type'] == 'WEAPON' && $cnt['WEAPON'] >= 1) {
-                    sql_exec("UPDATE School_Inventory inv JOIN School_Item_Info info ON inv.item_id=info.item_id SET is_equipped=0 WHERE inv.owner_id=? AND info.type='WEAPON'", [$my_id]);
-                }
-                elseif ($item['type'] == 'ARMOR' && $cnt['ARMOR'] >= 1) {
-                    sql_exec("UPDATE School_Inventory inv JOIN School_Item_Info info ON inv.item_id=info.item_id SET is_equipped=0 WHERE inv.owner_id=? AND info.type='ARMOR'", [$my_id]);
-                }
-                elseif ($item['type'] == 'ETC' && $cnt['ETC'] >= 5) {
-                    throw new Exception("장신구(기타)는 최대 5개까지만 장착 가능합니다.");
-                }
-
+                // 장착 처리
                 sql_exec("UPDATE School_Inventory SET is_equipped = 1 WHERE id=?", [$inv_id]);
                 write_log($my_id, 'ITEM', "{$item['name']} 장착");
                 json_res(['status'=>'success', 'msg'=>'장착 완료']);
             } 
+            // 2. 해제 요청
             elseif ($action === 'unequip') {
                 sql_exec("UPDATE School_Inventory SET is_equipped = 0 WHERE id=?", [$inv_id]);
                 write_log($my_id, 'ITEM', "{$item['name']} 해제");
                 json_res(['status'=>'success', 'msg'=>'해제 완료']);
             } 
+            // 3. 사용 요청
             elseif ($action === 'use') {
-                if ($item['type'] !== 'CONSUME') throw new Exception("사용불가");
+                // CONSUME 혹은 consumable 타입만 사용 가능
+                if ($item['type'] !== 'CONSUME' && $item['type'] !== 'consumable') throw new Exception("사용할 수 없는 아이템입니다.");
+                
                 $eff = json_decode($item['effect_data'], true);
-                $msg = [];
+                $msg_arr = [];
+
+                // HP 회복 효과
                 if (isset($eff['hp_heal'])) {
                     $me = sql_fetch("SELECT hp_current, hp_max FROM School_Members WHERE id=?", [$my_id]);
                     $new_hp = min($me['hp_max'], $me['hp_current'] + $eff['hp_heal']);
                     sql_exec("UPDATE School_Members SET hp_current=? WHERE id=?", [$new_hp, $my_id]);
-                    $msg[] = "체력 {$eff['hp_heal']} 회복.";
+                    $msg_arr[] = "체력 {$eff['hp_heal']} 회복.";
                 }
-                if ($item['count'] > 1) sql_exec("UPDATE School_Inventory SET count = count - 1 WHERE id=?", [$inv_id]);
-                else sql_exec("DELETE FROM School_Inventory WHERE id=?", [$inv_id]);
+                
+                // 아이템 차감 (수량이 많으면 1개 감소, 1개면 삭제)
+                if ($item['count'] > 1) {
+                    sql_exec("UPDATE School_Inventory SET count = count - 1 WHERE id=?", [$inv_id]);
+                } else {
+                    sql_exec("DELETE FROM School_Inventory WHERE id=?", [$inv_id]);
+                }
+                
+                $res_msg = empty($msg_arr) ? "아이템을 사용했습니다." : implode(" ", $msg_arr);
                 write_log($my_id, 'ITEM', "{$item['name']} 사용");
-                json_res(['status'=>'success', 'msg'=>implode(" ", $msg)]);
+                json_res(['status'=>'success', 'msg'=>$res_msg]);
             }
             break;
 
@@ -853,7 +849,7 @@ try {
             $gain = 0;
 
             if ($is_win) {
-                $gain = floor($amount * 1.9);
+                $gain = floor($amount * 2);
                 $current_point += $gain;
                 sql_exec("UPDATE School_Members SET point = point + ? WHERE id=?", [$gain, $my_id]);
                 write_log($my_id, 'GAMBLE', "홀짝 승리 (+{$gain} P)");

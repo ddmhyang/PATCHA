@@ -72,7 +72,7 @@ $me = sql_fetch("SELECT point FROM School_Members WHERE id=?", [$_SESSION['uid']
 
 <div id="game-odd-even" class="game-area active">
     <h2>홀(Odd) vs 짝(Even)</h2>
-    <p style="color:#666; margin-bottom:20px;">배팅금의 1.9배 획득!</p>
+    <p style="color:#666; margin-bottom:20px;">배팅금의 2배 획득!</p>
     <input type="number" id="bet-hj" placeholder="배팅할 포인트">
     <div class="hj-btns">
         <div class="hj-btn hj-odd" onclick="playHJ('odd')">홀</div>

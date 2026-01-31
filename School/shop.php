@@ -1,5 +1,5 @@
 <?php
-// shop.php : 유저 전용 상점 (로그 기능 포함)
+// shop.php : 유저 전용 상점 (한글 타입 표시 적용)
 require_once 'common.php';
 
 if (!isset($_SESSION['uid'])) {
@@ -9,25 +9,32 @@ if (!isset($_SESSION['uid'])) {
 
 $my_id = $_SESSION['uid'];
 
-// 재고 리필
+// [재고 리필 로직]
 function check_shop_refill() {
+    global $pdo; // global pdo 사용
     $shops = sql_fetch_all("SELECT * FROM School_Shop_Config WHERE refill_type != 'NONE'");
     foreach($shops as $s) {
         $do_refill = false;
         $now = time();
         $last = strtotime($s['last_refilled_at']);
+        
         if ($s['refill_type'] === 'DAILY') {
+            // 매일 특정 시간 리필
             $target_time = strtotime(date('Y-m-d') . ' ' . $s['refill_value']);
             if (date('Ymd', $last) != date('Ymd') && $now >= $target_time) $do_refill = true;
         } elseif ($s['refill_type'] === 'TIME') {
+            // 일정 시간마다 리필 (분 단위)
             if ($now - $last >= intval($s['refill_value']) * 60) $do_refill = true;
         }
-        if ($do_refill) sql_exec("UPDATE School_Shop_Config SET stock = stock + ?, last_refilled_at = NOW() WHERE id=?", [$s['refill_amount'], $s['id']]);
+        
+        if ($do_refill) {
+            sql_exec("UPDATE School_Shop_Config SET stock = stock + ?, last_refilled_at = NOW() WHERE id=?", [$s['refill_amount'], $s['id']]);
+        }
     }
 }
 check_shop_refill();
 
-// 구매 처리
+// [구매 처리]
 if (isset($_POST['action']) && $_POST['action'] === 'buy') {
     $item_id = to_int($_POST['item_id']);
     $count = to_int($_POST['count']);
@@ -38,23 +45,33 @@ if (isset($_POST['action']) && $_POST['action'] === 'buy') {
         $me = sql_fetch("SELECT point, name FROM School_Members WHERE id = ? FOR UPDATE", [$my_id]);
         $shop_item = sql_fetch("SELECT i.name, i.price, s.stock FROM School_Shop_Config s JOIN School_Item_Info i ON s.item_id = i.item_id WHERE s.item_id = ?", [$item_id]);
 
-        if (!$shop_item) throw new Exception("아이템 없음");
-        if ($shop_item['stock'] != -1 && $shop_item['stock'] < $count) throw new Exception("재고 부족");
+        if (!$shop_item) throw new Exception("아이템이 존재하지 않습니다.");
+        if ($shop_item['stock'] != -1 && $shop_item['stock'] < $count) throw new Exception("재고가 부족합니다.");
+        
         $total_price = $shop_item['price'] * $count;
-        if ($me['point'] < $total_price) throw new Exception("포인트 부족");
+        if ($me['point'] < $total_price) throw new Exception("포인트가 부족합니다.");
 
+        // 포인트 차감
         sql_exec("UPDATE School_Members SET point = point - ? WHERE id = ?", [$total_price, $my_id]);
+        
+        // 인벤토리 추가 (기존 아이템 있는지 확인)
         $inven = sql_fetch("SELECT id FROM School_Inventory WHERE owner_id = ? AND item_id = ?", [$my_id, $item_id]);
-        if ($inven) sql_exec("UPDATE School_Inventory SET count = count + ? WHERE id = ?", [$count, $inven['id']]);
-        else sql_exec("INSERT INTO School_Inventory (owner_id, item_id, count) VALUES (?, ?, ?)", [$my_id, $item_id, $count]);
+        if ($inven) {
+            sql_exec("UPDATE School_Inventory SET count = count + ? WHERE id = ?", [$count, $inven['id']]);
+        } else {
+            sql_exec("INSERT INTO School_Inventory (owner_id, item_id, count) VALUES (?, ?, ?)", [$my_id, $item_id, $count]);
+        }
 
-        if ($shop_item['stock'] != -1) sql_exec("UPDATE School_Shop_Config SET stock = stock - ? WHERE item_id = ?", [$count, $item_id]);
+        // 재고 차감 (무제한이 아닐 경우)
+        if ($shop_item['stock'] != -1) {
+            sql_exec("UPDATE School_Shop_Config SET stock = stock - ? WHERE item_id = ?", [$count, $item_id]);
+        }
 
-        // [로그 기록]
+        // 로그 기록
         write_log($my_id, 'SHOP', "{$shop_item['name']} {$count}개 구매 (-{$total_price} P)");
 
         $pdo->commit();
-        echo "<script>alert('구매 완료!'); location.replace('shop.php');</script>";
+        echo "<script>alert('구매가 완료되었습니다!'); location.replace('shop.php');</script>";
     } catch (Exception $e) {
         $pdo->rollBack();
         echo "<script>alert('구매 실패: " . $e->getMessage() . "'); history.back();</script>";
@@ -64,6 +81,19 @@ if (isset($_POST['action']) && $_POST['action'] === 'buy') {
 
 $me = sql_fetch("SELECT point FROM School_Members WHERE id = ?", [$my_id]);
 $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN School_Item_Info i ON s.item_id = i.item_id ORDER BY s.id DESC");
+
+// [추가됨] 아이템 타입 한글 표시용 맵
+$type_map = [
+    'CONSUME' => '소모품',
+    'WEAPON' => '무기',
+    'HAT' => '모자',
+    'FACE' => '얼굴',
+    'TOP' => '상의',
+    'BOTTOM' => '하의',
+    'GLOVES' => '장갑',
+    'SHOES' => '신발',
+    'ETC' => '기타'
+];
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -266,6 +296,10 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                 background: #fcf3cf;
                 color: #f39c12;
             }
+            .st-etc {
+                background: #ebf5fb;
+                color: #2980b9;
+            }
             .count-control {
                 display: flex;
                 justify-content: center;
@@ -338,7 +372,7 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                 <div class="product-card" onclick='openModal(<?=json_encode($p)?>)'>
                     <div>
                         <div class="p-icon"><?=$p['img_icon']?></div>
-                        <div class="p-tag"><?=$p['type']?></div>
+                        <div class="p-tag"><?= isset($type_map[$p['type']]) ? $type_map[$p['type']] : $p['type'] ?></div>
                         <div class="p-name"><?=$p['name']?></div>
                     </div>
                     <div>
@@ -348,15 +382,19 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                         <span style="color:red; font-size:12px; font-weight:bold;">품절</span>
                     <?php elseif($p['stock'] > 0): ?>
                         <span style="color:#888; font-size:12px;">남은수량:
-                            <?=$p['stock']?></span><?php endif; ?>
+                            <?=$p['stock']?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
             </div>
             <?php if(!$products): ?>
             <div style="text-align:center; padding:50px; color:#999;">
-                <i class="fa-solid fa-box-open" style="font-size:50px; margin-bottom:15px;"></i><br>진열된 상품이 없습니다.</div><?php endif; ?>
+                <i class="fa-solid fa-box-open" style="font-size:50px; margin-bottom:15px;"></i><br>진열된 상품이 없습니다.
+            </div>
+            <?php endif; ?>
         </div>
+
         <div id="buy-modal" class="modal-overlay">
             <div class="modal-box">
                 <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -364,14 +402,17 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                 <div id="m-name" class="m-name"></div>
                 <div id="m-desc" class="m-desc"></div>
                 <div id="m-stats" class="m-stats"></div>
+
                 <form method="POST">
                     <input type="hidden" name="action" value="buy">
                     <input type="hidden" name="item_id" id="form-item-id">
+
                     <div class="count-control">
                         <button type="button" class="count-btn" onclick="changeCount(-1)">-</button>
                         <input type="number" name="count" id="buy-count" value="1" readonly="readonly">
                         <button type="button" class="count-btn" onclick="changeCount(1)">+</button>
                     </div>
+
                     <div class="total-price-view">총
                         <b id="total-price" style="color:var(--primary)">0</b>
                         P</div>
@@ -379,6 +420,7 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                 </form>
             </div>
         </div>
+
         <script>
             let currentItem = null;
             let currentCount = 1;
@@ -387,8 +429,10 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                     alert("품절된 상품입니다.");
                     return;
                 }
+
                 currentItem = item;
                 currentCount = 1;
+
                 document
                     .getElementById('buy-modal')
                     .style
@@ -405,26 +449,38 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                 document
                     .getElementById('form-item-id')
                     .value = item.item_id;
+
                 const statsDiv = document.getElementById('m-stats');
                 statsDiv.innerHTML = '';
                 try {
-                    const effects = JSON.parse(item.effect_data || '{}');
-                    if (effects.atk) 
-                        statsDiv.innerHTML += `<span class="stat-badge st-atk">공격 +${effects.atk}</span>`;
-                    if (effects.def) 
-                        statsDiv.innerHTML += `<span class="stat-badge st-def">방어 +${effects.def}</span>`;
-                    if (effects.hp_heal) 
-                        statsDiv.innerHTML += `<span class="stat-badge st-heal">회복 +${effects.hp_heal}</span>`;
+                    const eff = JSON.parse(item.effect_data || '{}');
+                    if (eff.atk) 
+                        statsDiv.innerHTML += `<span class="stat-badge st-atk">공격 +${eff.atk}</span>`;
+                    if (eff.def) 
+                        statsDiv.innerHTML += `<span class="stat-badge st-def">방어 +${eff.def}</span>`;
+                    if (eff.hp_heal) 
+                        statsDiv.innerHTML += `<span class="stat-badge st-heal">회복 +${eff.hp_heal}</span>`;
+                    
+                    // [추가] 기타 스텟 표시
+                    if (eff.str) 
+                        statsDiv.innerHTML += `<span class="stat-badge st-etc">힘 +${eff.str}</span>`;
+                    if (eff.speed) 
+                        statsDiv.innerHTML += `<span class="stat-badge st-etc">속도 +${eff.speed}</span>`;
+                    if (eff.luk) 
+                        statsDiv.innerHTML += `<span class="stat-badge st-etc">행운 +${eff.luk}</span>`;
                     }
                 catch (e) {}
+
                 updatePrice();
             }
+
             function closeModal() {
                 document
                     .getElementById('buy-modal')
                     .style
                     .display = 'none';
             }
+
             function changeCount(delta) {
                 let newCount = currentCount + delta;
                 if (newCount < 1) 
@@ -436,6 +492,7 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                 currentCount = newCount;
                 updatePrice();
             }
+
             function updatePrice() {
                 const total = currentItem.price * currentCount;
                 document
@@ -444,9 +501,10 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                 document
                     .getElementById('total-price')
                     .textContent = total.toLocaleString();
+
                 const btn = document.getElementById('btn-submit');
-                if (myPoint <= 0) { // [추가] 0 이하면 아예 불가
-                    btn.textContent = "거지입니다";
+                if (myPoint <= 0) {
+                    btn.textContent = "포인트 없음";
                     btn.disabled = true;
                 } else if (total > myPoint) {
                     btn.textContent = "포인트 부족";
@@ -456,9 +514,10 @@ $products = sql_fetch_all("SELECT i.*, s.stock FROM School_Shop_Config s JOIN Sc
                     btn.disabled = false;
                 }
             }
+
+            // 모달 밖 클릭 시 닫기 document.getElementById('buy-modal').addEventListener('click',
             document.getElementById('buy-modal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('buy-modal')) 
-                    closeModal();
+                    if(e.target === document.getElementById('buy-modal')) closeModal();
                 });
         </script>
     </body>

@@ -1,5 +1,5 @@
 <?php
-// admin_item.php : 아이템 & 상점 관리 (내구도/리필 포함 완전판)
+// admin_item.php : 아이템 & 상점 관리 (장비 부위 세분화 적용)
 require_once 'common.php';
 
 // 권한 체크
@@ -22,10 +22,13 @@ if (isset($_POST['action']) && ($_POST['action'] === 'create' || $_POST['action'
     
     // [핵심] 효과 데이터 배열로 묶기
     $effects = [];
-    // empty 체크를 0도 허용하도록 수정 (0을 입력할 수도 있으므로 isset 사용 권장하나 여기선 간단히)
     if (isset($_POST['eff_hp']) && $_POST['eff_hp'] !== '') $effects['hp_heal'] = to_int($_POST['eff_hp']);
     if (isset($_POST['eff_atk']) && $_POST['eff_atk'] !== '') $effects['atk'] = to_int($_POST['eff_atk']);
     if (isset($_POST['eff_def']) && $_POST['eff_def'] !== '') $effects['def'] = to_int($_POST['eff_def']);
+    // 스피드, 스텟 등 추가 가능
+    if (isset($_POST['eff_speed']) && $_POST['eff_speed'] !== '') $effects['speed'] = to_int($_POST['eff_speed']);
+    if (isset($_POST['eff_str']) && $_POST['eff_str'] !== '') $effects['str'] = to_int($_POST['eff_str']);
+    if (isset($_POST['eff_luk']) && $_POST['eff_luk'] !== '') $effects['luk'] = to_int($_POST['eff_luk']);
     
     // 상태이상 효과
     if (!empty($_POST['eff_status_id'])) {
@@ -92,6 +95,19 @@ $items = sql_fetch_all("
     LEFT JOIN School_Shop_Config s ON i.item_id = s.item_id 
     ORDER BY i.item_id DESC
 ");
+
+// 아이템 타입 한글명 매핑
+$type_map = [
+    'CONSUME' => '소모품',
+    'WEAPON' => '무기',
+    'HAT' => '모자',
+    'FACE' => '얼굴장식',
+    'TOP' => '상의',
+    'BOTTOM' => '하의',
+    'GLOVES' => '장갑',
+    'SHOES' => '신발',
+    'ETC' => '기타/장신구'
+];
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -123,7 +139,7 @@ $items = sql_fetch_all("
         .item-icon { font-size: 30px; color: var(--secondary); width: 40px; text-align: center; }
         .item-info { flex: 1; }
         .item-info h3 { margin: 0; font-size: 16px; }
-        .item-info span { font-size: 12px; color: #888; background: #eee; padding: 2px 6px; border-radius: 4px; }
+        .item-type-badge { font-size: 12px; color: white; background: #555; padding: 2px 6px; border-radius: 4px; font-weight:bold; }
         
         .item-stats { font-size: 13px; background: #f9f9f9; padding: 8px; border-radius: 6px; color: #555; }
         .item-desc { font-size: 12px; color: #666; line-height: 1.4; }
@@ -137,6 +153,8 @@ $items = sql_fetch_all("
         .btn-shop-off { background: #ddd; color: #777; }
         .btn-del { background: #e74c3c; color: white; flex: 0.3 !important; }
         .action-row { display: flex; gap: 5px; margin-top: auto; }
+        
+        .edit-mode { border: 2px solid var(--primary); }
     </style>
 </head>
 <body>
@@ -147,7 +165,7 @@ $items = sql_fetch_all("
         <button class="back-btn" onclick="location.href='index.php'">메인으로</button>
     </div>
 
-<div class="form-box" id="form-box">
+    <div class="form-box" id="form-box">
         <div class="form-title">
             <span id="form-mode-txt">신규 아이템 등록</span>
             <button type="button" onclick="resetForm()" id="btn-cancel" style="display:none; float:right; background:#999; border:none; color:white; padding:5px 10px; border-radius:5px; font-size:12px; cursor:pointer;">취소</button>
@@ -158,10 +176,20 @@ $items = sql_fetch_all("
             
             <div class="input-group">
                 <select name="type" id="inp-type" required>
-                    <option value="CONSUME">소모품</option>
-                    <option value="WEAPON">무기 (공격)</option>
-                    <option value="ARMOR">방어구 (방어)</option>
-                    <option value="ETC">기타</option>
+                    <option value="" disabled selected>-- 종류 선택 --</option>
+                    <optgroup label="소모품/기타">
+                        <option value="CONSUME">소모품 (체력회복 등)</option>
+                        <option value="ETC">기타 (장신구 등)</option>
+                    </optgroup>
+                    <optgroup label="장비 아이템">
+                        <option value="WEAPON">무기</option>
+                        <option value="HAT">모자</option>
+                        <option value="FACE">얼굴장식</option>
+                        <option value="TOP">상의</option>
+                        <option value="BOTTOM">하의</option>
+                        <option value="GLOVES">장갑</option>
+                        <option value="SHOES">신발</option>
+                    </optgroup>
                 </select>
                 <input type="text" name="name" id="inp-name" placeholder="아이템 이름" required>
                 <input type="number" name="price" id="inp-price" placeholder="가격 (P)" required>
@@ -175,11 +203,16 @@ $items = sql_fetch_all("
             <div class="input-group">
                 <input type="number" name="eff_atk" id="inp-atk" placeholder="공격력 +">
                 <input type="number" name="eff_def" id="inp-def" placeholder="방어력 +">
-                <input type="number" name="eff_hp" id="inp-hp" placeholder="체력 회복 +">
+                <input type="number" name="eff_hp" id="inp-hp" placeholder="체력 회복(소모품)">
+            </div>
+            <div class="input-group">
+                <input type="number" name="eff_str" id="inp-str" placeholder="힘(STR) +">
+                <input type="number" name="eff_speed" id="inp-speed" placeholder="스피드(민첩) +">
+                <input type="number" name="eff_luk" id="inp-luk" placeholder="행운 +">
             </div>
 
             <div style="margin-top:10px; border-top:1px dashed #ddd; padding-top:10px;">
-                <label>상태이상 효과</label>
+                <label>상태이상 효과 (소모품용)</label>
                 <div style="display:flex; gap:5px;">
                     <select name="eff_status_act" id="inp-status-act" style="width:100px;">
                         <option value="add">부여 (감염)</option>
@@ -197,8 +230,7 @@ $items = sql_fetch_all("
                 </div>
             </div>
 
-            <textarea name="desc" id="inp-desc" placeholder="아이템 설명"></textarea>
-            <textarea name="hidden_desc" id="inp-hdesc" placeholder="숨겨진 설명 (획득 시 확인 가능)"></textarea>
+            <textarea name="desc" id="inp-desc" placeholder="아이템 설명" style="margin-top:10px;"></textarea>
 
             <button type="submit" class="btn-add" id="btn-submit">아이템 생성하기</button>
         </form>
@@ -207,25 +239,31 @@ $items = sql_fetch_all("
     <div class="form-title" style="margin-left: 10px;">등록된 아이템 목록</div>
     <div class="item-grid">
         <?php foreach($items as $item): ?>
-            <?php $eff = json_decode($item['effect_data'], true); ?>
+            <?php 
+                $eff = json_decode($item['effect_data'], true); 
+                $type_name = isset($type_map[$item['type']]) ? $type_map[$item['type']] : $item['type'];
+            ?>
             <div class="item-card">
                 <div class="item-header">
                     <div class="item-icon"><?=$item['img_icon']?></div>
                     <div class="item-info">
                         <h3><?=$item['name']?></h3>
-                        <span><?=$item['type']?></span> 
-                        <span style="color:var(--primary); font-weight:bold;"><?=number_format($item['price'])?> P</span>
+                        <span class="item-type-badge"><?=$type_name?></span> 
+                        <span style="color:var(--primary); font-weight:bold; margin-left:5px;"><?=number_format($item['price'])?> P</span>
                     </div>
                 </div>
 
                 <div class="item-stats">
                     내구도: <?=$item['max_dur'] > 0 ? $item['max_dur'] : '∞'?><br>
-                    <?php if(isset($eff['atk'])): ?>⚔️ 공격 +<?=$eff['atk']?> <?php endif; ?>
-                    <?php if(isset($eff['def'])): ?>🛡️ 방어 +<?=$eff['def']?> <?php endif; ?>
-                    <?php if(isset($eff['hp_heal'])): ?>❤️ 회복 +<?=$eff['hp_heal']?> <?php endif; ?>
+                    <?php if(!empty($eff['atk'])): ?>⚔️ 공격 +<?=$eff['atk']?> <?php endif; ?>
+                    <?php if(!empty($eff['def'])): ?>🛡️ 방어 +<?=$eff['def']?> <?php endif; ?>
+                    <?php if(!empty($eff['hp_heal'])): ?>❤️ 회복 +<?=$eff['hp_heal']?> <?php endif; ?>
+                    <?php if(!empty($eff['str'])): ?>💪 힘 +<?=$eff['str']?> <?php endif; ?>
+                    <?php if(!empty($eff['speed'])): ?>💨 속도 +<?=$eff['speed']?> <?php endif; ?>
+                    <?php if(!empty($eff['luk'])): ?>🍀 행운 +<?=$eff['luk']?> <?php endif; ?>
                 </div>
 
-                <div class="item-desc"><?=h($item['descr'])?></div>
+                <div class="item-desc"><?=htmlspecialchars($item['descr'])?></div>
 
                 <?php if($item['shop_id']): ?>
                 <div class="shop-config">
@@ -263,7 +301,7 @@ $items = sql_fetch_all("
                             <?=$item['shop_id']?'판매중':'미판매'?>
                         </button>
                     </form>
-                    <form method="POST" onsubmit="return confirm('삭제?');">
+                    <form method="POST" onsubmit="return confirm('삭제하시겠습니까?');">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="item_id" value="<?=$item['item_id']?>">
                         <button type="button" class="btn-sm" style="background:#AED1D5; color:#333;" 
@@ -280,48 +318,45 @@ $items = sql_fetch_all("
 
 <script>
 function editItem(data) {
-        // 모드 전환
-        document.getElementById('form-box').classList.add('edit-mode');
-        document.getElementById('form-mode-txt').textContent = '아이템 수정';
-        document.getElementById('btn-submit').textContent = '수정내용 저장';
-        document.getElementById('btn-submit').classList.add('update');
-        document.getElementById('btn-cancel').style.display = 'block';
+    // 모드 전환
+    document.getElementById('form-box').classList.add('edit-mode');
+    document.getElementById('form-mode-txt').textContent = '아이템 수정: ' + data.name;
+    document.getElementById('btn-submit').textContent = '수정내용 저장';
+    document.getElementById('btn-cancel').style.display = 'block';
 
-        // 기본 데이터 채우기
-        document.getElementById('form-action').value = 'update';
-        document.getElementById('form-item-id').value = data.item_id;
-        document.getElementById('inp-name').value = data.name;
-        document.getElementById('inp-type').value = data.type;
-        document.getElementById('inp-price').value = data.price;
-        document.getElementById('inp-dur').value = data.max_dur;
-        document.getElementById('inp-icon').value = data.img_icon;
-        document.getElementById('inp-desc').value = data.descr;
+    // 기본 데이터 채우기
+    document.getElementById('form-action').value = 'update';
+    document.getElementById('form-item-id').value = data.item_id;
+    document.getElementById('inp-name').value = data.name;
+    document.getElementById('inp-type').value = data.type;
+    document.getElementById('inp-price').value = data.price;
+    document.getElementById('inp-dur').value = data.max_dur;
+    document.getElementById('inp-icon').value = data.img_icon;
+    document.getElementById('inp-desc').value = data.descr;
 
-        // [핵심] JSON 데이터 파싱 (오류 해결 부분)
-        let eff = {};
-        try {
-            // DB에서 가져온 값이 문자열이면 파싱, 이미 객체면 그대로 사용
-            if (typeof data.effect_data === 'string') {
-                eff = JSON.parse(data.effect_data);
-            } else if (data.effect_data) {
-                eff = data.effect_data;
-            }
-        } catch(e) {
-            console.error("JSON Parse Error", e);
-        }
+    // JSON 데이터 파싱
+    let eff = {};
+    try {
+        if (typeof data.effect_data === 'string') eff = JSON.parse(data.effect_data);
+        else if (data.effect_data) eff = data.effect_data;
+    } catch(e) { console.error(e); }
 
-        // 효과 데이터 채우기
-        document.getElementById('inp-hp').value = eff.hp_heal || '';
-        document.getElementById('inp-atk').value = eff.atk || '';
-        document.getElementById('inp-def').value = eff.def || '';
-        document.getElementById('inp-status-id').value = eff.status_id || '';
-        document.getElementById('inp-status-act').value = eff.status_act || 'add';
+    // 효과 데이터 채우기
+    document.getElementById('inp-hp').value = eff.hp_heal || '';
+    document.getElementById('inp-atk').value = eff.atk || '';
+    document.getElementById('inp-def').value = eff.def || '';
+    document.getElementById('inp-str').value = eff.str || '';
+    document.getElementById('inp-speed').value = eff.speed || '';
+    document.getElementById('inp-luk').value = eff.luk || '';
+    
+    document.getElementById('inp-status-id').value = eff.status_id || '';
+    document.getElementById('inp-status-act').value = eff.status_act || 'add';
 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 function resetForm() {
-    document.getElementById('form-box').style.borderColor = 'transparent';
+    document.getElementById('form-box').classList.remove('edit-mode');
     document.getElementById('form-mode-txt').textContent = '신규 아이템 등록';
     document.getElementById('btn-cancel').style.display = 'none';
     document.getElementById('btn-submit').textContent = '아이템 생성하기';
