@@ -70,6 +70,7 @@ if (!isset($_SESSION['uid'])) { header("Location: index.php"); exit; }
         <div class="hp-bar-box"><div class="hp-fill" id="my-hp-bar"></div></div>
         <span id="my-hp-txt" style="font-size:14px; font-weight:bold;"></span>
     </div>
+    
 </div>
 
 <div class="battle-field">

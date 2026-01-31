@@ -10,14 +10,25 @@ if ($cmd !== 'login' && !isset($_SESSION['uid'])) {
     json_res(['status'=>'error', 'message'=>'로그인이 필요합니다.']);
 }
 
-// [중요] API 호출 시마다 상태이상 시간 경과 체크 (자동 진화)
+// [수정] 로그인 외 기능 수행 시 생존 여부 체크
 if (isset($_SESSION['uid'])) {
-    check_status_evolution();
+    check_status_evolution(); // 상태이상 시간 경과 체크
+    
+    // 사망해도 사용 가능한 안전한 명령어들
+    $safe_cmds = ['login', 'get_my_info', 'battle_list_users', 'check_incoming_challenge', 'battle_chat_send', 'battle_refresh']; 
+    
+    // 그 외 명령어는 사망 시 차단 (check_alive 함수 호출)
+    if (!in_array($cmd, $safe_cmds)) check_alive($_SESSION['uid']);
 }
 
 try {
     $my_id = isset($_SESSION['uid']) ? $_SESSION['uid'] : 0;
-
+        
+        // [중요] 로그인/정보확인 외의 행동은 사망 시 불가
+    $safe_cmds = ['login', 'get_my_info', 'battle_list_users', 'check_incoming_challenge']; 
+    if (!in_array($cmd, $safe_cmds)) {
+        check_alive($my_id); // 사망 시 Exception 발생 -> 중단됨
+    }
     switch ($cmd) {
         // =========================================================
         // [1] 유저 기본 (로그인/정보/프로필)
@@ -42,8 +53,43 @@ try {
 
         case 'get_my_info':
             $me = sql_fetch("SELECT * FROM School_Members WHERE id = ?", [$my_id]);
-            if (!$me) { session_destroy(); throw new Exception("정보 없음"); }
+            $challenge = sql_fetch("
+                SELECT b.room_id, m.name 
+                FROM School_Battles b
+                JOIN School_Members m ON b.host_id = m.id
+                WHERE b.target_id = ? AND b.status = 'WAIT'
+                LIMIT 1
+            ", [$my_id]);
+            
+            $me['challenge'] = $challenge; // 신청 정보 포함해서 리턴
             json_res(['status'=>'success', 'data'=>$me]);
+            break;
+
+            // [신규] 이미지 파일 업로드 처리
+        case 'update_profile_img_file':
+            // 1. 파일 유무 확인
+            if (!isset($_FILES['img_file']) || $_FILES['img_file']['error'] != UPLOAD_ERR_OK) {
+                throw new Exception("파일 업로드 실패");
+            }
+            
+            $file = $_FILES['img_file'];
+            // 2. 확장자 검사 (이미지만 허용)
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            if (!in_array($ext, $allowed)) throw new Exception("이미지 파일만 가능합니다.");
+            
+            // 3. 폴더 확인 및 저장
+            if(!is_dir('uploads')) mkdir('uploads', 0777, true);
+            $filename = "profile_{$my_id}_" . time() . "." . $ext; // 파일명 중복 방지
+            $dest = "uploads/" . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $dest)) {
+                // DB에 경로 저장
+                sql_exec("UPDATE School_Members SET img_profile=? WHERE id=?", [$dest, $my_id]);
+                json_res(['status'=>'success']);
+            } else {
+                throw new Exception("파일 저장 실패");
+            }
             break;
 
         case 'update_profile':
@@ -57,6 +103,90 @@ try {
         // =========================================================
         // [2] 양도 시스템 (포인트/아이템)
         // =========================================================
+        // [2] 아이템 / 상점 / 송금
+        // =========================================================
+        case 'use_item':
+            $inv_id = to_int($input['inv_id']);
+            
+            // 인벤토리 정보 확인
+            $inv = sql_fetch("
+                SELECT inv.*, i.type, i.effect_data, i.max_dur, i.name 
+                FROM School_Inventory inv 
+                JOIN School_Item_Info i ON inv.item_id = i.item_id 
+                WHERE inv.id=? AND inv.owner_id=?", 
+                [$inv_id, $my_id]
+            );
+            
+            if (!$inv) throw new Exception("아이템이 없습니다.");
+            if ($inv['type'] === 'equipment') throw new Exception("장비는 사용할 수 없습니다. 장착하세요.");
+            
+            // 효과 파싱
+            $eff = json_decode($inv['effect_data'], true);
+            $msg = "[{$inv['name']}] 사용:";
+            $me = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$my_id]);
+
+            // 1. HP 회복
+            if (!empty($eff['hp_heal'])) {
+                $heal = intval($eff['hp_heal']);
+                $new_hp = min($me['hp_max'], $me['hp_current'] + $heal);
+                sql_exec("UPDATE School_Members SET hp_current=? WHERE id=?", [$new_hp, $my_id]);
+                $msg .= " 체력 {$heal} 회복.";
+            }
+
+            // 2. 상태이상 관리 (부여/치료/악화/완화)
+            if (!empty($eff['status_id']) && !empty($eff['status_act'])) {
+                $sid = intval($eff['status_id']);
+                $act = $eff['status_act'];
+                
+                // 상태이상 이름 조회
+                $st_info = sql_fetch("SELECT name FROM School_Status_Info WHERE status_id=?", [$sid]);
+                $st_name = $st_info['name'] ?? '알 수 없는 병';
+
+                if ($act === 'add') {
+                    // 감염 (이미 있으면 무시)
+                    sql_exec("INSERT IGNORE INTO School_Status_Active (target_id, status_id, current_stage, created_at, last_evolved_at) VALUES (?, ?, 1, NOW(), NOW())", [$my_id, $sid]);
+                    $msg .= " [{$st_name}]에 감염되었습니다.";
+                }
+                elseif ($act === 'cure') {
+                    // 치료 (제거)
+                    sql_exec("DELETE FROM School_Status_Active WHERE target_id=? AND status_id=?", [$my_id, $sid]);
+                    $msg .= " [{$st_name}] 치료됨.";
+                }
+                elseif ($act === 'up') {
+                    // 악화 (+1단계)
+                    $chk = sql_fetch("SELECT id FROM School_Status_Active WHERE target_id=? AND status_id=?", [$my_id, $sid]);
+                    if($chk) {
+                        sql_exec("UPDATE School_Status_Active SET current_stage = current_stage + 1 WHERE target_id=? AND status_id=?", [$my_id, $sid]);
+                        $msg .= " [{$st_name}] 악화됨.";
+                    }
+                }
+                elseif ($act === 'down') {
+                    // 완화 (-1단계, 1단계면 제거)
+                    $cur = sql_fetch("SELECT current_stage FROM School_Status_Active WHERE target_id=? AND status_id=?", [$my_id, $sid]);
+                    if($cur) {
+                        if($cur['current_stage'] > 1) {
+                            sql_exec("UPDATE School_Status_Active SET current_stage = current_stage - 1 WHERE target_id=? AND status_id=?", [$my_id, $sid]);
+                            $msg .= " [{$st_name}] 호전됨.";
+                        } else {
+                            sql_exec("DELETE FROM School_Status_Active WHERE target_id=? AND status_id=?", [$my_id, $sid]);
+                            $msg .= " [{$st_name}] 완치됨.";
+                        }
+                    }
+                }
+            }
+
+            // 소모품 차감
+            if ($inv['count'] > 1) {
+                sql_exec("UPDATE School_Inventory SET count = count - 1 WHERE id=?", [$inv_id]);
+            } else {
+                sql_exec("DELETE FROM School_Inventory WHERE id=?", [$inv_id]);
+            }
+            
+            write_log($my_id, 'ITEM', $msg);
+            json_res(['status'=>'success', 'msg'=>$msg]);
+            break;
+
+
         case 'transfer':
             $target_id = to_int($input['target_id']);
             $type = $input['type']; // 'point' or 'item'
@@ -113,6 +243,171 @@ try {
         // [3] 전투 시스템
         // =========================================================
         
+        // =========================================================
+        // [전투 시스템 확장]
+        // =========================================================
+        
+        case 'battle_refresh':
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status IN ('WAIT','READY','BATTLE','END')", [$my_id, $my_id]);
+            if (!$room) { json_res(['status'=>'none']); break; }
+
+            // 채팅 로그 가져오기
+            $chats = sql_fetch_all("SELECT * FROM School_Battle_Chat WHERE room_id=? ORDER BY id ASC", [$room['room_id']]);
+
+            // 내 정보 및 스텟
+            $me = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$my_id]);
+            $is_host = ($room['host_id'] == $my_id);
+            $enemy_id = $is_host ? $room['guest_id'] : $room['host_id'];
+            
+            // 내 스텟 계산 (상태이상/장비 포함)
+            $my_stat = calc_battle_stats($me, 0, 0); // (실제로는 인벤/상태이상 로직 넣어야 함, 여기선 함수만 호출)
+            $my_stat['hp_current'] = $me['hp_current'];
+            $my_stat['name'] = $me['name'];
+
+            $en_stat = null;
+            if ($enemy_id) {
+                $enemy = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$enemy_id]);
+                if($enemy) {
+                    $en_stat = calc_battle_stats($enemy, 0, 0);
+                    $en_stat['hp_current'] = $enemy['hp_current'];
+                    $en_stat['name'] = $enemy['name'];
+                }
+            } else {
+                // 적이 없는 경우(탐색 중) or 몬스터
+                $en_stat = ['name'=>'어둠', 'hp_current'=>0, 'hp_max'=>100];
+            }
+
+            json_res([
+                'status' => 'battle',
+                'room_stat' => $room['status'],
+                'me' => $my_stat,
+                'enemy' => $en_stat,
+                'is_my_turn' => ($room['current_turn_id'] == $my_id),
+                'chats' => $chats
+            ]);
+            break;
+
+            // 2. 채팅 전송
+        case 'battle_chat_send':
+            $msg = trim($input['msg']);
+            if (!$msg) throw new Exception("");
+            
+            $room = sql_fetch("SELECT room_id FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status != 'END'", [$my_id, $my_id]);
+            if (!$room) throw new Exception("전투 중이 아닙니다.");
+            
+            $me = sql_fetch("SELECT name FROM School_Members WHERE id=?", [$my_id]);
+            
+            sql_exec("INSERT INTO School_Battle_Chat (room_id, user_id, name, message, type) VALUES (?, ?, ?, ?, 'CHAT')", 
+                [$room['room_id'], $my_id, $me['name'], $msg]);
+            
+            json_res(['status'=>'success']);
+            break;
+
+        case 'battle_action_attack':
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE (host_id=? OR guest_id=?) AND status='BATTLE'", [$my_id, $my_id]);
+            if (!$room) throw new Exception("전투 중이 아닙니다.");
+            if ($room['current_turn_id'] != $my_id) throw new Exception("아직 턴이 아닙니다!");
+
+            $is_host = ($room['host_id'] == $my_id);
+            $enemy_id = $is_host ? $room['guest_id'] : $room['host_id'];
+
+            // 데미지 계산 (간략화)
+            $me = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$my_id]);
+            
+            // 상태이상/장비 적용된 공격력 가져오기
+            $my_eq = sql_fetch_all("SELECT i.effect_data FROM School_Inventory inv JOIN School_Item_Info i ON inv.item_id=i.item_id WHERE inv.owner_id=? AND inv.is_equipped=1", [$my_id]);
+            $my_st = sql_fetch_all("SELECT s.current_stage, i.stage_config FROM School_Status_Active s JOIN School_Status_Info i ON s.status_id = i.status_id WHERE s.target_id = ?", [$my_id]);
+            
+            $add_atk = 0; 
+            foreach($my_eq as $eq) { $e=json_decode($eq['effect_data'],true); if(isset($e['atk'])) $add_atk+=$e['atk']; }
+            foreach($my_st as $st) { $c=json_decode($st['stage_config'],true); $s=$st['current_stage']; if(isset($c[$s]['atk'])) $add_atk+=$c[$s]['atk']; }
+            
+            $stats = calc_battle_stats($me, $add_atk, 0);
+            $dmg = rand(round($stats['atk']*0.9), round($stats['atk']*1.1));
+            
+            // 적 HP 차감
+            sql_exec("UPDATE School_Members SET hp_current = hp_current - ? WHERE id=?", [$dmg, $enemy_id]);
+            
+            // 시스템 로그 저장 (Chat Table)
+            $log_msg = "⚔️ {$me['name']}의 공격! {$dmg}의 피해를 입혔다.";
+            sql_exec("INSERT INTO School_Battle_Chat (room_id, user_id, name, message, type) VALUES (?, 0, 'SYSTEM', ?, 'DAMAGE')", 
+                [$room['room_id'], $log_msg]);
+
+            // 적 사망 체크
+            $enemy = sql_fetch("SELECT hp_current FROM School_Members WHERE id=?", [$enemy_id]);
+            if ($enemy['hp_current'] <= 0) {
+                // 전투 종료 처리
+                sql_exec("UPDATE School_Battles SET status='END' WHERE room_id=?", [$room['room_id']]);
+                sql_exec("INSERT INTO School_Battle_Chat (room_id, user_id, name, message, type) VALUES (?, 0, 'SYSTEM', '상대방이 쓰러졌습니다. 승리!', 'SYSTEM')", [$room['room_id']]);
+                
+                // 승리 보상 등 로직 추가 가능
+                
+                json_res(['status'=>'win']);
+            } else {
+                // 턴 넘기기
+                sql_exec("UPDATE School_Battles SET current_turn_id=?, turn_count=turn_count+1 WHERE room_id=?", [$enemy_id, $room['room_id']]);
+                json_res(['status'=>'success']);
+            }
+            break;
+
+        // 1. 유저 목록 조회 (다툼 대상 찾기)
+        case 'battle_list_users':
+            // 나를 제외하고, 사망하지 않은 유저만 조회
+            $list = sql_fetch_all("
+                SELECT id, name, level, point, injury 
+                FROM School_Members 
+                WHERE id != ? AND injury < 4 AND role != 'admin'
+                ORDER BY level DESC LIMIT 30
+            ", [$my_id]);
+            json_res(['status'=>'success', 'list'=>$list]);
+            break;
+
+        // 2. 다툼(결투) 신청
+        case 'battle_challenge':
+            $target_id = to_int($input['target_id']);
+            
+            // 상대방 상태 확인
+            $target = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$target_id]);
+            if (!$target) throw new Exception("존재하지 않는 유저입니다.");
+            if ($target['injury'] >= 4) throw new Exception("이미 사망한 유저입니다.");
+            
+            // 이미 방이 있는지 확인
+            $chk = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? OR guest_id=?", [$my_id, $my_id]);
+            if ($chk) throw new Exception("이미 전투 중이거나 대기 중입니다.");
+
+            // 결투 방 생성 (target_id 지정)
+            sql_exec("INSERT INTO School_Battles (host_id, target_id, status, created_at, updated_at) VALUES (?, ?, 'WAIT', NOW(), NOW())", [$my_id, $target_id]);
+            
+            write_log($my_id, 'BATTLE', "{$target['name']}님에게 결투를 신청했습니다.");
+            json_res(['status'=>'success', 'msg'=>'결투장을 보냈습니다. 상대가 수락하면 시작됩니다.']);
+            break;
+
+        // 3. 탐색 (기존 로직: 몬스터 or 랜덤 유저) - target_id = 0
+        case 'battle_make_room':
+            $chk = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? OR guest_id=?", [$my_id, $my_id]);
+            if ($chk) throw new Exception("이미 참여 중인 전투가 있습니다.");
+            
+            sql_exec("INSERT INTO School_Battles (host_id, target_id, status, created_at, updated_at) VALUES (?, 0, 'WAIT', NOW(), NOW())", [$my_id]);
+            json_res(['status'=>'success']);
+            break;
+
+        // 4. 전투 수락 (방 입장)
+        case 'battle_join':
+            $rid = to_int($input['room_id']);
+            $room = sql_fetch("SELECT * FROM School_Battles WHERE room_id=? AND status='WAIT'", [$rid]);
+            
+            if (!$room) throw new Exception("입장할 수 없는 방입니다.");
+            
+            // 특정 대상 지정 방인데 내가 아니면 입장 불가
+            if ($room['target_id'] != 0 && $room['target_id'] != $my_id) {
+                throw new Exception("당신에게 온 신청이 아닙니다.");
+            }
+            
+            sql_exec("UPDATE School_Battles SET guest_id=?, status='READY', updated_at=NOW() WHERE room_id=?", [$my_id, $rid]);
+            json_res(['status'=>'success']);
+            break;
+
+            
         // 3-1. 전투 시작
         case 'battle_start':
             $active = sql_fetch("SELECT room_id FROM School_Battles WHERE host_id=? AND status='FIGHTING'", [$my_id]);
@@ -569,37 +864,46 @@ try {
             }
             break;
 
-        case 'gamble_roulette':
-            $amount = to_int($input['amount']);
-            if ($amount <= 0) throw new Exception("배팅 금액 확인");
-            $me = sql_fetch("SELECT point FROM School_Members WHERE id=?", [$my_id]);
-            if ($me['point'] < $amount) throw new Exception("포인트 부족");
+case 'gamble_roulette':
+            $bet = to_int($input['bet']);
+            if ($bet <= 0) throw new Exception("베팅 금액이 올바르지 않습니다.");
             
-            sql_exec("UPDATE School_Members SET point = point - ? WHERE id=?", [$amount, $my_id]);
-            $current_point = $me['point'] - $amount;
+            // [추가] 0포인트 이하이면 도박 불가
+            $me = sql_fetch("SELECT point FROM School_Members WHERE id=?", [$my_id]);
+            if ($me['point'] <= 0) throw new Exception("포인트가 없어 도박을 할 수 없습니다.");
+            if ($me['point'] < $bet) throw new Exception("포인트가 부족합니다.");
 
-            $configs = sql_fetch_all("SELECT * FROM School_Gamble_Config");
-            if (!$configs) throw new Exception("설정 없음");
+            // 룰렛 항목 가져오기 (랜덤 1개)
+            $item = sql_fetch("SELECT * FROM School_Gamble_Config ORDER BY RAND() LIMIT 1");
+            if (!$item) throw new Exception("룰렛 설정이 없습니다.");
 
-            $picked = null;
-            $rand = rand(1, 100);
-            $cumulative = 0;
-            foreach ($configs as $cfg) {
-                $cumulative += $cfg['probability'];
-                if ($rand <= $cumulative) { $picked = $cfg; break; }
-            }
+            $ratio = floatval($item['ratio']);
+            
+            // [수정] 포인트 계산 로직 (음수 허용)
+            // 배율이 2.0이면 -> 100걸어서 200땀 (총 +200 이득? 아니면 100->300?)
+            // 보통 배율은 '결과값'을 의미합니다. 
+            // 여기서는 작성자님 의도대로 "배율에 맞춰 포인트가 감소, 증가"하도록
+            // Change = Bet * Ratio 로 계산합니다.
+            
+            $change = floor($bet * $ratio);
+            
+            // 최종 포인트 업데이트 (보유 포인트 + 변화량)
+            // 예: 200P 보유, 200P 베팅.
+            // Ratio 2: change = 400. End = 600.
+            // Ratio -2: change = -400. End = -200.
+            
+            sql_exec("UPDATE School_Members SET point = point + ? WHERE id=?", [$change, $my_id]);
+            
+            // 로그
+            write_log($my_id, 'GAMBLE', "룰렛 결과 [{$item['name']}](x{$ratio}) : {$change} P");
 
-            $gain = 0;
-            if ($picked) {
-                $gain = floor($amount * $picked['ratio']);
-                $current_point += $gain;
-                sql_exec("UPDATE School_Members SET point = point + ? WHERE id=?", [$gain, $my_id]);
-                write_log($my_id, 'GAMBLE', "룰렛 당첨: {$picked['name']} (+{$gain} P)");
-            } else {
-                $picked = ['name'=>'꽝', 'ratio'=>0];
-                write_log($my_id, 'GAMBLE', "룰렛 꽝 (-{$amount} P)");
-            }
-            json_res(['status'=>'success', 'data'=>$picked, 'gain'=>$gain, 'current_point'=>$current_point]);
+            json_res([
+                'status'=>'success', 
+                'result_name'=>$item['name'], 
+                'ratio'=>$ratio, 
+                'change'=>$change,
+                'now_point'=> ($me['point'] + $change)
+            ]);
             break;
 
         case 'gamble_bj_start':
@@ -670,20 +974,6 @@ try {
 // ---------------------------------------------------------
 // [헬퍼 함수]
 // ---------------------------------------------------------
-function calc_battle_stats($base_stats, $add_atk=0, $add_def=0) {
-    $str = $base_stats['stat_str'] ?? 0;
-    $dex = $base_stats['stat_dex'] ?? 0;
-    $con = $base_stats['stat_con'] ?? 0;
-    $int = $base_stats['stat_int'] ?? 0;
-    $luk = $base_stats['stat_luk'] ?? 0;
-
-    $atk = round(($str*0.4) + ($dex*0.3) + ($con*0.1) + ($luk*0.1) + ($int*0.1)) + $add_atk;
-    $def = round(($con*0.5) + ($dex*0.3) + ($int*0.1) + ($luk*0.1)) + $add_def;
-    $hp  = $con; 
-    $spd = $dex;
-
-    return ['atk' => $atk, 'def' => $def, 'hp_max' => $hp, 'speed' => $spd, 'str' => $str, 'dex' => $dex, 'con' => $con, 'int' => $int, 'luk' => $luk];
-}
 
 function calc_bj_score($hand) {
     $score = 0;
@@ -694,4 +984,55 @@ function calc_bj_score($hand) {
     }
     return $score;
 }
+
+// [수정] 스텟 계산 함수 (상태이상 보정 추가)
+function calc_battle_stats($base_stats, $add_atk=0, $add_def=0, $status_adjust=[]) {
+    $str = $base_stats['stat_str'] ?? 0;
+    $dex = $base_stats['stat_dex'] ?? 0;
+    $con = $base_stats['stat_con'] ?? 0;
+    $int = $base_stats['stat_int'] ?? 0;
+    $luk = $base_stats['stat_luk'] ?? 0;
+
+    // 상태이상으로 인한 스텟 증감 적용
+    $status_atk = $status_adjust['atk'] ?? 0;
+    $status_def = $status_adjust['def'] ?? 0;
+
+    // 기본 공식 + 아이템 보정 + 상태이상 보정
+    $atk = round(($str*0.4) + ($dex*0.3) + ($con*0.1) + ($luk*0.1) + ($int*0.1)) + $add_atk + $status_atk;
+    $def = round(($con*0.5) + ($dex*0.3) + ($int*0.1) + ($luk*0.1)) + $add_def + $status_def;
+    
+    // 음수 방지
+    if ($atk < 1) $atk = 1;
+    if ($def < 0) $def = 0;
+
+    $hp  = $con; 
+    $spd = $dex;
+
+    return ['atk' => $atk, 'def' => $def, 'hp_max' => $hp, 'speed' => $spd, 'str' => $str, 'dex' => $dex, 'con' => $con, 'int' => $int, 'luk' => $luk];
+}
+
+// [추가] 플레이어 활성 상태이상 효과 합산
+            $my_status = sql_fetch_all("
+                SELECT s.current_stage, i.stage_config 
+                FROM School_Status_Active s 
+                JOIN School_Status_Info i ON s.status_id = i.status_id 
+                WHERE s.target_id = ?
+            ", [$my_id]);
+
+            $st_atk = 0; $st_def = 0;
+            foreach($my_status as $st) {
+                $cfg = json_decode($st['stage_config'], true);
+                $stage = $st['current_stage'];
+                if(isset($cfg[$stage])) {
+                    $st_atk += ($cfg[$stage]['atk'] ?? 0);
+                    $st_def += ($cfg[$stage]['def'] ?? 0);
+                }
+            }
+
+            // 플레이어 스텟 계산 (장비 + 상태이상 포함)
+            $me = sql_fetch("SELECT * FROM School_Members WHERE id=?", [$my_id]);
+            // ... (기존 장비 계산 코드는 유지) ...
+            
+            // [수정] calc_battle_stats 호출 시 상태이상 보정값 전달
+            $p_calc = calc_battle_stats($me, $add_atk, $add_def, ['atk'=>$st_atk, 'def'=>$st_def]);
 ?>

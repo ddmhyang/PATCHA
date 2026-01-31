@@ -1,5 +1,5 @@
 <?php
-// inventory.php : 내 가방 (전투력 표시 패치)
+// inventory.php : 내 가방 (장착/해제/사용 기능 완벽 구현, 파일 업로드 포함)
 require_once 'common.php';
 
 if (!isset($_SESSION['uid'])) { header("Location: index.php"); exit; }
@@ -17,10 +17,10 @@ $items = sql_fetch_all("
     ORDER BY inv.is_equipped DESC, info.type ASC
 ", [$my_id]);
 
-// [추가] 실제 전투 스텟 계산 (기본 스텟 + 장비 보정)
+// [스텟 계산]
 $str=$me['stat_str']; $dex=$me['stat_dex']; $con=$me['stat_con']; $int=$me['stat_int']; $luk=$me['stat_luk'];
 
-// 1. 기본 전투력 (공식 적용)
+// 1. 기본 전투력
 $base_atk = round(($str*0.4)+($dex*0.3)+($con*0.1)+($luk*0.1)+($int*0.1));
 $base_def = round(($con*0.5)+($dex*0.3)+($int*0.1)+($luk*0.1));
 
@@ -35,9 +35,33 @@ foreach($items as $it) {
     }
 }
 
-$final_atk = $base_atk + $add_atk;
-$final_def = $base_def + $add_def;
-$final_spd = $dex; // 스피드는 민첩과 동일
+// 3. 상태이상 보정 합산
+$st_list = sql_fetch_all("
+    SELECT act.current_stage, info.stage_config 
+    FROM School_Status_Active act
+    JOIN School_Status_Info info ON act.status_id = info.status_id
+    WHERE act.target_id = ?
+", [$my_id]);
+
+$st_atk = 0; 
+$st_def = 0;
+
+foreach($st_list as $st) {
+    $cfg = json_decode($st['stage_config'], true);
+    $stage = $st['current_stage'];
+    if(isset($cfg[$stage])) {
+        $st_atk += ($cfg[$stage]['atk'] ?? 0);
+        $st_def += ($cfg[$stage]['def'] ?? 0);
+    }
+}
+
+// [최종 스텟]
+$final_atk = $base_atk + $add_atk + $st_atk;
+$final_def = $base_def + $add_def + $st_def;
+$final_spd = $dex; // 스피드는 민첩
+
+if($final_atk < 1) $final_atk = 1;
+if($final_def < 0) $final_def = 0;
 
 // 상태이상 목록
 $status_list = sql_fetch_all("
@@ -63,7 +87,6 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
         .header { background: #CE5961; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         .back-btn { color: white; font-size: 20px; cursor: pointer; }
         
-        /* 프로필 영역 */
         .profile-sec { background: white; padding: 20px; text-align: center; margin-bottom: 10px; }
         .pf-img { width: 80px; height: 80px; border-radius: 50%; background: #eee; margin: 0 auto 10px; overflow: hidden; position: relative; cursor: pointer; border: 3px solid #CE5961; }
         .pf-img img { width: 100%; height: 100%; object-fit: cover; }
@@ -77,7 +100,6 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
         }
         .pf-detail div { display: flex; flex-direction: column; align-items: center; gap: 3px; }
         
-        /* 탭 메뉴 */
         .tabs { display: flex; background: white; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
         .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #999; border-bottom: 3px solid transparent; }
         .tab.active { color: #CE5961; border-color: #CE5961; }
@@ -85,7 +107,6 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
         .content-area { display: none; padding: 15px; }
         .content-area.active { display: block; }
         
-        /* 아이템 리스트 */
         .inv-item { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .item-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .item-icon { font-size: 24px; color: #CE5961; width: 40px; text-align: center; }
@@ -96,7 +117,6 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
         .dur-bar { width: 100%; height: 4px; background: #eee; border-radius: 2px; margin-top: 5px; overflow: hidden; }
         .dur-fill { height: 100%; background: #27ae60; }
         
-        /* 양도 */
         .transfer-box { background: white; padding: 20px; border-radius: 10px; }
         select, input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .btn-send { width: 100%; background: #3498db; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
@@ -112,8 +132,8 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
 
 <div class="profile-sec">
     <div class="pf-img" onclick="editProfileImage()">
-        <?php if($me['image_url']): ?>
-            <img src="<?=$me['image_url']?>">
+        <?php if(isset($me['img_profile']) && $me['img_profile']): ?>
+            <img src="<?=$me['img_profile']?>">
         <?php else: ?>
             <i class="fa-solid fa-user"></i>
         <?php endif; ?>
@@ -155,7 +175,7 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
                     <div style="font-size:12px; color:#888;">x<?=$item['count']?></div>
                     
                     <?php if($item['max_dur'] > 0): ?>
-                        <?php $per = ($item['cur_dur'] / $item['max_dur']) * 100; ?>
+                        <?php $per = ($item['current_dur'] / $item['max_dur']) * 100; ?>
                         <div class="dur-bar"><div class="dur-fill" style="width:<?=$per?>%"></div></div>
                     <?php endif; ?>
                 </div>
@@ -165,11 +185,11 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
             <div class="item-detail">
                 <p><?=$item['descr']?></p>
                 <?php if($item['max_dur'] > 0): ?>
-                    <p>내구도: <?=$item['cur_dur']?> / <?=$item['max_dur']?></p>
+                    <p>내구도: <?=$item['current_dur']?> / <?=$item['max_dur']?></p>
                 <?php endif; ?>
                 
                 <div style="display:flex; gap:5px; margin-top:10px;">
-                    <?php if($item['type'] === 'CONSUME'): ?>
+                    <?php if($item['type'] === 'consumable'): ?>
                         <button onclick="itemAction(<?=$item['id']?>, 'use')" style="flex:1; padding:8px; background:#CE5961; color:white; border:none; border-radius:5px;">사용</button>
                     <?php else: ?>
                         <?php if($item['is_equipped']): ?>
@@ -187,12 +207,25 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
 
 <div id="tab-status" class="content-area">
     <?php foreach($status_list as $st): ?>
+        <?php 
+            $cfg = json_decode($st['stage_config'], true);
+            $cur = $st['current_stage'];
+            $eff_txt = [];
+            if(isset($cfg[$cur])) {
+                if(!empty($cfg[$cur]['atk'])) $eff_txt[] = "공격 " . ($cfg[$cur]['atk'] > 0 ? "+" : "") . $cfg[$cur]['atk'];
+                if(!empty($cfg[$cur]['def'])) $eff_txt[] = "방어 " . ($cfg[$cur]['def'] > 0 ? "+" : "") . $cfg[$cur]['def'];
+            }
+            $eff_str = empty($eff_txt) ? "" : " (" . implode(", ", $eff_txt) . ")";
+        ?>
         <div class="inv-item">
             <div style="display:flex; align-items:center; gap:10px;">
                 <i class="fa-solid fa-biohazard" style="color:#e74c3c; font-size:24px;"></i>
                 <div>
-                    <b><?=$st['name']?></b> <br>
+                    <b><?=$st['name']?></b> <span style="color:#e74c3c; font-size:12px; font-weight:bold;"><?=$eff_str?></span><br>
                     <span style="font-size:12px; color:#666;">현재 <?=$st['current_stage']?> 단계</span>
+                    <div style="font-size:12px; color:#888; margin-top:2px;">
+                        <?= isset($cfg[$cur]['desc']) ? $cfg[$cur]['desc'] : '' ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,7 +265,10 @@ $users = sql_fetch_all("SELECT id, name FROM School_Members WHERE id != ? ORDER 
     </div>
 </div>
 
+<input type="file" id="profile-upload" style="display:none;" accept="image/*" onchange="uploadProfileImage(this)">
+
 <script>
+// 탭 전환
 function setTab(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
@@ -242,30 +278,40 @@ function setTab(name) {
     if(name=='transfer') { document.querySelectorAll('.tab')[2].classList.add('active'); document.getElementById('tab-transfer').classList.add('active'); }
 }
 
+// 아이템 상세 토글
 function toggleDetail(head) {
     const detail = head.nextElementSibling;
     detail.classList.toggle('show');
 }
 
+// [수정] 아이템 사용/장착/해제 로직 완벽 구현
 async function itemAction(id, type) {
     if(type=='use' && !confirm("사용하시겠습니까?")) return;
+    
+    // type에 따라 cmd 매핑
+    let cmd = 'use_item';
+    if (type === 'equip') cmd = 'equip_item';
+    if (type === 'unequip') cmd = 'unequip_item';
+    
     try {
         const res = await fetch('api.php', {
             method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({cmd:'inventory_action', inv_id:id, action:type})
+            body: JSON.stringify({cmd: cmd, inv_id:id}) // 매핑된 cmd 전송
         }).then(r=>r.json());
         
-        if(res.status=='success') { alert(res.msg); location.reload(); }
+        if(res.status=='success') { alert(res.msg || '완료되었습니다.'); location.reload(); }
         else alert(res.message);
     } catch(e){ alert('오류'); }
 }
 
+// 양도 타입 토글
 function toggleTfType() {
     const type = document.getElementById('tf-type').value;
     document.getElementById('tf-point-area').style.display = (type=='point') ? 'block' : 'none';
     document.getElementById('tf-item-area').style.display = (type=='item') ? 'block' : 'none';
 }
 
+// 양도 전송
 async function sendTransfer() {
     const target = document.getElementById('tf-target').value;
     const type = document.getElementById('tf-type').value;
@@ -293,16 +339,33 @@ async function sendTransfer() {
     } catch(e){ alert('오류'); }
 }
 
+// 프로필 이미지 변경 (파일 선택창 열기)
 function editProfileImage() {
-    const url = prompt("이미지 URL을 입력하세요:");
-    if(url) {
-        fetch('api.php', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({cmd:'update_profile', image:url})
-        }).then(r=>r.json()).then(res => {
-            if(res.status=='success') location.reload();
-            else alert(res.message);
-        });
+    document.getElementById('profile-upload').click();
+}
+
+// 파일 선택 시 자동 업로드
+async function uploadProfileImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('cmd', 'update_profile_img_file');
+        formData.append('img_file', file);
+
+        try {
+            const res = await fetch('api.php', {
+                method: 'POST',
+                body: formData
+            }).then(r => r.json());
+
+            if (res.status === 'success') {
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        } catch (e) {
+            alert('업로드 오류');
+        }
     }
 }
 </script>

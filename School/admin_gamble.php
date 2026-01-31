@@ -86,26 +86,25 @@ $list = sql_fetch_all("SELECT * FROM School_Gamble_Config ORDER BY ratio ASC");
         <button class="back-btn" onclick="location.href='index.php'">메인으로</button>
     </div>
 
-    <form method="POST" class="form-box">
+    <form method="POST" style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:20px;">
         <input type="hidden" name="action" value="create">
         
-        <div class="form-row">
+        <div style="margin-bottom:10px;">
             <label>항목 이름</label>
-            <input type="text" name="name" placeholder="예: 대박! (10배)" required>
+            <input type="text" name="name" placeholder="예: 대박, 쪽박, 꽝" required>
         </div>
         
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <div style="flex:1">
-                <label>배율 (x)</label>
-                <input type="text" name="ratio" placeholder="예: 10.0" required>
-            </div>
-            <div style="flex:1">
-                <label>확률 (%)</label>
-                <input type="number" name="prob" placeholder="1 ~ 100" required>
+        <div style="margin-bottom:15px;">
+            <label>배율 (x)</label>
+            <input type="text" name="ratio" placeholder="예: 2 (2배), -1 (몰수), -5 (빚쟁이)" required>
+            <div style="font-size:12px; color:#888; margin-top:5px;">
+                * 양수: 획득 (건 돈 * 배율만큼 추가)<br>
+                * 0: 변화 없음<br>
+                * 음수: 손실 (건 돈 * 배율만큼 차감 -> 포인트가 마이너스가 될 수 있음)
             </div>
         </div>
         
-        <button type="submit" class="btn-add">룰렛 항목 추가</button>
+        <input type="hidden" name="prob" value="1"> <button type="submit" class="btn-add">룰렛 항목 추가</button>
     </form>
 
     <div style="font-size:14px; color:#666; margin-bottom:10px; margin-left:5px;">현재 등록된 항목</div>

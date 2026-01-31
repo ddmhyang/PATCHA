@@ -90,7 +90,7 @@ $me = sql_fetch("SELECT point FROM School_Members WHERE id=?", [$_SESSION['uid']
 
 <div id="game-blackjack" class="game-area" style="padding: 10px;">
     <div id="bj-start-screen" style="width:100%; text-align:center;">
-        <h2>Blackjack (A=1)</h2>
+        <h2>Blackjack</h2>
         <p style="color:#666;">딜러를 이기면 2배!</p>
         <input type="number" id="bet-bj" placeholder="배팅할 포인트">
         <button class="btn-go" onclick="startBJ()">게임 시작</button>

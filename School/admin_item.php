@@ -12,51 +12,46 @@ if (!isset($_SESSION['uid']) || $_SESSION['role'] !== 'admin') {
 // [POST] 데이터 처리
 // ---------------------------------------------------------
 
-// 1. 아이템 생성 및 수정
 if (isset($_POST['action']) && ($_POST['action'] === 'create' || $_POST['action'] === 'update')) {
     $name = trim($_POST['name']);
     $type = $_POST['type'];
     $price = to_int($_POST['price']);
     $desc = trim($_POST['desc']);
-    $hidden_desc = trim($_POST['hidden_desc']);
     $max_dur = to_int($_POST['max_dur']);
     $icon = trim($_POST['icon']) ? trim($_POST['icon']) : '<i class="fa-solid fa-box"></i>';
     
-    // 효과 데이터
+    // [핵심] 효과 데이터 배열로 묶기
     $effects = [];
-    if (!empty($_POST['eff_hp'])) $effects['hp_heal'] = to_int($_POST['eff_hp']);
-    if (!empty($_POST['eff_atk'])) $effects['atk'] = to_int($_POST['eff_atk']);
-    if (!empty($_POST['eff_def'])) $effects['def'] = to_int($_POST['eff_def']);
-    $json_effect = json_encode($effects, JSON_UNESCAPED_UNICODE);
+    // empty 체크를 0도 허용하도록 수정 (0을 입력할 수도 있으므로 isset 사용 권장하나 여기선 간단히)
+    if (isset($_POST['eff_hp']) && $_POST['eff_hp'] !== '') $effects['hp_heal'] = to_int($_POST['eff_hp']);
+    if (isset($_POST['eff_atk']) && $_POST['eff_atk'] !== '') $effects['atk'] = to_int($_POST['eff_atk']);
+    if (isset($_POST['eff_def']) && $_POST['eff_def'] !== '') $effects['def'] = to_int($_POST['eff_def']);
+    
+    // 상태이상 효과
+    if (!empty($_POST['eff_status_id'])) {
+        $effects['status_id'] = to_int($_POST['eff_status_id']);
+        $effects['status_act'] = $_POST['eff_status_act'];
+    }
+    
+    // JSON으로 변환하여 DB 저장
+    $json_eff = json_encode($effects, JSON_UNESCAPED_UNICODE);
 
     if ($_POST['action'] === 'create') {
-        sql_exec("INSERT INTO School_Item_Info 
-            (type, name, descr, hidden_descr, price, max_dur, img_icon, effect_data) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
-            [$type, $name, $desc, $hidden_desc, $price, $max_dur, $icon, $json_effect]
-        );
+        sql_exec("INSERT INTO School_Item_Info (name, type, price, descr, max_dur, img_icon, effect_data) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+            [$name, $type, $price, $desc, $max_dur, $icon, $json_eff]);
     } else {
-        // 수정 로직
         $id = to_int($_POST['item_id']);
-        sql_exec("UPDATE School_Item_Info SET 
-            type=?, name=?, descr=?, hidden_descr=?, price=?, max_dur=?, img_icon=?, effect_data=? 
-            WHERE item_id=?", 
-            [$type, $name, $desc, $hidden_desc, $price, $max_dur, $icon, $json_effect, $id]
-        );
+        sql_exec("UPDATE School_Item_Info SET name=?, type=?, price=?, descr=?, max_dur=?, img_icon=?, effect_data=? WHERE item_id=?", 
+            [$name, $type, $price, $desc, $max_dur, $icon, $json_eff, $id]);
     }
-    echo "<script>location.replace('admin_item.php');</script>";
-    exit;
+    echo "<script>location.replace('admin_item.php');</script>"; exit;
 }
 
-// 2. 아이템 삭제
+// 2. 삭제
 if (isset($_POST['action']) && $_POST['action'] === 'delete') {
     $id = to_int($_POST['item_id']);
     sql_exec("DELETE FROM School_Item_Info WHERE item_id=?", [$id]);
-    sql_exec("DELETE FROM School_Shop_Config WHERE item_id=?", [$id]); // 상점에서도 삭제
-    sql_exec("DELETE FROM School_Inventory WHERE item_id=?", [$id]);   // 유저 인벤에서도 삭제
-    
-    echo "<script>alert('삭제되었습니다.'); location.replace('admin_item.php');</script>";
-    exit;
+    echo "<script>location.replace('admin_item.php');</script>"; exit;
 }
 
 // 3. 상점 진열 토글
@@ -183,6 +178,25 @@ $items = sql_fetch_all("
                 <input type="number" name="eff_hp" id="inp-hp" placeholder="체력 회복 +">
             </div>
 
+            <div style="margin-top:10px; border-top:1px dashed #ddd; padding-top:10px;">
+                <label>상태이상 효과</label>
+                <div style="display:flex; gap:5px;">
+                    <select name="eff_status_act" id="inp-status-act" style="width:100px;">
+                        <option value="add">부여 (감염)</option>
+                        <option value="cure">치료 (제거)</option>
+                        <option value="up">악화 (+1단계)</option>
+                        <option value="down">완화 (-1단계)</option>
+                    </select>
+                    <select name="eff_status_id" id="inp-status-id" style="flex:1;">
+                        <option value="">-- 효과 없음 --</option>
+                        <?php 
+                        $st_list = sql_fetch_all("SELECT status_id, name FROM School_Status_Info");
+                        foreach($st_list as $s) echo "<option value='{$s['status_id']}'>{$s['name']}</option>";
+                        ?>
+                    </select>
+                </div>
+            </div>
+
             <textarea name="desc" id="inp-desc" placeholder="아이템 설명"></textarea>
             <textarea name="hidden_desc" id="inp-hdesc" placeholder="숨겨진 설명 (획득 시 확인 가능)"></textarea>
 
@@ -266,30 +280,45 @@ $items = sql_fetch_all("
 
 <script>
 function editItem(data) {
-    document.getElementById('form-box').style.borderColor = '#CE5961'; // 강조
-    document.getElementById('form-mode-txt').textContent = '아이템 정보 수정';
-    document.getElementById('btn-cancel').style.display = 'block';
-    document.getElementById('btn-submit').textContent = '수정사항 저장';
-    
-    document.getElementById('form-action').value = 'update';
-    document.getElementById('form-item-id').value = data.item_id;
-    
-    document.getElementById('inp-type').value = data.type;
-    document.getElementById('inp-name').value = data.name;
-    document.getElementById('inp-price').value = data.price;
-    document.getElementById('inp-icon').value = data.img_icon;
-    document.getElementById('inp-dur').value = data.max_dur;
-    
-    document.getElementById('inp-desc').value = data.descr;
-    document.getElementById('inp-hdesc').value = data.hidden_descr;
-    
-    // 효과 데이터 채우기
-    document.getElementById('inp-atk').value = data.atk || '';
-    document.getElementById('inp-def').value = data.def || '';
-    document.getElementById('inp-hp').value = data.hp_heal || '';
+        // 모드 전환
+        document.getElementById('form-box').classList.add('edit-mode');
+        document.getElementById('form-mode-txt').textContent = '아이템 수정';
+        document.getElementById('btn-submit').textContent = '수정내용 저장';
+        document.getElementById('btn-submit').classList.add('update');
+        document.getElementById('btn-cancel').style.display = 'block';
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+        // 기본 데이터 채우기
+        document.getElementById('form-action').value = 'update';
+        document.getElementById('form-item-id').value = data.item_id;
+        document.getElementById('inp-name').value = data.name;
+        document.getElementById('inp-type').value = data.type;
+        document.getElementById('inp-price').value = data.price;
+        document.getElementById('inp-dur').value = data.max_dur;
+        document.getElementById('inp-icon').value = data.img_icon;
+        document.getElementById('inp-desc').value = data.descr;
+
+        // [핵심] JSON 데이터 파싱 (오류 해결 부분)
+        let eff = {};
+        try {
+            // DB에서 가져온 값이 문자열이면 파싱, 이미 객체면 그대로 사용
+            if (typeof data.effect_data === 'string') {
+                eff = JSON.parse(data.effect_data);
+            } else if (data.effect_data) {
+                eff = data.effect_data;
+            }
+        } catch(e) {
+            console.error("JSON Parse Error", e);
+        }
+
+        // 효과 데이터 채우기
+        document.getElementById('inp-hp').value = eff.hp_heal || '';
+        document.getElementById('inp-atk').value = eff.atk || '';
+        document.getElementById('inp-def').value = eff.def || '';
+        document.getElementById('inp-status-id').value = eff.status_id || '';
+        document.getElementById('inp-status-act').value = eff.status_act || 'add';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
 function resetForm() {
     document.getElementById('form-box').style.borderColor = 'transparent';
